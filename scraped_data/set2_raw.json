@@ -1,0 +1,1002 @@
+[
+  {
+    "id": 1,
+    "stem": "Where an electronic image of a truncated cheque is presented for payment, which of the following correctly states the rights of the drawee bank?",
+    "options": [
+      "The drawee bank must honour the cheque solely on the basis of the electronic image without seeking any clarification",
+      "The drawee bank has no authority to question the electronic image once it is transmitted for payment",
+      "The drawee bank can demand physical presentment of the truncated cheque only where suspicion relates to fraud, forgery, tampering or destruction",
+      "The drawee bank can demand physical presentment of the truncated cheque only where consent of drawer has been obtained in electronic form"
+    ]
+  },
+  {
+    "id": 2,
+    "stem": "Which of the given option(s) is/are correctly matched? Option Term/Phrase Meaning 1 ex gratia As a matter of grace or favour. 2 de novo Outside of. 3 in personam Within the powers. 4 mens rea Without day.",
+    "options": [
+      "Option 1 and 3",
+      "Option 1 only",
+      "Option 1, 2 and 3",
+      "All options"
+    ]
+  },
+  {
+    "id": 3,
+    "stem": "Which of the following statements is correct with respect to an open che que and a crossed (closed) cheque?",
+    "options": [
+      "An open cheque is payable over the counter, whereas a crossed cheque must be collected through a banker.",
+      "An open cheque must be collected only through a banker, while a crossed cheque is payable over the counter.",
+      "Both open cheques and crossed cheques are payable over the counter of the bank.",
+      "There is no legal distinction regarding the mode of payment between an open cheque and a crossed cheque."
+    ]
+  },
+  {
+    "id": 4,
+    "stem": "“Goods which are either owned or possessed by the seller at the time of the contract” are known as:",
+    "options": [
+      "Future goods",
+      "Existing goods",
+      "Contingent goods",
+      "Goods available for sale"
+    ]
+  },
+  {
+    "id": 5,
+    "stem": "Goods, the acquisition of which by the seller depends on an uncertain event that may or may not happen, are known as:",
+    "options": [
+      "Future Goods",
+      "Contingent Goods",
+      "Unascertained Goods",
+      "Specific Goods"
+    ]
+  },
+  {
+    "id": 6,
+    "stem": "Which law governs licensing, spectrum use, and consumer interests in India’s fast‑evolving telecom sector?",
+    "options": [
+      "Information Technology Act, 2000",
+      "Telegraph Licensing Act, 1885",
+      "Telecom Authority of India Act, 1920",
+      "None of these"
+    ]
+  },
+  {
+    "id": 7,
+    "stem": "Under Section 85(1) of the Negotiable Instruments Act, 1881, when is the drawee bank discharged from liability in respect of a cheque payable to order?",
+    "options": [
+      "When the endorsement on the cheque is proved to be genuine",
+      "When the cheque is endorsed personally by the payee in the presence of the banker",
+      "When the payee confirms the endorsement after payment",
+      "When the cheque payable to order purports to be endorsed by or on behalf of the payee and payment is made in due course"
+    ]
+  },
+  {
+    "id": 8,
+    "stem": "Which of the given option(s) is/are correctly matched? Option Term/Phrase Meaning 1 locus standi Signifies a right to be heard. 2 res judicata A case or suit already decided. 3 sine qua non An indispensable requisite. 4 status quo Existing condition.",
+    "options": [
+      "Options 1 and 3 only",
+      "Option 1 only",
+      "Options 2 and 4 only",
+      "All Options"
+    ]
+  },
+  {
+    "id": 9,
+    "stem": "Certain laws contain provisions that enable parties to resolve their disputes amicably. Which of the following legislations specifically provides for such amicable settlement of disputes?",
+    "options": [
+      "Mediation Act, 2023",
+      "Bharatiya Nagarik Suraksha Sanhita, 2023",
+      "Bharatiya Nyaya Sanhita, 2023",
+      "Bharatiya Sakshya Adhiniyam, 2023"
+    ]
+  },
+  {
+    "id": 10,
+    "stem": "Who is the drawee in the case of a cheque?",
+    "options": [
+      "The person who signs the cheque",
+      "The person in whose favour the cheque is issued",
+      "The banker of the drawer on whom the cheque is drawn",
+      "Any person holding the cheque"
+    ]
+  },
+  {
+    "id": 11,
+    "stem": "Which of the following can be said to be the primary objective of competition law?",
+    "options": [
+      "To regulate foreign exchange transactions conducted by private entities",
+      "To prevent anti -competitive agreements, promote fair competition, and protect consumer interests",
+      "To supervise securities trading and regulate capital markets",
+      "To govern the registration and authentication of legal documents"
+    ]
+  },
+  {
+    "id": 12,
+    "stem": "Which of the given is not specifically covered within the meaning of “law” under Article 13(3)(a) of the Constitution of India?",
+    "options": [
+      "Ordinance",
+      "Custom",
+      "Rule",
+      "Circular"
+    ]
+  },
+  {
+    "id": 13,
+    "stem": "The primary purpose of an Account Payee’s crossing is to:",
+    "options": [
+      "Enable the paying banker to make payment in cash",
+      "Convert the cheque into a bearer instrument",
+      "Cancel the endorsement made on the cheque",
+      "Inform the collecting banker that proceeds must be credited to the account of the payee"
+    ]
+  },
+  {
+    "id": 14,
+    "stem": "Statement: “In the case of unlimited companies, no member is bound to contribute anything more than the nominal value of the shares held by him which remains unpaid.” With reference to the above statement, which of the following is the most appropriate answer?",
+    "options": [
+      "The statement is correct; liability of members in an unlimited company is restricted to the unpaid value of shares.",
+      "The statement is incorrect; members of an unlimited company have liability extending beyond unpaid share capital.",
+      "The statement is correct only if the articles of the company so provide.",
+      "The statement is partially correct; members are liable only up to twice the nominal value of their shares."
+    ]
+  },
+  {
+    "id": 15,
+    "stem": "Assertion (A): A banker is liable to compensate his customer if, without sufficient cause, he dishonours a cheque despite adequate funds in the account. Reason (R): The banker’s obligation to honour cheques arises from the contractual relationship between the banker and the customer, and not with the payee. Choose the correct answer:",
+    "options": [
+      "Both A and R are true, and R is the correct explanation of A",
+      "Both A and R are true, but R is not the correct explanation of A",
+      "A is true, but R is false",
+      "A is false, but R is true"
+    ]
+  },
+  {
+    "id": 16,
+    "stem": "Statement 1: As a corporate person, the company is entitled to own and hold property in its own name. Statement 2: Each and every member can claim ownership of any item of the company’s assets.” Based on company law principles, which of the following is correct regarding the above statement?",
+    "options": [
+      "Both statements are true.",
+      "Both statements are false.",
+      "The first statement is true, but the second statement is false.",
+      "The first statement is false, but the second statement is true."
+    ]
+  },
+  {
+    "id": 17,
+    "stem": "Under the Negotiable Instruments Act, the term “clearing house” refers to:",
+    "options": [
+      "A clearing house managed by the Reserve Bank of India only",
+      "A clearing house recognised as such by the Reserve Bank of India only",
+      "Both A and B",
+      "Clearing House Corporation of India Limited only"
+    ]
+  },
+  {
+    "id": 18,
+    "stem": "Where it was found that the sole purpose for the formation of the new company was to use it as a device to reduce the amount to be paid by way of bonus to workmen, the Supreme Court upheld the piercing of the veil to look at the real transaction. Which of the following case is related to the given facts:",
+    "options": [
+      "The Workmen Employed in Associated Rubber Industries Limited, Bhavnagar v. The Associated Rubber Industries Ltd., Bhavnagar and another",
+      "Bangalore Water Supply v. A. Rajappa",
+      "People’s Union for Democratic Rights (PUDR) v. Union of India",
+      "Bata Shoe Co. Ltd. v. D.N Ganguly"
+    ]
+  },
+  {
+    "id": 19,
+    "stem": "The statutory definition of a cheque includes:",
+    "options": [
+      "Only a paper cheque signed by the drawer",
+      "Only an electronic funds transfer initiated through net banking",
+      "The electronic image of a truncated cheque and a cheque in electronic form",
+      "The electronic image of a truncated cheque and a cheque in electronic form issued by government banks only"
+    ]
+  },
+  {
+    "id": 20,
+    "stem": "Which of the following is not an important characteristic of a negotiable instrument under the Negotiable Instruments Act, 1881?",
+    "options": [
+      "The holder of the instrument is presumed to be the owner of the property contained in it.",
+      "They are freely transferable.",
+      "A negotiable instrument is transferable only with the consent of all previous holders.",
+      "The holder in due course can sue on the instrument in his own name."
+    ]
+  },
+  {
+    "id": 21,
+    "stem": "Which of the given is not a type of Company under the Companies Act, 2013?",
+    "options": [
+      "Private Companies",
+      "Public Companies",
+      "One Person Company",
+      "Regular Company"
+    ]
+  },
+  {
+    "id": 22,
+    "stem": "When an unpaid seller exercises his right of lien or stoppage in transit and retakes possession of the goods, what is the legal effect of his right of resale?",
+    "options": [
+      "The resale is invalid unless the buyer gives written consent",
+      "The second buyer gets only the limited title of the first buyer",
+      "The resale is valid and the second buyer obtains an absolute title to the goods",
+      "The original buyer retains ownership despite the resale"
+    ]
+  },
+  {
+    "id": 23,
+    "stem": "Which of the given sections provides for the objects of a Producer Company?",
+    "options": [
+      "377 of the Companies Act, 2013",
+      "378(1) of the Companies Act, 2013",
+      "378B(1) of the Companies Act, 2013",
+      "379 of the Companies Act, 2013"
+    ]
+  },
+  {
+    "id": 24,
+    "stem": "What happens when a director is interested in a specific item of business placed before the Board?",
+    "options": [
+      "The director should remain in the meeting and is counted for quorum, but must abstain from signing the minutes of that item",
+      "The director should be counted for quorum but cannot vote, although he may fully participate in the discussion",
+      "The director should neither be counted for quorum nor pa rticipate in that specific item of business",
+      "The director can participate and vote on the item if he discloses his interest and leaves the meeting immediately afterward"
+    ]
+  },
+  {
+    "id": 25,
+    "stem": "The transfer of shares or debentures of a company shall be carried out:",
+    "options": [
+      "According to the Transfer of Property Act",
+      "According to the instructions of the company’s Managers",
+      "In the manner provided by the articles of the company",
+      "Only after approval by the Senior Manager"
+    ]
+  },
+  {
+    "id": 26,
+    "stem": "According to Section 2(e) of the Indian Contract Act, 1872, an agreement is defined as:",
+    "options": [
+      "Every promise made without consideration",
+      "Every promise enforceable by law",
+      "Every promise and every set of promises, forming the consideration for each other",
+      "Every obligation arising from law"
+    ]
+  },
+  {
+    "id": 27,
+    "stem": "Which of the following best describes a judicial precedent?",
+    "options": [
+      "Any past decision of a court, regardless of whether it establishes a legal principle",
+      "Decisions of courts that lay down a new rule or principle for future guidance",
+      "Administrative instructions issued by courts for smooth functioning",
+      "A hypothetical example given by judges during judgment"
+    ]
+  },
+  {
+    "id": 28,
+    "stem": "Choose the most appropriate answer: Which of the following persons is considered a member of a company?",
+    "options": [
+      "A person who verbally agrees to buy shares but has not signed any document",
+      "A person holding shares whose name appears as a beneficial owner in the records of a depository",
+      "A person who previously held shares but has transferred them",
+      "A person who applied for shares but whose allotment is still pending"
+    ]
+  },
+  {
+    "id": 29,
+    "stem": "According to Section 174(1) of the Companies Act, 2013, what shall be the quorum for a meeting of the Board of Directors of a company?",
+    "options": [
+      "One -half of the total strength or three directors, whichever is higher, with participation through video conferencing also counted for quorum",
+      "One -third of the total strength or two directors, whichever is higher, and directors participating via video conferencing or other audio -visual means shall also be counted for the purposes of quorum",
+      "A minimum of three directors must be physically present, and participation through video conferencing shall not be considered for quorum purposes",
+      "One -fourth of the total strength, irrespective of the number of directors or their mode of participation, including physical presence or audio-visual participation"
+    ]
+  },
+  {
+    "id": 30,
+    "stem": "According to the Indian Contract Act, 1872, an agreement becomes a contract only if it is made:",
+    "options": [
+      "For any consideration",
+      "By parties competent to contract",
+      "With free consent, lawful consideration, and lawful object, and not expressly void",
+      "All of the above"
+    ]
+  },
+  {
+    "id": 31,
+    "stem": "An agreement without valid consent (meeting of minds) is:",
+    "options": [
+      "Valid",
+      "Voidable",
+      "Illegal",
+      "Void"
+    ]
+  },
+  {
+    "id": 32,
+    "stem": "Which section under the Indian Contract Act, 1872 provides what considerations and objects are lawful, and what not?",
+    "options": [
+      "Section 2(a)",
+      "Section 3(a)",
+      "Section 10",
+      "Section 23"
+    ]
+  },
+  {
+    "id": 33,
+    "stem": "Under Section 30(5) of the Indian Partnership Act, 1932, what is the legal consequence if a minor, who was admitted to the benefits of partnership, does not give public notice of his election within six months of attaining majority or of becoming aware of his admission (whichever is later)?",
+    "options": [
+      "He automatically ceases to have any connection with the firm.",
+      "He is treated as a retired partner from the date of his majority.",
+      "He is deemed to have elected to become a partner in the firm.",
+      "His rights as a minor continue indefinitely until he gives public notice."
+    ]
+  },
+  {
+    "id": 34,
+    "stem": "Under Indian Contract Act, 1872, who are competent for the Performance of Promise under a Contract?",
+    "options": [
+      "Promisor only",
+      "Representative of Promisor only",
+      "Only a competent person employed for performing",
+      "Any of these"
+    ]
+  },
+  {
+    "id": 35,
+    "stem": "When one of several joint promisors is released by the promisee, what happens to the liability of the remaining joint promisor(s)?",
+    "options": [
+      "They are fully discharged from liability",
+      "They can refuse to perform without consequences",
+      "Their liability is reduced by half",
+      "They remain bound to perform the promise"
+    ]
+  },
+  {
+    "id": 36,
+    "stem": "When the terms of a contract are expressly agreed upon in words at the time of formation, the contract is known as:",
+    "options": [
+      "Implied contract",
+      "Express contract",
+      "Quasi-contract",
+      "Contingent contract"
+    ]
+  },
+  {
+    "id": 37,
+    "stem": "When an agreement is discovered to be void, any person who has received any advantage under such agreement or contract is:",
+    "options": [
+      "Compulsorily bound to restore it",
+      "Compulsorily bound to make compensation for it",
+      "Either A or B",
+      "Neither A or Nor B"
+    ]
+  },
+  {
+    "id": 38,
+    "stem": "There are certain objects that are provided as objects for being qualified for formation of Companies with charitable objects. Which of the given has specifically not been included in such object?",
+    "options": [
+      "Promotion of Social Welfare",
+      "Promotion of Charity",
+      "Promotion of Education",
+      "Promotion of Cultural Integrity"
+    ]
+  },
+  {
+    "id": 39,
+    "stem": "Which of the following are available remedies to the injured party in case of breach of contract? 1. Rescission of the contract and refusal to perform further. 2. Suit for damages. 3. Suit for specific performance. 4. Suit for an injunction to restrain breach of a negative term. 5. Claim on quantum meruit.",
+    "options": [
+      "Only 1, 2 and 3",
+      "Only 2, 3 and 4",
+      "Only 1, 2, 3 and 4",
+      "All of the above (1, 2, 3, 4 and 5)"
+    ]
+  },
+  {
+    "id": 40,
+    "stem": "Which of the following is not an essential element of a partnership under the Indian Partnership Act, 1932?",
+    "options": [
+      "Agreement between persons",
+      "Sharing of profits",
+      "Business carried on by all or any acting for all (mutual agency)",
+      "Incorporation Certificate issued by Registrar of Companies"
+    ]
+  },
+  {
+    "id": 41,
+    "stem": "Which of the given doctrines means “adhere to the decision and do not unsettle things which are established”?",
+    "options": [
+      "Doctrine of Severability",
+      "Doctrine of Stare Decisis",
+      "Doctrine of Pith and Substance",
+      "Doctrine of Harmonious Construction"
+    ]
+  },
+  {
+    "id": 42,
+    "stem": "“The relation of partnership arises from status and not from contract.” In light of the Indian Partnership Act, 1932, which of the following correctly identifies the nature of this statement?",
+    "options": [
+      "The statement is correct because partnership can arise automatically from family relations",
+      "The statement is correct when partners inherit a business",
+      "The statement is incorrect because partnership arises only from contract and never from status",
+      "The statement is partially correct depending on the type of business carried on"
+    ]
+  },
+  {
+    "id": 43,
+    "stem": "When both parties to a contract have fully performed their respective obligations and nothing remains to be done, the contract is known as:",
+    "options": [
+      "Executory contract",
+      "Void contract",
+      "Executed contract",
+      "Unenforceable contract"
+    ]
+  },
+  {
+    "id": 44,
+    "stem": "A hot water bottle was bought by the plaintiff, a draper, who could not be expected to have special skill knowledge with regard to hot water bo ttles, from a chemist, who sold such articles stating that the bottle will not stand boiling water but was intended to hold hot water. While being used by the plaintiff’s wife, the bottle bursted and injured her. Held, the seller was responsible for damages as the bottle was not fit for use as a hot water bottle. These facts are related to case of:",
+    "options": [
+      "Grant v. Australian Knitting Mills",
+      "Priest v. Last",
+      "Frost v. Aylesbury Dairy Co.",
+      "Re Moore & Co."
+    ]
+  },
+  {
+    "id": 45,
+    "stem": "Who bears the loss if goods have already become the property of the buyer but remain in the seller’s warehouse, and the warehouse is destroyed without any fault of the seller?",
+    "options": [
+      "The seller, because the goods were still in his possession",
+      "The seller, because the price was still unpaid",
+      "The buyer, because the ownership had already passed to him",
+      "The loss is shared equally by buyer and seller"
+    ]
+  },
+  {
+    "id": 46,
+    "stem": "A, B, and C enter into a partnership to run a consultancy business. Their partnership deed is silent on the duration of the partnership and provides no c lause regarding how or when the partnership may be dissolved. Based on the Indian Partnership Act, 1932, what type of partnership existed between A, B, and C?",
+    "options": [
+      "Partnership for a fixed term",
+      "Particular partnership",
+      "Partnership at will",
+      "General partnership with implied duration"
+    ]
+  },
+  {
+    "id": 47,
+    "stem": "Under Indian Partnership Act, 1932, in the absence of any such agreement, express or implied, the goodwill of the business shall be deemed to be the Property of:",
+    "options": [
+      "Partners",
+      "Directors",
+      "Partnership Firm",
+      "Partners except sleeping partners"
+    ]
+  },
+  {
+    "id": 48,
+    "stem": "Which of the following qualifies as “goods” under the Sale of Goods Act, 1930?",
+    "options": [
+      "Money paid as consideration",
+      "Growing crops agreed to be cut and removed before sale",
+      "Future actionable claims",
+      "Immovable property attached permanently to land"
+    ]
+  },
+  {
+    "id": 49,
+    "stem": "If the behaviour of a person give rise to misunderstanding that he is a partner in a firm (when actually he is not), such a person is estopped from later on denying the liabilities for the acts of the firm. Such person is called __________________.",
+    "options": [
+      "Partner by estoppel",
+      "Partner by necessity",
+      "Partner by Will",
+      "Sub-Partner"
+    ]
+  },
+  {
+    "id": 50,
+    "stem": "When a promisor refuses to perform his promise in its entirety, the promisee:",
+    "options": [
+      "Must continue the contract",
+      "May put an end to the contract",
+      "Must wait for court approval",
+      "Has no rights in such a situation"
+    ]
+  },
+  {
+    "id": 51,
+    "stem": "Under Section 13(b) of the Indian Partnership Act, 1932, subject to contract between the partners, how are partners entitled to share profits and contribute to losses?",
+    "options": [
+      "Partners share profits according to capital contribution and bear losses equally",
+      "Partners share profits equally and contribute to losses according to capital contribution",
+      "Partners share profits equally and contribute equally to the losses of the firm",
+      "Partners share profits and losses according to the ratio agreed upon by the majority of partners"
+    ]
+  },
+  {
+    "id": 52,
+    "stem": "When the person to whom the proposal is made signifies his assent thereto, the proposal under the Indian Contract Act, 1872 is said to be _________________.",
+    "options": [
+      "Accepted",
+      "Offer",
+      "Contract",
+      "Statement"
+    ]
+  },
+  {
+    "id": 53,
+    "stem": "Under the Indian Partnership Act, 1932, where a partner, by his wrongful act or omission done in the ordinary course of the firm’s business or with the authority of his partners, causes loss, injury, or incurs a penalty to a third party, the firm is:",
+    "options": [
+      "Not liable, as only the partner responsible is personally liable",
+      "Liable only if the other partners expressly ratify the wrongful act",
+      "Liable to the same extent as the partner who committed the wrongful act",
+      "Liable only if the third party proves negligence of all partners"
+    ]
+  },
+  {
+    "id": 54,
+    "stem": "Which of the following correctly distinguishes a sale from an agreement to sell?",
+    "options": [
+      "In a sale, ownership transfers immediately; in an agreement to sell, it transfers later or conditionally",
+      "In a sale, possession transfers immediately; in an agreement to sell, possession never transfers",
+      "A sale is always for existing goods; an agreement to sell is always for future goods",
+      "A sale requires payment in full; an agreement to sell is always on credit"
+    ]
+  },
+  {
+    "id": 55,
+    "stem": "What is the name given to those principles of English law evolved by judges while deciding cases brought before them?",
+    "options": [
+      "Substantive Law",
+      "Enacted Law",
+      "Procedural Law",
+      "Common Law"
+    ]
+  },
+  {
+    "id": 56,
+    "stem": "If goods are transferred by the real owner to another person without any price or valuable consideration, such a transaction is treated as:",
+    "options": [
+      "Sale",
+      "Agreement to sell",
+      "Barter",
+      "Gift"
+    ]
+  },
+  {
+    "id": 57,
+    "stem": "Where there is an agreement to sell goods on the terms that the price is to be fixed by the valuation of a third party, and such third party cannot or does not make such valuation, the agreement becomes void. However, if the goods (or any part) have already been delivered to and appropriated by the buyer, he shall pay a ____________________.",
+    "options": [
+      "Market price",
+      "Contract price",
+      "Reasonable price",
+      "Customary price"
+    ]
+  },
+  {
+    "id": 58,
+    "stem": "According to Section 14(c) of the Sale of Goods Act, 1930, in a contract of sale, unless a different intention appears, the law implies a warranty that:",
+    "options": [
+      "The goods will be of the highest possible quality.",
+      "The goods will be delivered within a reasonable time.",
+      "The goods shall be free from any undisclosed charge or encumbrance in favour of a third party at the time of the contract.",
+      "The seller will provide free maintenance for the goods for one year."
+    ]
+  },
+  {
+    "id": 59,
+    "stem": "Which of the given option(s) is/are correctly matched? Option Term/Phrase Meaning 1 sine qua non An indispensable requisite. 2 modus operandi A guilty mind. 3 lis pendens A pending suit. 4 inter vivos Guilty act.",
+    "options": [
+      "Options 1 and 3",
+      "Option 1 only",
+      "Options 1, 2 and 3",
+      "All Options"
+    ]
+  },
+  {
+    "id": 60,
+    "stem": "Under the Negotiable Instruments Act, 1881 which of the following correctly describes a negotiable instrument?",
+    "options": [
+      "A promissory note, bill of exchange or cheque payable either to order or to bearer",
+      "Any written document guaranteeing payment of money",
+      "Any contract involving transfer of movable property",
+      "Any document payable only to a specific named person and not transferable"
+    ]
+  },
+  {
+    "id": 61,
+    "stem": "Authority, discipline, unity of command, and unity of direction are ______________.",
+    "options": [
+      "Principles of the human relations movement.",
+      "Taylor's four principles of management.",
+      "Elements of Weber's ideal bureaucratic structure.",
+      "Four of Fayol's fourteen principles of management."
+    ]
+  },
+  {
+    "id": 62,
+    "stem": "It is the outline of plans of work to be carried out in proper sequence for the purpose of achieving specific objectives. What is it known as?",
+    "options": [
+      "Procedures",
+      "Programmes",
+      "Rules",
+      "Policies"
+    ]
+  },
+  {
+    "id": 63,
+    "stem": "Scalar chain refers to ______________",
+    "options": [
+      "Superior-subordinate relations throughout the organization.",
+      "Degree to which subordinates are involved in decision making.",
+      "Every employee should receive orders from only one superior.",
+      "People and materials should be in the right place at the right time."
+    ]
+  },
+  {
+    "id": 64,
+    "stem": "Which of the following is not a basic function of the management process?",
+    "options": [
+      "Controlling",
+      "Organizing",
+      "Working",
+      "Directing"
+    ]
+  },
+  {
+    "id": 65,
+    "stem": "Which of the following involves defining goals and determining how to achieve them through actions and steps?",
+    "options": [
+      "Strategic planning",
+      "Tactical planning",
+      "Operational planning",
+      "Contingency planning"
+    ]
+  },
+  {
+    "id": 66,
+    "stem": "Which of the following is not a challenge faced in the process of delegation?",
+    "options": [
+      "Trust Issues",
+      "Overloading Subordinates",
+      "Ambiguity in Roles",
+      "Transfer of Responsibility"
+    ]
+  },
+  {
+    "id": 67,
+    "stem": "______________ deals with efficient utilizati on of human resources in an organization stimulating full contribution for achieving desired objectives.",
+    "options": [
+      "Staffing",
+      "Planning",
+      "Recruitment",
+      "Appraisal"
+    ]
+  },
+  {
+    "id": 68,
+    "stem": "Planning does not come to an end with the establishment of a business concern because it is ______________.",
+    "options": [
+      "common to all.",
+      "flexible.",
+      "a continuous process.",
+      "a linchpin for all activities."
+    ]
+  },
+  {
+    "id": 69,
+    "stem": "An employee receives order from only one superior. This concept is named as _________.",
+    "options": [
+      "Unity of command.",
+      "Unity of direction.",
+      "Discipline.",
+      "Centralization."
+    ]
+  },
+  {
+    "id": 70,
+    "stem": "Motivating and leading the human resources towards better performance & higher productivity is known as ______________.",
+    "options": [
+      "directing",
+      "commanding",
+      "span of control",
+      "scalar chain"
+    ]
+  },
+  {
+    "id": 71,
+    "stem": "The production head has planned to launch a product in the market on 13 th May 2026 and has made the information public. However, the PR department of the Company is planning for a major event on the same day with the instructions of the CEO. Had there been coordination between the two in the initi al stages of the plan, such overlapping could have been avoided. This situation depicts importance of which principle of coordination?",
+    "options": [
+      "Principle of Direct Contact",
+      "Principle of Reciprocity",
+      "Principle of Early Beginning",
+      "Principle of Continuity"
+    ]
+  },
+  {
+    "id": 72,
+    "stem": "In which type of management the leader mobilizes people towards what needs to be achieved while articulating a clear and long-term direction?",
+    "options": [
+      "Transformational Management",
+      "Consultative Management",
+      "Visionary Management",
+      "Coaching Management"
+    ]
+  },
+  {
+    "id": 73,
+    "stem": "In what order do managers typically perform the managerial functions?",
+    "options": [
+      "Organising, Planning, Controlling, Directing",
+      "Organising, Leading, Planning, Controlling",
+      "Planning, Organising, Directing, Controlling",
+      "Planning, Organising, Controlling, Leading"
+    ]
+  },
+  {
+    "id": 74,
+    "stem": "To what does authority refer?",
+    "options": [
+      "The ability to organise people",
+      "The power to command and direct",
+      "The need for order",
+      "The right to change jobs"
+    ]
+  },
+  {
+    "id": 75,
+    "stem": "When a manager monitors the work performance of workers in his department to determine if the quality of their work is 'up to standard', this manager is engaging in which function?",
+    "options": [
+      "Planning",
+      "Controlling",
+      "Organising",
+      "Leading"
+    ]
+  },
+  {
+    "id": 76,
+    "stem": "Which of the following is not considered as importance of Budgeting?",
+    "options": [
+      "It ensures resource availability.",
+      "It helps prioritize projects.",
+      "It conducts root cause analysis.",
+      "It can lead to financing opportunities."
+    ]
+  },
+  {
+    "id": 77,
+    "stem": "Sanjeev, the department head, during the promotions, promoted Rajan who is son of one of his relatives. However, Parth was the most deserving candidate in view of his exceptional delivery of work. In this context, which Management Principle has been violated by Sanjeev?",
+    "options": [
+      "Discipline",
+      "Esprit de Corps",
+      "Division of Work",
+      "Equity"
+    ]
+  },
+  {
+    "id": 78,
+    "stem": "Which of the following is not a step in the Process of Organizing?",
+    "options": [
+      "Identification and Grouping of Activities",
+      "Allotment of Duties",
+      "Integration of Activities",
+      "Decision making"
+    ]
+  },
+  {
+    "id": 79,
+    "stem": "The State Governments in the country are given more powers to decide and spend funds granted to them by the Central Governm ent. Identify the principle of management highlighted in the statement.",
+    "options": [
+      "Division of Work",
+      "Unity of Command",
+      "Decentralization",
+      "Centralization"
+    ]
+  },
+  {
+    "id": 80,
+    "stem": "Budget is an instrument of –",
+    "options": [
+      "planning only.",
+      "control only.",
+      "both planning and control.",
+      "none of these"
+    ]
+  },
+  {
+    "id": 81,
+    "stem": "It is a function of management which refers to the process of integrating the activities of different units of organisation to achieve the organisational goals. This is called –",
+    "options": [
+      "Actuating",
+      "Coordination",
+      "Controlling",
+      "Planning"
+    ]
+  },
+  {
+    "id": 82,
+    "stem": "Which of the following is not the purpose of a Mission Statement?",
+    "options": [
+      "It signifies some kind of regulation, positive or negative and permits no discretion in its application.",
+      "It is a benchmark for managers to evaluate success.",
+      "It defines common purpose, fosters loyalty and builds a sense of community.",
+      "It gives insight into values and future direction of the organisation."
+    ]
+  },
+  {
+    "id": 83,
+    "stem": "__________ involves decision -making, communication, and motivation while fostering collaboration and accountability.",
+    "options": [
+      "Supervision",
+      "Leadership",
+      "Directing",
+      "Coordination"
+    ]
+  },
+  {
+    "id": 84,
+    "stem": "Which of the following is a feature of Democratic Management?",
+    "options": [
+      "Empowerment of Employees",
+      "Centralized Decision-Making",
+      "Limited Employee Participation",
+      "Creating a Chain of Command"
+    ]
+  },
+  {
+    "id": 85,
+    "stem": "__________ budgeting determines the amount of inputs required to support the targets or outputs set by the company.",
+    "options": [
+      "Incremental",
+      "Activity-based",
+      "Value Proposition",
+      "Zero-based"
+    ]
+  },
+  {
+    "id": 86,
+    "stem": "The manager organizes an on -site training session for the team to u nderstand market practices w.r.t. display of products. This helps them to achieve targets by providing clean path and support. In this context, identify the applicable contingency approach theory.",
+    "options": [
+      "Fiedler’s Contingency Theory",
+      "Situational Leadership Theory",
+      "Decision-Making Theory",
+      "Path-Goal Theory"
+    ]
+  },
+  {
+    "id": 87,
+    "stem": "Who among the following is not identified as “key managerial personnel” as per the Companies Act, 2013?",
+    "options": [
+      "Manager",
+      "Company Secretary",
+      "Independent Director",
+      "Whole-Time Director"
+    ]
+  },
+  {
+    "id": 88,
+    "stem": "A Company Secretary advising companies on Mergers, Amalgamations and Strategic Alliances is said to be providing –",
+    "options": [
+      "Secretarial/Compliance Audit and Certification Services",
+      "Corporate Laws Advisory Services",
+      "Corporate Secretarial Services",
+      "Representation Services"
+    ]
+  },
+  {
+    "id": 89,
+    "stem": "Management as _________ requires individual skill, judgment, creativity in applying it, devising new plans, and solutions to unprecedented problems.",
+    "options": [
+      "a Science",
+      "an Art",
+      "a Profession",
+      "a Discipline"
+    ]
+  },
+  {
+    "id": 90,
+    "stem": "A Company Secretary providing strategic leadership to the board, ensuring all the regulatory compliances, safeguarding the interests of the stakeholders and acting as a catalyst in embracing environmental, social and governance dimensions, is said to be performing which function of management?",
+    "options": [
+      "Planning",
+      "Organizing",
+      "Directing",
+      "Coordination"
+    ]
+  },
+  {
+    "id": 91,
+    "stem": "Planning is the selecting and relating of facts and the making and using of assumptions regarding the future in the visualization and formulation of proposed activities believed necessary to achieve desired results. This thought is given by –",
+    "options": [
+      "George R. Terry",
+      "Peter Drucker",
+      "Lyndall Urwick",
+      "Henri Fayol"
+    ]
+  },
+  {
+    "id": 92,
+    "stem": "Authority should never be assigned without responsibility and the Authority must be equal to Responsibility. Which of the following characteristics of authority is described here?",
+    "options": [
+      "Accountability",
+      "Authority flows Downward",
+      "Delegation of Authority",
+      "Parity of Authority and responsibility"
+    ]
+  },
+  {
+    "id": 93,
+    "stem": "_________ consists of putting right number of people, right kind of people at the right place, right time, doing the right things for which they are suited for the achievement of goals of the organization.",
+    "options": [
+      "Manpower Planning",
+      "Staffing",
+      "Recruitment",
+      "Selection"
+    ]
+  },
+  {
+    "id": 94,
+    "stem": "Which of the following is not a feature of training?",
+    "options": [
+      "A job-oriented process.",
+      "Focuses on technical skills.",
+      "Revolves around future needs.",
+      "Improves knowledge and skills to perform existing job."
+    ]
+  },
+  {
+    "id": 95,
+    "stem": "Supervision helps in enforcing rules and regulations. Why is this important?",
+    "options": [
+      "Establishes interpersonal contact with workers",
+      "Promotes Group Unity",
+      "Maintains Discipline",
+      "Influences Workers"
+    ]
+  },
+  {
+    "id": 96,
+    "stem": "________ helps in changing negative attitude to positive attitude towards the work and organisation.",
+    "options": [
+      "Leadership",
+      "Motivation",
+      "Guidance",
+      "Interests"
+    ]
+  },
+  {
+    "id": 97,
+    "stem": "Reporting of Deviations does not involve the following –",
+    "options": [
+      "Detection and documentation immediately",
+      "Implementation of immediate corrective actions",
+      "Punishment",
+      "Impact assessment"
+    ]
+  },
+  {
+    "id": 98,
+    "stem": "Which of the following is not a limitation of Management by Objectives?",
+    "options": [
+      "Ignores the organization’s existing ethos and working conditions.",
+      "Employees appreciate their on-the-job roles and responsibilities.",
+      "The managers sometimes over-emphasize the target setting, as compared to operational issues, as a generator of success.",
+      "It does not emphasize the significance of the context wherein the goals are set."
+    ]
+  },
+  {
+    "id": 99,
+    "stem": "A group of activities with common objectives having one head and one plan represents –",
+    "options": [
+      "Unity of command",
+      "Unity of direction",
+      "Scalar Chain",
+      "Order"
+    ]
+  },
+  {
+    "id": 100,
+    "stem": "____________ are extra perks or rewards that an organization provides to an employee, which may have a financial value, but the employee doesn’t receive any cash directly.",
+    "options": [
+      "Compensation",
+      "Benefits",
+      "Opportunities",
+      "Promotion ***"
+    ]
+  }
+]
