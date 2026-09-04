@@ -19,7 +19,6 @@ import {
   ChevronLeft,
   Printer,
   Search,
-  Filter,
   X
 } from 'lucide-react';
 
@@ -51,7 +50,7 @@ export default function ResultsPage() {
           spread: 70,
           origin: { y: 0.6 }
         });
-      } catch (e) {
+      } catch {
         // Ignore if confetti not supported
       }
     }
@@ -377,8 +376,47 @@ export default function ResultsPage() {
                 )}
               </div>
 
-              {/* Status Filter Tabs */}
-              <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5">
+              {/* Section & Status Filter Tabs */}
+              <div className="flex flex-wrap items-center gap-2">
+                <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5">
+                  <button
+                    type="button"
+                    onClick={() => setSelectedSectionFilter('all')}
+                    className={`px-3 py-1.5 rounded-xl text-xs font-bold transition whitespace-nowrap cursor-pointer touch-feedback ${
+                      selectedSectionFilter === 'all'
+                        ? 'bg-blue-600 text-white shadow-md'
+                        : 'bg-slate-900 text-slate-400 border border-slate-800 hover:text-white'
+                    }`}
+                  >
+                    All Sections
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setSelectedSectionFilter('part-a')}
+                    className={`px-3 py-1.5 rounded-xl text-xs font-bold transition whitespace-nowrap cursor-pointer touch-feedback ${
+                      selectedSectionFilter === 'part-a'
+                        ? 'bg-blue-700 text-white shadow-md'
+                        : 'bg-slate-900 text-blue-400 border border-slate-800 hover:bg-blue-950/40'
+                    }`}
+                  >
+                    Part A: Laws
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setSelectedSectionFilter('part-b')}
+                    className={`px-3 py-1.5 rounded-xl text-xs font-bold transition whitespace-nowrap cursor-pointer touch-feedback ${
+                      selectedSectionFilter === 'part-b'
+                        ? 'bg-purple-700 text-white shadow-md'
+                        : 'bg-slate-900 text-purple-400 border border-slate-800 hover:bg-purple-950/40'
+                    }`}
+                  >
+                    Part B: Management
+                  </button>
+                </div>
+
+                <div className="hidden sm:block w-px h-5 bg-slate-800 mx-1" />
+
+                <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5">
                 <button
                   type="button"
                   onClick={() => setActiveFilter('all')}
@@ -423,6 +461,7 @@ export default function ResultsPage() {
                 >
                   Skipped ({result.skippedCount})
                 </button>
+              </div>
               </div>
             </div>
           </div>

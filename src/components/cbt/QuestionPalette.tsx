@@ -21,7 +21,6 @@ export const QuestionPalette: React.FC<QuestionPaletteProps> = ({
   currentQuestionIndex,
   candidateName,
   rollNumber,
-  activeSection,
   onSelectQuestionIndex,
   onSubmitTest
 }) => {

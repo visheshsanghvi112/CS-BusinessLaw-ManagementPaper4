@@ -25,7 +25,9 @@ export default function TestPage() {
   const [isSubmitModalOpen, setIsSubmitModalOpen] = useState(false);
 
   const sessionRef = React.useRef<TestSession | null>(null);
-  sessionRef.current = session;
+  useEffect(() => {
+    sessionRef.current = session;
+  }, [session]);
 
   // Initialize session on mount
   useEffect(() => {
@@ -104,11 +106,16 @@ export default function TestPage() {
   }, [session, questions, router]);
 
   const handleFinalSubmitRef = React.useRef(handleFinalSubmit);
-  handleFinalSubmitRef.current = handleFinalSubmit;
+  useEffect(() => {
+    handleFinalSubmitRef.current = handleFinalSubmit;
+  }, [handleFinalSubmit]);
+
+  const testId = session?.testId;
+  const isSubmitted = session?.isSubmitted ?? true;
 
   // 1-second countdown timer interval
   useEffect(() => {
-    if (!session || session.isSubmitted) return;
+    if (!testId || isSubmitted) return;
 
     const timer = setInterval(() => {
       setSession(prev => {
@@ -130,7 +137,7 @@ export default function TestPage() {
     }, 1000);
 
     return () => clearInterval(timer);
-  }, [session?.testId, session?.isSubmitted]);
+  }, [testId, isSubmitted]);
 
   // Select Option on current question
   const handleSelectOption = (optionKey: 'a' | 'b' | 'c' | 'd') => {

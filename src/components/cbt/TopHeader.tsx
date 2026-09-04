@@ -48,7 +48,7 @@ export const TopHeader: React.FC<TopHeaderProps> = ({
       } else {
         await document.exitFullscreen();
       }
-    } catch (e) {
+    } catch {
       // Fullscreen not permitted or supported
     }
   };

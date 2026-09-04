@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Question, UserResponse } from '@/types';
-import { Bookmark, RotateCcw, ChevronLeft, ChevronRight, CheckCircle2, ZoomIn, ZoomOut } from 'lucide-react';
+import { Bookmark, RotateCcw, ChevronLeft, ChevronRight, CheckCircle2 } from 'lucide-react';
 
 interface QuestionAreaProps {
   question: Question;
@@ -73,7 +73,7 @@ export const QuestionArea: React.FC<QuestionAreaProps> = ({
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [onSelectOption, onSaveAndNext, onPrevious, onMarkForReviewAndNext, onClearResponse, isFirstQuestion, selectedOption]);
+  }, [onSelectOption, onSaveAndNext, onPrevious, onMarkForReviewAndNext, onClearResponse, isFirstQuestion, selectedOption, isModalOpen]);
 
   const toggleZoom = () => {
     if (zoomLevel === 'sm') setZoomLevel('md');

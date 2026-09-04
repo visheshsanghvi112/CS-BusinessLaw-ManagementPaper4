@@ -25,12 +25,7 @@ import {
   User,
   History,
   Sparkles,
-  Zap,
-  Target,
-  Trophy,
-  Trash2,
-  HelpCircle,
-  Award
+  Trash2
 } from 'lucide-react';
 
 export default function HomePage() {
@@ -388,7 +383,7 @@ export default function HomePage() {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs sm:text-sm text-slate-300">
                 <div className="p-3 bg-slate-950/60 rounded-xl border border-slate-800/80 space-y-1">
                   <strong className="text-white block">6. Nature of Management:</strong>
-                  <span>Harold Koontz "getting things done through others", Katz skills (Technical, Human, Conceptual at Top Mgmt).</span>
+                  <span>Harold Koontz &quot;getting things done through others&quot;, Katz skills (Technical, Human, Conceptual at Top Mgmt).</span>
                 </div>
                 <div className="p-3 bg-slate-950/60 rounded-xl border border-slate-800/80 space-y-1">
                   <strong className="text-white block">7. Management Theories:</strong>
