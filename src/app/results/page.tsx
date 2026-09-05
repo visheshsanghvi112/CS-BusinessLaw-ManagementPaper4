@@ -27,6 +27,7 @@ export default function ResultsPage() {
   const [result, setResult] = useState<TestResult | null>(null);
   const [activeFilter, setActiveFilter] = useState<'all' | 'correct' | 'incorrect' | 'unattempted' | 'review'>('all');
   const [selectedSectionFilter, setSelectedSectionFilter] = useState<'all' | SectionId>('all');
+  const [selectedLessonFilter, setSelectedLessonFilter] = useState<'all' | number>('all');
   const [searchQuery, setSearchQuery] = useState<string>('');
 
   useEffect(() => {
@@ -74,6 +75,21 @@ export default function ResultsPage() {
       .filter(Boolean) as Question[];
   }, [result]);
 
+  // Available lessons in this test
+  const availableLessons = useMemo(() => {
+    const map = new Map<number, { lessonNumber: number; lessonName: string; sectionId: SectionId }>();
+    questions.forEach(q => {
+      if (!map.has(q.lessonNumber)) {
+        map.set(q.lessonNumber, {
+          lessonNumber: q.lessonNumber,
+          lessonName: q.lessonName,
+          sectionId: q.sectionId
+        });
+      }
+    });
+    return Array.from(map.values()).sort((a, b) => a.lessonNumber - b.lessonNumber);
+  }, [questions]);
+
   // Filtered questions for review
   const filteredQuestions = useMemo(() => {
     if (!result) return [];
@@ -90,6 +106,10 @@ export default function ResultsPage() {
       const isMarked = resp?.status === 'marked-for-review' || resp?.status === 'answered-marked-review';
 
       if (selectedSectionFilter !== 'all' && q.sectionId !== selectedSectionFilter) {
+        return false;
+      }
+
+      if (selectedLessonFilter !== 'all' && q.lessonNumber !== selectedLessonFilter) {
         return false;
       }
 
@@ -111,7 +131,20 @@ export default function ResultsPage() {
 
       return true;
     });
-  }, [questions, result, activeFilter, selectedSectionFilter, searchQuery]);
+  }, [questions, result, activeFilter, selectedSectionFilter, selectedLessonFilter, searchQuery]);
+
+  const hasPartA = useMemo(() => questions.some(q => q.sectionId === 'part-a'), [questions]);
+  const hasPartB = useMemo(() => questions.some(q => q.sectionId === 'part-b'), [questions]);
+
+  const handleSectionFilterChange = (sec: 'all' | SectionId) => {
+    setSelectedSectionFilter(sec);
+    if (sec !== 'all' && selectedLessonFilter !== 'all') {
+      const lesson = availableLessons.find(l => l.lessonNumber === selectedLessonFilter);
+      if (lesson && lesson.sectionId !== sec) {
+        setSelectedLessonFilter('all');
+      }
+    }
+  };
 
   const handleRetakeTest = () => {
     if (!result) {
@@ -119,7 +152,14 @@ export default function ResultsPage() {
       router.push('/test');
       return;
     }
-    createNewSession(result.presetId || 'full-mock', result.candidateName);
+    const config = result.selectedLessons
+      ? {
+          lessonNumbers: result.selectedLessons,
+          questionCount: result.totalQuestions,
+          mode: result.practiceMode || 'exam'
+        }
+      : undefined;
+    createNewSession(result.presetId || 'full-mock', result.candidateName || getSavedCandidateName(), config);
     router.push('/test');
   };
 
@@ -378,90 +418,113 @@ export default function ResultsPage() {
 
               {/* Section & Status Filter Tabs */}
               <div className="flex flex-wrap items-center gap-2">
+                {hasPartA && hasPartB && (
+                  <>
+                    <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5">
+                      <button
+                        type="button"
+                        onClick={() => handleSectionFilterChange('all')}
+                        className={`px-3 py-1.5 rounded-xl text-xs font-bold transition whitespace-nowrap cursor-pointer touch-feedback ${
+                          selectedSectionFilter === 'all'
+                            ? 'bg-blue-600 text-white shadow-md'
+                            : 'bg-slate-900 text-slate-400 border border-slate-800 hover:text-white'
+                        }`}
+                      >
+                        All Sections
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleSectionFilterChange('part-a')}
+                        className={`px-3 py-1.5 rounded-xl text-xs font-bold transition whitespace-nowrap cursor-pointer touch-feedback ${
+                          selectedSectionFilter === 'part-a'
+                            ? 'bg-blue-700 text-white shadow-md'
+                            : 'bg-slate-900 text-blue-400 border border-slate-800 hover:bg-blue-950/40'
+                        }`}
+                      >
+                        Part A: Laws
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleSectionFilterChange('part-b')}
+                        className={`px-3 py-1.5 rounded-xl text-xs font-bold transition whitespace-nowrap cursor-pointer touch-feedback ${
+                          selectedSectionFilter === 'part-b'
+                            ? 'bg-purple-700 text-white shadow-md'
+                            : 'bg-slate-900 text-purple-400 border border-slate-800 hover:bg-purple-950/40'
+                        }`}
+                      >
+                        Part B: Management
+                      </button>
+                    </div>
+                    <div className="hidden sm:block w-px h-5 bg-slate-800 mx-1" />
+                  </>
+                )}
+
                 <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5">
                   <button
                     type="button"
-                    onClick={() => setSelectedSectionFilter('all')}
+                    onClick={() => setActiveFilter('all')}
                     className={`px-3 py-1.5 rounded-xl text-xs font-bold transition whitespace-nowrap cursor-pointer touch-feedback ${
-                      selectedSectionFilter === 'all'
+                      activeFilter === 'all'
                         ? 'bg-blue-600 text-white shadow-md'
                         : 'bg-slate-900 text-slate-400 border border-slate-800 hover:text-white'
                     }`}
                   >
-                    All Sections
+                    All ({questions.length})
                   </button>
                   <button
                     type="button"
-                    onClick={() => setSelectedSectionFilter('part-a')}
+                    onClick={() => setActiveFilter('correct')}
                     className={`px-3 py-1.5 rounded-xl text-xs font-bold transition whitespace-nowrap cursor-pointer touch-feedback ${
-                      selectedSectionFilter === 'part-a'
-                        ? 'bg-blue-700 text-white shadow-md'
-                        : 'bg-slate-900 text-blue-400 border border-slate-800 hover:bg-blue-950/40'
+                      activeFilter === 'correct'
+                        ? 'bg-emerald-600 text-white shadow-md'
+                        : 'bg-slate-900 text-emerald-400 border border-slate-800 hover:bg-emerald-950/40'
                     }`}
                   >
-                    Part A: Laws
+                    Correct ({result.correctCount})
                   </button>
                   <button
                     type="button"
-                    onClick={() => setSelectedSectionFilter('part-b')}
+                    onClick={() => setActiveFilter('incorrect')}
                     className={`px-3 py-1.5 rounded-xl text-xs font-bold transition whitespace-nowrap cursor-pointer touch-feedback ${
-                      selectedSectionFilter === 'part-b'
-                        ? 'bg-purple-700 text-white shadow-md'
-                        : 'bg-slate-900 text-purple-400 border border-slate-800 hover:bg-purple-950/40'
+                      activeFilter === 'incorrect'
+                        ? 'bg-red-600 text-white shadow-md'
+                        : 'bg-slate-900 text-red-400 border border-slate-800 hover:bg-red-950/40'
                     }`}
                   >
-                    Part B: Management
+                    Incorrect ({result.incorrectCount})
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setActiveFilter('unattempted')}
+                    className={`px-3 py-1.5 rounded-xl text-xs font-bold transition whitespace-nowrap cursor-pointer touch-feedback ${
+                      activeFilter === 'unattempted'
+                        ? 'bg-slate-700 text-white shadow-md'
+                        : 'bg-slate-900 text-slate-400 border border-slate-800 hover:text-white'
+                    }`}
+                  >
+                    Skipped ({result.skippedCount})
                   </button>
                 </div>
 
-                <div className="hidden sm:block w-px h-5 bg-slate-800 mx-1" />
-
-                <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5">
-                <button
-                  type="button"
-                  onClick={() => setActiveFilter('all')}
-                  className={`px-3 py-1.5 rounded-xl text-xs font-bold transition whitespace-nowrap cursor-pointer touch-feedback ${
-                    activeFilter === 'all'
-                      ? 'bg-blue-600 text-white shadow-md'
-                      : 'bg-slate-900 text-slate-400 border border-slate-800 hover:text-white'
-                  }`}
-                >
-                  All ({questions.length})
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setActiveFilter('correct')}
-                  className={`px-3 py-1.5 rounded-xl text-xs font-bold transition whitespace-nowrap cursor-pointer touch-feedback ${
-                    activeFilter === 'correct'
-                      ? 'bg-emerald-600 text-white shadow-md'
-                      : 'bg-slate-900 text-emerald-400 border border-slate-800 hover:bg-emerald-950/40'
-                  }`}
-                >
-                  Correct ({result.correctCount})
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setActiveFilter('incorrect')}
-                  className={`px-3 py-1.5 rounded-xl text-xs font-bold transition whitespace-nowrap cursor-pointer touch-feedback ${
-                    activeFilter === 'incorrect'
-                      ? 'bg-red-600 text-white shadow-md'
-                      : 'bg-slate-900 text-red-400 border border-slate-800 hover:bg-red-950/40'
-                  }`}
-                >
-                  Incorrect ({result.incorrectCount})
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setActiveFilter('unattempted')}
-                  className={`px-3 py-1.5 rounded-xl text-xs font-bold transition whitespace-nowrap cursor-pointer touch-feedback ${
-                    activeFilter === 'unattempted'
-                      ? 'bg-slate-700 text-white shadow-md'
-                      : 'bg-slate-900 text-slate-400 border border-slate-800 hover:text-white'
-                  }`}
-                >
-                  Skipped ({result.skippedCount})
-                </button>
-              </div>
+                {/* Chapter/Lesson Filter Dropdown */}
+                <div className="hidden lg:block w-px h-5 bg-slate-800 mx-1" />
+                <div className="flex items-center gap-1.5">
+                  <select
+                    value={selectedLessonFilter}
+                    onChange={(e) => setSelectedLessonFilter(e.target.value === 'all' ? 'all' : Number(e.target.value))}
+                    className="bg-slate-900 border border-slate-800 hover:border-slate-700 text-slate-300 rounded-xl px-2.5 py-1.5 text-xs font-semibold focus:outline-hidden focus:border-blue-500 cursor-pointer max-w-[220px] truncate"
+                    aria-label="Filter by chapter"
+                  >
+                    <option value="all">All Chapters ({questions.length} Qs)</option>
+                    {availableLessons
+                      .filter(l => selectedSectionFilter === 'all' || l.sectionId === selectedSectionFilter)
+                      .map(l => (
+                        <option key={l.lessonNumber} value={l.lessonNumber}>
+                          L{l.lessonNumber}: {l.lessonName}
+                        </option>
+                      ))}
+                  </select>
+                </div>
               </div>
             </div>
           </div>
@@ -486,9 +549,19 @@ export default function ResultsPage() {
                   {/* Question Header Badge */}
                   <div className="flex items-center justify-between gap-2 flex-wrap">
                     <div className="flex items-center gap-1.5 sm:gap-2">
-                      <span className="px-2.5 py-1 rounded-lg bg-slate-800 text-white font-black text-xs">
-                        Q.{q.id}
-                      </span>
+                      {(() => {
+                        const examIdx = result.questionIds.indexOf(q.id);
+                        return (
+                          <>
+                            <span className="px-2.5 py-1 rounded-lg bg-slate-800 text-white font-black text-xs">
+                              Q.{examIdx !== -1 ? examIdx + 1 : q.id}
+                            </span>
+                            <span className="text-[11px] text-slate-500 font-mono hidden sm:inline">
+                              (Bank #{q.id})
+                            </span>
+                          </>
+                        );
+                      })()}
                       <span className="text-xs text-slate-400 font-bold">
                         {q.sectionName}
                       </span>
@@ -594,16 +667,18 @@ export default function ResultsPage() {
             {filteredQuestions.length === 0 && (
               <div className="p-8 text-center bg-slate-900 rounded-3xl border border-slate-800 text-slate-400 text-sm space-y-2">
                 <p>No questions match the current filter or search criteria.</p>
-                {(activeFilter !== 'all' || searchQuery) && (
+                {(activeFilter !== 'all' || selectedSectionFilter !== 'all' || selectedLessonFilter !== 'all' || searchQuery) && (
                   <button
                     type="button"
                     onClick={() => {
                       setActiveFilter('all');
+                      setSelectedSectionFilter('all');
+                      setSelectedLessonFilter('all');
                       setSearchQuery('');
                     }}
                     className="text-xs text-blue-400 hover:underline font-bold"
                   >
-                    Clear Filters
+                    Clear All Filters
                   </button>
                 )}
               </div>

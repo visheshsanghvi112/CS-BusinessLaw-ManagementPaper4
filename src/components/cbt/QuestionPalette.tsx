@@ -198,24 +198,24 @@ export const QuestionPalette: React.FC<QuestionPaletteProps> = ({
         </button>
       </div>
 
-      {/* Section Filter Tabs */}
-      <div className="px-3 py-1.5 sm:py-2 bg-slate-950/60 border-b border-slate-800 flex items-center justify-between gap-1 shrink-0">
-        <span className="text-[10px] sm:text-[11px] uppercase tracking-wider font-bold text-slate-400">
-          Section:
-        </span>
-        <div className="flex items-center gap-1">
-          <button
-            type="button"
-            onClick={() => setFilterSection('all')}
-            className={`px-2 py-0.5 rounded text-[11px] font-bold transition cursor-pointer ${
-              filterSection === 'all'
-                ? 'bg-blue-600 text-white shadow-xs'
-                : 'bg-slate-800 text-slate-400 hover:text-white'
-            }`}
-          >
-            All ({questions.length})
-          </button>
-          {questions.filter(q => q.sectionId === 'part-a').length > 0 && (
+      {/* Section Filter Tabs (Only rendered when multiple sections exist) */}
+      {questions.some(q => q.sectionId === 'part-a') && questions.some(q => q.sectionId === 'part-b') && (
+        <div className="px-3 py-1.5 sm:py-2 bg-slate-950/60 border-b border-slate-800 flex items-center justify-between gap-1 shrink-0">
+          <span className="text-[10px] sm:text-[11px] uppercase tracking-wider font-bold text-slate-400">
+            Section:
+          </span>
+          <div className="flex items-center gap-1">
+            <button
+              type="button"
+              onClick={() => setFilterSection('all')}
+              className={`px-2 py-0.5 rounded text-[11px] font-bold transition cursor-pointer ${
+                filterSection === 'all'
+                  ? 'bg-blue-600 text-white shadow-xs'
+                  : 'bg-slate-800 text-slate-400 hover:text-white'
+              }`}
+            >
+              All ({questions.length})
+            </button>
             <button
               type="button"
               onClick={() => setFilterSection('part-a')}
@@ -227,8 +227,6 @@ export const QuestionPalette: React.FC<QuestionPaletteProps> = ({
             >
               Part A ({questions.filter(q => q.sectionId === 'part-a').length})
             </button>
-          )}
-          {questions.filter(q => q.sectionId === 'part-b').length > 0 && (
             <button
               type="button"
               onClick={() => setFilterSection('part-b')}
@@ -240,12 +238,12 @@ export const QuestionPalette: React.FC<QuestionPaletteProps> = ({
             >
               Part B ({questions.filter(q => q.sectionId === 'part-b').length})
             </button>
-          )}
+          </div>
         </div>
-      </div>
+      )}
 
-      {/* Question Number Buttons Grid (Scrollable) */}
-      <div className="flex-1 overflow-y-auto p-3">
+      {/* Question Number Buttons Grid (Scrollable with min-h-0) */}
+      <div className="flex-1 min-h-0 overflow-y-auto p-3">
         {visibleQuestions.length > 0 ? (
           <div className="grid grid-cols-5 sm:grid-cols-6 gap-2">
             {visibleQuestions.map(({ q, originalIndex }) => {

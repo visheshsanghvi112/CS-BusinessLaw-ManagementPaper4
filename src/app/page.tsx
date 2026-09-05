@@ -25,8 +25,10 @@ import {
   User,
   History,
   Sparkles,
-  Trash2
+  Trash2,
+  Layers
 } from 'lucide-react';
+import { ChapterPracticeHub } from '@/components/cbt/ChapterPracticeHub';
 
 export default function HomePage() {
   const router = useRouter();
@@ -35,6 +37,7 @@ export default function HomePage() {
   const [history, setHistory] = useState<TestResult[]>([]);
   const [activeSession, setActiveSession] = useState<TestSession | null>(null);
   const [activeSyllabusTab, setActiveSyllabusTab] = useState<'overview' | 'part-a' | 'part-b'>('overview');
+  const [mainTab, setMainTab] = useState<'mocks' | 'chapters'>('mocks');
 
   useEffect(() => {
     setCandidateName(getSavedCandidateName());
@@ -45,17 +48,27 @@ export default function HomePage() {
     }
   }, []);
 
+  const savedTimerRef = React.useRef<NodeJS.Timeout | null>(null);
+
   const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value;
     setCandidateName(val);
-    saveCandidateName(val);
+    saveCandidateName(val.trim() || 'Candidate');
     setIsSaved(true);
-    setTimeout(() => setIsSaved(false), 2000);
+    if (savedTimerRef.current) clearTimeout(savedTimerRef.current);
+    savedTimerRef.current = setTimeout(() => setIsSaved(false), 2000);
   };
 
   const handleStartTest = (presetId: string) => {
-    saveCandidateName(candidateName);
-    createNewSession(presetId, candidateName);
+    if (activeSession && !activeSession.isSubmitted && activeSession.remainingSeconds > 0) {
+      const confirmed = window.confirm(
+        `You have an active or paused examination session in progress ("${activeSession.testTitle}"). Starting a new test will discard your current progress. Are you sure you want to proceed?`
+      );
+      if (!confirmed) return;
+    }
+    const finalName = candidateName.trim() || 'Candidate';
+    saveCandidateName(finalName);
+    createNewSession(presetId, finalName);
     router.push('/test');
   };
 
@@ -145,26 +158,34 @@ export default function HomePage() {
 
         {/* Active In-Progress Session Resume Banner */}
         {activeSession && (
-          <div className="p-4 sm:p-5 rounded-2xl sm:rounded-3xl bg-gradient-to-r from-blue-950/80 via-indigo-950/70 to-slate-900 border border-blue-500/50 shadow-xl flex flex-col sm:flex-row sm:items-center justify-between gap-4 ring-1 ring-blue-500/30">
+          <div className={`p-4 sm:p-5 rounded-2xl sm:rounded-3xl border shadow-xl flex flex-col sm:flex-row sm:items-center justify-between gap-4 ${
+            activeSession.isPaused
+              ? 'bg-gradient-to-r from-amber-950/70 via-slate-900 to-slate-900 border-amber-500/50 ring-1 ring-amber-500/30'
+              : 'bg-gradient-to-r from-blue-950/80 via-indigo-950/70 to-slate-900 border-blue-500/50 ring-1 ring-blue-500/30'
+          }`}>
             <div className="space-y-1 min-w-0">
               <div className="flex items-center gap-2">
-                <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse shrink-0"></span>
-                <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-400">
-                  Active Examination in Progress
+                <span className={`w-2.5 h-2.5 rounded-full shrink-0 ${activeSession.isPaused ? 'bg-amber-400 animate-pulse' : 'bg-emerald-400 animate-pulse'}`}></span>
+                <span className={`text-[11px] font-bold uppercase tracking-wider ${activeSession.isPaused ? 'text-amber-400' : 'text-emerald-400'}`}>
+                  {activeSession.isPaused ? 'Paused Examination (Timer Frozen)' : 'Active Examination in Progress'}
                 </span>
               </div>
               <h4 className="text-sm sm:text-base font-bold text-white truncate">
                 {activeSession.testTitle}
               </h4>
               <p className="text-xs text-slate-300">
-                {Math.floor(activeSession.remainingSeconds / 60)} Mins remaining • {Object.values(activeSession.responses).filter(r => r.status === 'answered' || r.status === 'answered-marked-review').length} / {activeSession.questionIds.length} Questions Answered
+                {Math.floor(activeSession.remainingSeconds / 60)} Mins {activeSession.remainingSeconds % 60} Secs frozen • {Object.values(activeSession.responses).filter(r => r.status === 'answered' || r.status === 'answered-marked-review').length} / {activeSession.questionIds?.length || Object.keys(activeSession.responses || {}).length} Questions Answered
               </p>
             </div>
             <div className="flex items-center gap-2 shrink-0">
               <button
                 type="button"
                 onClick={() => router.push('/test')}
-                className="px-4 py-2 sm:py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 active:bg-blue-700 text-white font-bold text-xs sm:text-sm shadow-md transition flex items-center gap-1.5 cursor-pointer touch-feedback ring-1 ring-blue-400/50"
+                className={`px-4 py-2 sm:py-2.5 rounded-xl text-white font-bold text-xs sm:text-sm shadow-md transition flex items-center gap-1.5 cursor-pointer touch-feedback ${
+                  activeSession.isPaused
+                    ? 'bg-amber-600 hover:bg-amber-500 active:bg-amber-700 ring-1 ring-amber-400/50'
+                    : 'bg-blue-600 hover:bg-blue-500 active:bg-blue-700 ring-1 ring-blue-400/50'
+                }`}
               >
                 <Play className="w-3.5 h-3.5 fill-current" />
                 Resume Exam
@@ -185,79 +206,118 @@ export default function HomePage() {
           </div>
         )}
 
-        {/* Test Mode Selector Cards */}
-        <div className="space-y-3.5 sm:space-y-4">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
-            <div>
-              <h3 className="text-base sm:text-lg font-black text-white flex items-center gap-2">
-                <BookOpen className="w-5 h-5 text-blue-400" />
-                Select Examination Mode
-              </h3>
-              <p className="text-xs text-slate-400">
-                Passing cutoff: 40% (40 / 100 Marks) • Zero negative marking • +1.0 for each correct answer
-              </p>
+        {/* Main Mode Navigation Tabs (Full Mocks vs Chapter Hub) */}
+        <div className="flex p-1.5 bg-slate-900 border border-slate-800 rounded-2xl gap-2 shadow-lg">
+          <button
+            type="button"
+            onClick={() => setMainTab('mocks')}
+            className={`flex-1 py-3 px-4 rounded-xl font-bold text-xs sm:text-sm flex items-center justify-center gap-2 transition cursor-pointer touch-feedback ${
+              mainTab === 'mocks'
+                ? 'bg-blue-600 text-white shadow-md'
+                : 'text-slate-400 hover:text-white hover:bg-slate-800/60'
+            }`}
+          >
+            <BookOpen className="w-4 h-4" />
+            <span>Full & Sectional Mocks</span>
+            <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-blue-950 text-blue-300 hidden sm:inline-block">
+              4 Official Presets
+            </span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setMainTab('chapters')}
+            className={`flex-1 py-3 px-4 rounded-xl font-bold text-xs sm:text-sm flex items-center justify-center gap-2 transition cursor-pointer touch-feedback ${
+              mainTab === 'chapters'
+                ? 'bg-gradient-to-r from-indigo-600 to-blue-600 text-white shadow-md'
+                : 'text-slate-400 hover:text-white hover:bg-slate-800/60'
+            }`}
+          >
+            <Layers className="w-4 h-4 text-indigo-400" />
+            <span>Chapter & Unit Practice Hub</span>
+            <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-indigo-950 text-indigo-300 hidden sm:inline-block">
+              9 Units • 300 Qs
+            </span>
+          </button>
+        </div>
+
+        {/* View Switch: Chapter Practice Hub vs Full Mocks */}
+        {mainTab === 'chapters' ? (
+          <ChapterPracticeHub candidateName={candidateName} />
+        ) : (
+          /* Test Mode Selector Cards */
+          <div className="space-y-3.5 sm:space-y-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
+              <div>
+                <h3 className="text-base sm:text-lg font-black text-white flex items-center gap-2">
+                  <BookOpen className="w-5 h-5 text-blue-400" />
+                  Select Examination Mode
+                </h3>
+                <p className="text-xs text-slate-400">
+                  Passing cutoff: 40% (40 / 100 Marks) • Zero negative marking • +1.0 for each correct answer
+                </p>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
+              {TEST_PRESETS.map(preset => {
+                const isFull = preset.id === 'full-mock';
+                return (
+                  <div
+                    key={preset.id}
+                    className={`p-4 sm:p-6 rounded-2xl sm:rounded-3xl border transition-all duration-200 flex flex-col justify-between group hover:border-slate-700 touch-feedback ${
+                      isFull
+                        ? 'bg-gradient-to-br from-blue-950/40 via-slate-900 to-slate-900 border-blue-500/50 shadow-xl ring-1 ring-blue-500/30'
+                        : 'bg-slate-900/80 border-slate-800 shadow-sm'
+                    }`}
+                  >
+                    <div className="space-y-2.5 sm:space-y-3">
+                      <div className="flex items-center justify-between gap-2">
+                        <span className={`text-[10px] sm:text-[11px] font-bold px-2.5 sm:px-3 py-0.5 sm:py-1 rounded-full border ${
+                          isFull
+                            ? 'bg-blue-500/20 text-blue-300 border-blue-500/40'
+                            : 'bg-slate-800 text-slate-300 border-slate-700'
+                        }`}>
+                          {preset.badge}
+                        </span>
+                        <div className="flex items-center gap-1.5 text-xs text-slate-400 font-mono">
+                          <Clock className="w-3.5 h-3.5 text-blue-400" />
+                          {preset.durationMinutes} Mins
+                        </div>
+                      </div>
+
+                      <h4 className="text-sm sm:text-base md:text-lg font-bold text-white group-hover:text-blue-300 transition">
+                        {preset.title}
+                      </h4>
+
+                      <p className="text-xs sm:text-sm text-slate-400 leading-relaxed">
+                        {preset.description}
+                      </p>
+                    </div>
+
+                    <div className="pt-4 flex items-center justify-between border-t border-slate-800/80 mt-3 sm:mt-4 gap-2">
+                      <div className="text-xs text-slate-400">
+                        <strong className="text-white text-sm font-bold">{preset.questionCount}</strong> Questions • 1 Mark Each
+                      </div>
+
+                      <button
+                        type="button"
+                        onClick={() => handleStartTest(preset.id)}
+                        className={`inline-flex items-center gap-1.5 px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-bold shadow-md transition cursor-pointer touch-feedback ${
+                          isFull
+                            ? 'bg-blue-600 hover:bg-blue-500 active:bg-blue-700 text-white shadow-blue-900/40 ring-1 ring-blue-400/50'
+                            : 'bg-slate-800 hover:bg-slate-700 active:bg-slate-600 text-slate-200 border border-slate-700'
+                        }`}
+                      >
+                        <Play className="w-3.5 h-3.5 fill-current" />
+                        Start Test
+                      </button>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
-            {TEST_PRESETS.map(preset => {
-              const isFull = preset.id === 'full-mock';
-              return (
-                <div
-                  key={preset.id}
-                  className={`p-4 sm:p-6 rounded-2xl sm:rounded-3xl border transition-all duration-200 flex flex-col justify-between group hover:border-slate-700 touch-feedback ${
-                    isFull
-                      ? 'bg-gradient-to-br from-blue-950/40 via-slate-900 to-slate-900 border-blue-500/50 shadow-xl ring-1 ring-blue-500/30'
-                      : 'bg-slate-900/80 border-slate-800 shadow-sm'
-                  }`}
-                >
-                  <div className="space-y-2.5 sm:space-y-3">
-                    <div className="flex items-center justify-between gap-2">
-                      <span className={`text-[10px] sm:text-[11px] font-bold px-2.5 sm:px-3 py-0.5 sm:py-1 rounded-full border ${
-                        isFull
-                          ? 'bg-blue-500/20 text-blue-300 border-blue-500/40'
-                          : 'bg-slate-800 text-slate-300 border-slate-700'
-                      }`}>
-                        {preset.badge}
-                      </span>
-                      <div className="flex items-center gap-1.5 text-xs text-slate-400 font-mono">
-                        <Clock className="w-3.5 h-3.5 text-blue-400" />
-                        {preset.durationMinutes} Mins
-                      </div>
-                    </div>
-
-                    <h4 className="text-sm sm:text-base md:text-lg font-bold text-white group-hover:text-blue-300 transition">
-                      {preset.title}
-                    </h4>
-
-                    <p className="text-xs sm:text-sm text-slate-400 leading-relaxed">
-                      {preset.description}
-                    </p>
-                  </div>
-
-                  <div className="pt-4 flex items-center justify-between border-t border-slate-800/80 mt-3 sm:mt-4 gap-2">
-                    <div className="text-xs text-slate-400">
-                      <strong className="text-white text-sm font-bold">{preset.questionCount}</strong> Questions • 1 Mark Each
-                    </div>
-
-                    <button
-                      type="button"
-                      onClick={() => handleStartTest(preset.id)}
-                      className={`inline-flex items-center gap-1.5 px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-bold shadow-md transition cursor-pointer touch-feedback ${
-                        isFull
-                          ? 'bg-blue-600 hover:bg-blue-500 active:bg-blue-700 text-white shadow-blue-900/40 ring-1 ring-blue-400/50'
-                          : 'bg-slate-800 hover:bg-slate-700 active:bg-slate-600 text-slate-200 border border-slate-700'
-                      }`}
-                    >
-                      <Play className="w-3.5 h-3.5 fill-current" />
-                      Start Test
-                    </button>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
+        )}
 
         {/* Interactive Syllabus & Blueprint Guide */}
         <div className="space-y-3.5 sm:space-y-4">

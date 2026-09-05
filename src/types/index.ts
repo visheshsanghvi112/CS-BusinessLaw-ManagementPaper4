@@ -23,6 +23,7 @@ export interface Question {
   officialKey?: string;
   explanation: string;
   marks: number;
+  sourcePaper?: 'June 2026' | 'Sample Set 1' | 'Sample Set 2' | string;
 }
 
 export interface UserResponse {
@@ -45,7 +46,27 @@ export interface TestSession {
   activeSection: SectionId;
   responses: Record<number, UserResponse>;
   isSubmitted: boolean;
+  isPaused?: boolean;
+  pausedAt?: number;
   questionIds: number[];
+  practiceMode?: 'exam' | 'study';
+  selectedLessons?: number[];
+}
+
+export interface LessonMetadata {
+  lessonNumber: number;
+  lessonName: string;
+  sectionId: SectionId;
+  sectionName: string;
+  weightageMarks: string;
+  keyTopics: string[];
+  description: string;
+}
+
+export interface CustomSessionConfig {
+  lessonNumbers: number[];
+  questionCount?: number;
+  mode?: 'exam' | 'study';
 }
 
 export interface TestResult {
@@ -77,6 +98,8 @@ export interface TestResult {
   }[];
   responses: Record<number, UserResponse>;
   questionIds: number[];
+  practiceMode?: 'exam' | 'study';
+  selectedLessons?: number[];
 }
 
 export interface TestPreset {

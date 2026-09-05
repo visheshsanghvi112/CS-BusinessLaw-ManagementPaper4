@@ -46,7 +46,15 @@ export const SubmitConfirmationModal: React.FC<SubmitConfirmationModalProps> = (
   let answeredMarked = 0;
 
   questions.forEach(q => {
-    const status: QuestionStatus = responses[q.id]?.status || 'not-visited';
+    const resp = responses[q.id];
+    let status: QuestionStatus = resp?.status || 'not-visited';
+    if (resp && resp.selectedOption !== null) {
+      if (status === 'marked-for-review' || status === 'answered-marked-review') {
+        status = 'answered-marked-review';
+      } else {
+        status = 'answered';
+      }
+    }
     if (status === 'answered') answered++;
     else if (status === 'not-answered') notAnswered++;
     else if (status === 'not-visited') notVisited++;

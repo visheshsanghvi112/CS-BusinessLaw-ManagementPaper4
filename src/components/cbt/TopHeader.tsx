@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { SectionId } from '@/types';
-import { Clock, User, ShieldCheck, Grid, CheckSquare, Maximize2, Minimize2 } from 'lucide-react';
+import { Clock, User, ShieldCheck, Grid, CheckSquare, Maximize2, Minimize2, Pause, Eye } from 'lucide-react';
 
 interface TopHeaderProps {
   testTitle: string;
@@ -16,6 +16,11 @@ interface TopHeaderProps {
   onOpenSubmitModal: () => void;
   answeredCount?: number;
   totalQuestions?: number;
+  isPaused?: boolean;
+  onTogglePause?: () => void;
+  onOpenInstructions?: () => void;
+  onOpenQuestionPaper?: () => void;
+  practiceMode?: 'exam' | 'study';
 }
 
 export const TopHeader: React.FC<TopHeaderProps> = ({
@@ -29,7 +34,12 @@ export const TopHeader: React.FC<TopHeaderProps> = ({
   onToggleMobileDrawer,
   onOpenSubmitModal,
   answeredCount = 0,
-  totalQuestions = 100
+  totalQuestions = 100,
+  isPaused = false,
+  onTogglePause,
+  onOpenInstructions,
+  onOpenQuestionPaper,
+  practiceMode = 'exam'
 }) => {
   const [isFullscreen, setIsFullscreen] = useState(false);
 
@@ -78,6 +88,11 @@ export const TopHeader: React.FC<TopHeaderProps> = ({
               <span className="text-[10px] sm:text-xs font-bold px-1.5 sm:px-2 py-0.5 rounded bg-blue-900/60 border border-blue-700/60 text-blue-300 uppercase tracking-wider">
                 ICSI CSEET
               </span>
+              {practiceMode === 'study' && (
+                <span className="text-[10px] sm:text-xs font-bold px-1.5 sm:px-2 py-0.5 rounded bg-emerald-950/90 border border-emerald-600/70 text-emerald-300 uppercase tracking-wider flex items-center gap-1">
+                  <Eye className="w-3 h-3" /> Study Mode
+                </span>
+              )}
               <span className="text-[11px] text-slate-400 font-mono hidden md:inline">
                 {rollNumber}
               </span>
@@ -89,21 +104,40 @@ export const TopHeader: React.FC<TopHeaderProps> = ({
         </div>
 
         {/* Center/Right: Countdown Timer & Controls */}
-        <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
+        <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
+          {/* Pause / Resume Button */}
+          {onTogglePause && (
+            <button
+              type="button"
+              onClick={onTogglePause}
+              title={isPaused ? "Resume Examination" : "Pause & Exit Examination"}
+              className={`flex items-center gap-1 sm:gap-1.5 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-xl border text-xs font-bold transition cursor-pointer touch-feedback ${
+                isPaused
+                  ? 'bg-amber-500 hover:bg-amber-400 text-slate-950 border-amber-400 shadow-md animate-pulse'
+                  : 'bg-slate-900 hover:bg-slate-800 active:bg-slate-700 text-amber-300 border-amber-600/50 hover:border-amber-500'
+              }`}
+            >
+              <Pause className="w-3.5 h-3.5 fill-current" />
+              <span className="hidden sm:inline">{isPaused ? 'Resume' : 'Pause'}</span>
+            </button>
+          )}
+
           {/* Live Countdown Timer */}
           <div
             className={`flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3.5 py-1 sm:py-1.5 rounded-xl border transition-all duration-300 ${
-              isUrgentTime
+              isPaused
+                ? 'bg-amber-950/80 border-amber-500/80 text-amber-300'
+                : isUrgentTime
                 ? 'bg-red-950/90 border-red-500 text-red-300 animate-pulse ring-2 ring-red-500/30'
                 : isLowTime
                 ? 'bg-amber-950/90 border-amber-500/80 text-amber-300'
                 : 'bg-slate-900 border-slate-700 text-emerald-400'
             }`}
           >
-            <Clock className={`w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0 ${isUrgentTime ? 'text-red-400' : isLowTime ? 'text-amber-400' : 'text-emerald-400'}`} />
+            <Clock className={`w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0 ${isPaused ? 'text-amber-400' : isUrgentTime ? 'text-red-400' : isLowTime ? 'text-amber-400' : 'text-emerald-400'}`} />
             <div className="text-right">
               <span className="hidden md:inline text-[9px] text-slate-400 uppercase tracking-wider block leading-none font-semibold">
-                Time Left
+                {isPaused ? 'Timer Frozen' : 'Time Left'}
               </span>
               <span className="font-mono text-xs sm:text-base md:text-lg font-black tracking-wider leading-tight">
                 {formattedTime}
@@ -123,7 +157,7 @@ export const TopHeader: React.FC<TopHeaderProps> = ({
           </button>
 
           {/* Candidate Card (Desktop) */}
-          <div className="hidden lg:flex items-center gap-2 pl-3 border-l border-slate-800">
+          <div className="hidden lg:flex items-center gap-2 pl-2.5 border-l border-slate-800">
             <div className="w-8 h-8 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center text-slate-300">
               <User className="w-4 h-4" />
             </div>
@@ -133,7 +167,7 @@ export const TopHeader: React.FC<TopHeaderProps> = ({
               </div>
               <div className="text-[10px] text-emerald-400 font-medium flex items-center gap-1">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                Active
+                {isPaused ? 'Paused' : 'Active'}
               </div>
             </div>
           </div>
@@ -163,7 +197,7 @@ export const TopHeader: React.FC<TopHeaderProps> = ({
         </div>
       </div>
 
-      {/* Sub-bar: Section Navigation Tabs & Progress */}
+      {/* Sub-bar: Section Navigation Tabs & Helper Tools */}
       <div className="bg-slate-900/90 border-t border-slate-800/80 px-3 sm:px-6 py-1.5 relative">
         <div className="max-w-7xl mx-auto flex items-center justify-between gap-2">
           {/* Section Tabs */}
@@ -190,14 +224,41 @@ export const TopHeader: React.FC<TopHeaderProps> = ({
             })}
           </div>
 
-          {/* Mobile Quick Submit Button inside sub-bar */}
-          <button
-            type="button"
-            onClick={onOpenSubmitModal}
-            className="sm:hidden px-2.5 py-1 rounded-lg bg-emerald-600 active:bg-emerald-700 text-white text-[11px] font-bold shadow-xs shrink-0 cursor-pointer"
-          >
-            Submit
-          </button>
+          {/* Quick Helper Tools & Mobile Actions */}
+          <div className="flex items-center gap-1.5 shrink-0">
+            {/* View Instructions Modal Trigger */}
+            {onOpenInstructions && (
+              <button
+                type="button"
+                onClick={onOpenInstructions}
+                title="View ICSI Examination Instructions & Marking Guidelines"
+                className="hidden sm:inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white text-xs font-semibold border border-slate-700 transition cursor-pointer"
+              >
+                Instructions
+              </button>
+            )}
+
+            {/* View Full Question Paper Trigger */}
+            {onOpenQuestionPaper && (
+              <button
+                type="button"
+                onClick={onOpenQuestionPaper}
+                title="Skim Complete Question Paper"
+                className="hidden sm:inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white text-xs font-semibold border border-slate-700 transition cursor-pointer"
+              >
+                Question Paper
+              </button>
+            )}
+
+            {/* Mobile Quick Submit Button inside sub-bar */}
+            <button
+              type="button"
+              onClick={onOpenSubmitModal}
+              className="sm:hidden px-2.5 py-1 rounded-lg bg-emerald-600 active:bg-emerald-700 text-white text-[11px] font-bold shadow-xs shrink-0 cursor-pointer"
+            >
+              Submit
+            </button>
+          </div>
         </div>
 
         {/* Real-time Progress Bar at the very bottom edge of the header */}

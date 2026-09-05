@@ -1,5 +1,5 @@
-import { TestSession, TestResult, UserResponse, Question, SectionId } from '@/types';
-import { QUESTION_BANK } from './questionBank';
+import { TestSession, TestResult, UserResponse, Question, SectionId, CustomSessionConfig } from '@/types';
+import { QUESTION_BANK, LESSON_METADATA } from './questionBank';
 
 const ACTIVE_TEST_KEY = 'cseet_active_test_session';
 const TEST_HISTORY_KEY = 'cseet_test_history';
@@ -17,28 +17,59 @@ export function saveCandidateName(name: string): void {
 
 export function createNewSession(
   presetId: string,
-  candidateName: string = "Candidate"
+  candidateName: string = "Candidate",
+  customConfig?: CustomSessionConfig
 ): TestSession {
   let selectedQuestions: Question[] = [];
+  let testTitle = 'ICSI CSEET Paper 4: Full Official Mock Exam';
+  let durationMinutes = 120;
+  let practiceMode: 'exam' | 'study' = customConfig?.mode || 'exam';
+  let selectedLessons: number[] | undefined = undefined;
+
+  // The 100 benchmark questions from the official June 2026 Examination Paper
+  const officialJuneQuestions = QUESTION_BANK.filter(q => q.sourcePaper === 'June 2026' || q.id <= 100);
 
   if (presetId === 'part-a-laws') {
-    selectedQuestions = QUESTION_BANK.filter(q => q.sectionId === 'part-a');
+    selectedQuestions = officialJuneQuestions.filter(q => q.sectionId === 'part-a');
+    testTitle = 'Part A: Business Laws Specialist Mock';
+    durationMinutes = 72;
   } else if (presetId === 'part-b-management') {
-    selectedQuestions = QUESTION_BANK.filter(q => q.sectionId === 'part-b');
+    selectedQuestions = officialJuneQuestions.filter(q => q.sectionId === 'part-b');
+    testTitle = 'Part B: Business Management Specialist Mock';
+    durationMinutes = 48;
   } else if (presetId === 'quick-sprint') {
-    // 15 from part A, 10 from part B
-    const partA = QUESTION_BANK.filter(q => q.sectionId === 'part-a').slice(0, 15);
-    const partB = QUESTION_BANK.filter(q => q.sectionId === 'part-b').slice(0, 10);
+    const partA = officialJuneQuestions.filter(q => q.sectionId === 'part-a').slice(0, 15);
+    const partB = officialJuneQuestions.filter(q => q.sectionId === 'part-b').slice(0, 10);
     selectedQuestions = [...partA, ...partB];
+    testTitle = 'Diagnostic Rapid Sprint (25Q)';
+    durationMinutes = 30;
+  } else if (presetId.startsWith('chapter-')) {
+    // Single Chapter Specialist Drill
+    const lessonNum = parseInt(presetId.replace('chapter-', ''), 10);
+    selectedQuestions = QUESTION_BANK.filter(q => q.lessonNumber === lessonNum);
+    const lessonMeta = LESSON_METADATA.find(l => l.lessonNumber === lessonNum);
+    selectedLessons = [lessonNum];
+    testTitle = `Chapter ${lessonNum}: ${lessonMeta?.lessonName || 'Specialist Drill'} (${selectedQuestions.length}Q)`;
+    durationMinutes = Math.max(15, Math.round(selectedQuestions.length * 1.2));
+  } else if (presetId === 'custom-topic' && customConfig) {
+    // Custom Multi-Topic / Unit Selection
+    const set = new Set(customConfig.lessonNumbers);
+    selectedLessons = customConfig.lessonNumbers;
+    let pool = QUESTION_BANK.filter(q => set.has(q.lessonNumber));
+    if (customConfig.questionCount && customConfig.questionCount < pool.length) {
+      // Shuffle or slice deterministically
+      pool = pool.slice(0, customConfig.questionCount);
+    }
+    selectedQuestions = pool;
+    practiceMode = customConfig.mode || 'exam';
+    testTitle = `Custom Topic Test: ${selectedLessons.length} Unit(s) (${selectedQuestions.length}Q)`;
+    durationMinutes = Math.max(15, Math.round(selectedQuestions.length * 1.2));
   } else {
-    // Default full mock
-    selectedQuestions = [...QUESTION_BANK];
+    // Default Full Official Mock Exam (100 Questions)
+    selectedQuestions = [...officialJuneQuestions];
+    testTitle = 'ICSI CSEET Paper 4: Full Official Mock Exam';
+    durationMinutes = 120;
   }
-
-  const durationMinutes =
-    presetId === 'part-a-laws' ? 72 :
-    presetId === 'part-b-management' ? 48 :
-    presetId === 'quick-sprint' ? 30 : 120;
 
   const responses: Record<number, UserResponse> = {};
   selectedQuestions.forEach((q, idx) => {
@@ -53,11 +84,7 @@ export function createNewSession(
   const session: TestSession = {
     testId: `cseet-${presetId}-${Date.now()}`,
     presetId,
-    testTitle:
-      presetId === 'part-a-laws' ? 'Part A: Business Laws Specialist Mock' :
-      presetId === 'part-b-management' ? 'Part B: Business Management Specialist Mock' :
-      presetId === 'quick-sprint' ? 'Diagnostic Rapid Sprint (25Q)' :
-      'ICSI CSEET Paper 4: Full Official Mock Exam',
+    testTitle,
     candidateName: candidateName || "Candidate",
     rollNumber: `CSEET-${Math.floor(100000 + Math.random() * 900000)}`,
     startTime: Date.now(),
@@ -67,7 +94,10 @@ export function createNewSession(
     activeSection: selectedQuestions[0]?.sectionId || 'part-a',
     responses,
     isSubmitted: false,
-    questionIds: selectedQuestions.map(q => q.id)
+    isPaused: false,
+    questionIds: selectedQuestions.map(q => q.id),
+    practiceMode,
+    selectedLessons
   };
 
   saveActiveSession(session);
@@ -79,12 +109,42 @@ export function saveActiveSession(session: TestSession): void {
   localStorage.setItem(ACTIVE_TEST_KEY, JSON.stringify(session));
 }
 
+export function pauseActiveSession(): TestSession | null {
+  const session = getActiveSession();
+  if (!session || session.isSubmitted) return null;
+  const updated: TestSession = {
+    ...session,
+    isPaused: true,
+    pausedAt: Date.now()
+  };
+  saveActiveSession(updated);
+  return updated;
+}
+
+export function resumeActiveSession(): TestSession | null {
+  const session = getActiveSession();
+  if (!session || session.isSubmitted) return null;
+  const updated: TestSession = {
+    ...session,
+    isPaused: false,
+    pausedAt: undefined
+  };
+  saveActiveSession(updated);
+  return updated;
+}
+
 export function getActiveSession(): TestSession | null {
   if (typeof window === 'undefined') return null;
   const data = localStorage.getItem(ACTIVE_TEST_KEY);
   if (!data) return null;
   try {
-    return JSON.parse(data) as TestSession;
+    const session = JSON.parse(data) as TestSession;
+    if (!session || !session.testId) return null;
+    if (!Array.isArray(session.questionIds) || session.questionIds.length === 0) {
+      const respKeys = Object.keys(session.responses || {}).map(Number).filter(n => !isNaN(n) && n > 0);
+      session.questionIds = respKeys.length > 0 ? respKeys : QUESTION_BANK.map(q => q.id);
+    }
+    return session;
   } catch (e) {
     console.error('Failed to parse active test session', e);
     return null;
@@ -97,7 +157,15 @@ export function clearActiveSession(): void {
 }
 
 export function calculateTestResult(session: TestSession): TestResult {
-  const questions = session.questionIds
+  const resolvedQuestionIds = Array.isArray(session.questionIds) && session.questionIds.length > 0
+    ? session.questionIds
+    : Object.keys(session.responses || {}).map(Number).filter(n => !isNaN(n) && n > 0);
+
+  const safeQuestionIds = resolvedQuestionIds.length > 0
+    ? resolvedQuestionIds
+    : QUESTION_BANK.map(q => q.id);
+
+  const questions = safeQuestionIds
     .map(id => QUESTION_BANK.find(q => q.id === id))
     .filter(Boolean) as Question[];
 
@@ -120,11 +188,18 @@ export function calculateTestResult(session: TestSession): TestResult {
       markedForReviewCount++;
     }
 
-    const hasValidAnswer = resp && resp.selectedOption !== null && (resp.status === 'answered' || resp.status === 'answered-marked-review');
+    const hasValidAnswer = Boolean(resp && resp.selectedOption !== null);
 
     if (hasValidAnswer) {
       attemptedCount++;
       sectionStats[q.sectionId].attempted += 1;
+
+      // Ensure status is normalized if an option was selected
+      if (resp.status === 'marked-for-review') {
+        resp.status = 'answered-marked-review';
+      } else if (resp.status !== 'answered-marked-review') {
+        resp.status = 'answered';
+      }
 
       // Check accepted answers (supporting official alternate keys)
       const isCorrect = q.acceptedAnswers && q.acceptedAnswers.length > 0
@@ -194,7 +269,9 @@ export function calculateTestResult(session: TestSession): TestResult {
       }
     ].filter(s => s.totalQuestions > 0),
     responses: session.responses,
-    questionIds: session.questionIds
+    questionIds: safeQuestionIds,
+    practiceMode: session.practiceMode,
+    selectedLessons: session.selectedLessons
   };
 
   saveTestHistory(result);
@@ -218,7 +295,17 @@ export function getTestHistory(): TestResult[] {
   const data = localStorage.getItem(TEST_HISTORY_KEY);
   if (!data) return [];
   try {
-    return JSON.parse(data) as TestResult[];
+    const list = JSON.parse(data) as TestResult[];
+    return list.map(r => {
+      if (!Array.isArray(r.questionIds) || r.questionIds.length === 0) {
+        const ids = Object.keys(r.responses || {}).map(Number).filter(n => !isNaN(n) && n > 0);
+        return {
+          ...r,
+          questionIds: ids.length > 0 ? ids : QUESTION_BANK.map(q => q.id)
+        };
+      }
+      return r;
+    });
   } catch (e) {
     console.error('Failed to parse test history', e);
     return [];
