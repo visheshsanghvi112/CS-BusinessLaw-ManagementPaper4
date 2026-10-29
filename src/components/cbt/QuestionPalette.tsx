@@ -262,7 +262,7 @@ export const QuestionPalette: React.FC<QuestionPaletteProps> = ({
 
               return (
                 <button
-                  key={q.id}
+                  key={`${q.id}-${originalIndex}`}
                   type="button"
                   onClick={() => onSelectQuestionIndex(originalIndex)}
                   className={`w-9 h-9 sm:w-10 sm:h-10 rounded-xl text-xs palette-btn ${statusClass} ${

@@ -438,7 +438,7 @@ export const PyqArchiveExplorer: React.FC = () => {
 
             return (
               <div
-                key={q.id}
+                key={`${q.id}-${idx}`}
                 className="p-4 rounded-2xl bg-slate-900 border border-slate-800 hover:border-slate-700 transition space-y-2.5"
               >
                 <div

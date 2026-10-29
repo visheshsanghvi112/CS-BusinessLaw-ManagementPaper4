@@ -425,7 +425,7 @@ export default function ResultsPage() {
 
               return (
                 <div
-                  key={q.id}
+                  key={`${q.id}-${idx}`}
                   className={`p-5 rounded-3xl border space-y-4 transition ${
                     isCorrect
                       ? 'bg-slate-900/90 border-slate-800'

@@ -14511,33 +14511,8 @@
     "sourcePaper": "GATE 2023 (IIT Kanpur)"
   },
   {
-    "id": "2023-CS-1",
-    "numericId": 393,
-    "year": 2023,
-    "paperSet": "CS",
-    "questionNumber": 1,
-    "sectionId": "GA",
-    "sectionName": "General Aptitude",
-    "subjectId": "general-aptitude",
-    "subjectName": "General Aptitude",
-    "type": "NAT",
-    "marks": 1,
-    "negativeMarks": 0.0,
-    "question": "and Information Technology (CS)",
-    "options": [],
-    "correctAnswer": null,
-    "correctAnswers": null,
-    "natAnswer": 5.0,
-    "natAnswerRange": {
-      "min": 4.9,
-      "max": 5.1
-    },
-    "explanation": "Detailed solution for GATE 2023 (IIT Kanpur) Q.1. Verifies standard concepts in General Aptitude.",
-    "sourcePaper": "GATE 2023 (IIT Kanpur)"
-  },
-  {
     "id": "2023-CS-3",
-    "numericId": 394,
+    "numericId": 393,
     "year": 2023,
     "paperSet": "CS",
     "questionNumber": 3,
@@ -14578,7 +14553,7 @@
   },
   {
     "id": "2023-CS-4",
-    "numericId": 395,
+    "numericId": 394,
     "year": 2023,
     "paperSet": "CS",
     "questionNumber": 4,
@@ -14619,7 +14594,7 @@
   },
   {
     "id": "2023-CS-5",
-    "numericId": 396,
+    "numericId": 395,
     "year": 2023,
     "paperSet": "CS",
     "questionNumber": 5,
@@ -14660,7 +14635,7 @@
   },
   {
     "id": "2023-CS-6",
-    "numericId": 397,
+    "numericId": 396,
     "year": 2023,
     "paperSet": "CS",
     "questionNumber": 6,
@@ -14701,7 +14676,7 @@
   },
   {
     "id": "2023-CS-7",
-    "numericId": 398,
+    "numericId": 397,
     "year": 2023,
     "paperSet": "CS",
     "questionNumber": 7,
@@ -14742,7 +14717,7 @@
   },
   {
     "id": "2023-CS-8",
-    "numericId": 399,
+    "numericId": 398,
     "year": 2023,
     "paperSet": "CS",
     "questionNumber": 8,
@@ -14783,7 +14758,7 @@
   },
   {
     "id": "2023-CS-9",
-    "numericId": 400,
+    "numericId": 399,
     "year": 2023,
     "paperSet": "CS",
     "questionNumber": 9,
@@ -14824,7 +14799,7 @@
   },
   {
     "id": "2023-CS-10",
-    "numericId": 401,
+    "numericId": 400,
     "year": 2023,
     "paperSet": "CS",
     "questionNumber": 10,
@@ -14881,7 +14856,7 @@
   },
   {
     "id": "2023-CS-11",
-    "numericId": 402,
+    "numericId": 401,
     "year": 2023,
     "paperSet": "CS",
     "questionNumber": 11,
@@ -14922,7 +14897,7 @@
   },
   {
     "id": "2023-CS-12",
-    "numericId": 403,
+    "numericId": 402,
     "year": 2023,
     "paperSet": "CS",
     "questionNumber": 12,
@@ -14963,7 +14938,7 @@
   },
   {
     "id": "2023-CS-13",
-    "numericId": 404,
+    "numericId": 403,
     "year": 2023,
     "paperSet": "CS",
     "questionNumber": 13,
@@ -15004,7 +14979,7 @@
   },
   {
     "id": "2023-CS-14",
-    "numericId": 405,
+    "numericId": 404,
     "year": 2023,
     "paperSet": "CS",
     "questionNumber": 14,
@@ -15045,7 +15020,7 @@
   },
   {
     "id": "2023-CS-15",
-    "numericId": 406,
+    "numericId": 405,
     "year": 2023,
     "paperSet": "CS",
     "questionNumber": 15,
@@ -15086,7 +15061,7 @@
   },
   {
     "id": "2023-CS-16",
-    "numericId": 407,
+    "numericId": 406,
     "year": 2023,
     "paperSet": "CS",
     "questionNumber": 16,
@@ -15127,7 +15102,7 @@
   },
   {
     "id": "2023-CS-17",
-    "numericId": 408,
+    "numericId": 407,
     "year": 2023,
     "paperSet": "CS",
     "questionNumber": 17,
@@ -15168,7 +15143,7 @@
   },
   {
     "id": "2023-CS-18",
-    "numericId": 409,
+    "numericId": 408,
     "year": 2023,
     "paperSet": "CS",
     "questionNumber": 18,
@@ -15209,7 +15184,7 @@
   },
   {
     "id": "2023-CS-19",
-    "numericId": 410,
+    "numericId": 409,
     "year": 2023,
     "paperSet": "CS",
     "questionNumber": 19,
@@ -15250,7 +15225,7 @@
   },
   {
     "id": "2023-CS-20",
-    "numericId": 411,
+    "numericId": 410,
     "year": 2023,
     "paperSet": "CS",
     "questionNumber": 20,
@@ -15291,7 +15266,7 @@
   },
   {
     "id": "2023-CS-21",
-    "numericId": 412,
+    "numericId": 411,
     "year": 2023,
     "paperSet": "CS",
     "questionNumber": 21,
@@ -15332,7 +15307,7 @@
   },
   {
     "id": "2023-CS-22",
-    "numericId": 413,
+    "numericId": 412,
     "year": 2023,
     "paperSet": "CS",
     "questionNumber": 22,
@@ -15373,7 +15348,7 @@
   },
   {
     "id": "2023-CS-23",
-    "numericId": 414,
+    "numericId": 413,
     "year": 2023,
     "paperSet": "CS",
     "questionNumber": 23,
@@ -15414,7 +15389,7 @@
   },
   {
     "id": "2023-CS-24",
-    "numericId": 415,
+    "numericId": 414,
     "year": 2023,
     "paperSet": "CS",
     "questionNumber": 24,
@@ -15455,7 +15430,7 @@
   },
   {
     "id": "2023-CS-25",
-    "numericId": 416,
+    "numericId": 415,
     "year": 2023,
     "paperSet": "CS",
     "questionNumber": 25,
@@ -15496,7 +15471,7 @@
   },
   {
     "id": "2023-CS-26",
-    "numericId": 417,
+    "numericId": 416,
     "year": 2023,
     "paperSet": "CS",
     "questionNumber": 26,
@@ -15537,7 +15512,7 @@
   },
   {
     "id": "2023-CS-27",
-    "numericId": 418,
+    "numericId": 417,
     "year": 2023,
     "paperSet": "CS",
     "questionNumber": 27,
@@ -15578,7 +15553,7 @@
   },
   {
     "id": "2023-CS-28",
-    "numericId": 419,
+    "numericId": 418,
     "year": 2023,
     "paperSet": "CS",
     "questionNumber": 28,
@@ -15619,7 +15594,7 @@
   },
   {
     "id": "2023-CS-29",
-    "numericId": 420,
+    "numericId": 419,
     "year": 2023,
     "paperSet": "CS",
     "questionNumber": 29,
@@ -15644,7 +15619,7 @@
   },
   {
     "id": "2023-CS-30",
-    "numericId": 421,
+    "numericId": 420,
     "year": 2023,
     "paperSet": "CS",
     "questionNumber": 30,
@@ -15669,7 +15644,7 @@
   },
   {
     "id": "2023-CS-31",
-    "numericId": 422,
+    "numericId": 421,
     "year": 2023,
     "paperSet": "CS",
     "questionNumber": 31,
@@ -15694,7 +15669,7 @@
   },
   {
     "id": "2023-CS-32",
-    "numericId": 423,
+    "numericId": 422,
     "year": 2023,
     "paperSet": "CS",
     "questionNumber": 32,
@@ -15719,7 +15694,7 @@
   },
   {
     "id": "2023-CS-33",
-    "numericId": 424,
+    "numericId": 423,
     "year": 2023,
     "paperSet": "CS",
     "questionNumber": 33,
@@ -15744,7 +15719,7 @@
   },
   {
     "id": "2023-CS-34",
-    "numericId": 425,
+    "numericId": 424,
     "year": 2023,
     "paperSet": "CS",
     "questionNumber": 34,
@@ -15769,7 +15744,7 @@
   },
   {
     "id": "2023-CS-35",
-    "numericId": 426,
+    "numericId": 425,
     "year": 2023,
     "paperSet": "CS",
     "questionNumber": 35,
@@ -15794,7 +15769,7 @@
   },
   {
     "id": "2023-CS-36",
-    "numericId": 427,
+    "numericId": 426,
     "year": 2023,
     "paperSet": "CS",
     "questionNumber": 36,
@@ -15835,7 +15810,7 @@
   },
   {
     "id": "2023-CS-37",
-    "numericId": 428,
+    "numericId": 427,
     "year": 2023,
     "paperSet": "CS",
     "questionNumber": 37,
@@ -15876,7 +15851,7 @@
   },
   {
     "id": "2023-CS-38",
-    "numericId": 429,
+    "numericId": 428,
     "year": 2023,
     "paperSet": "CS",
     "questionNumber": 38,
@@ -15917,7 +15892,7 @@
   },
   {
     "id": "2023-CS-39",
-    "numericId": 430,
+    "numericId": 429,
     "year": 2023,
     "paperSet": "CS",
     "questionNumber": 39,
@@ -15958,7 +15933,7 @@
   },
   {
     "id": "2023-CS-40",
-    "numericId": 431,
+    "numericId": 430,
     "year": 2023,
     "paperSet": "CS",
     "questionNumber": 40,
@@ -15999,7 +15974,7 @@
   },
   {
     "id": "2023-CS-41",
-    "numericId": 432,
+    "numericId": 431,
     "year": 2023,
     "paperSet": "CS",
     "questionNumber": 41,
@@ -16040,7 +16015,7 @@
   },
   {
     "id": "2023-CS-42",
-    "numericId": 433,
+    "numericId": 432,
     "year": 2023,
     "paperSet": "CS",
     "questionNumber": 42,
@@ -16081,7 +16056,7 @@
   },
   {
     "id": "2023-CS-43",
-    "numericId": 434,
+    "numericId": 433,
     "year": 2023,
     "paperSet": "CS",
     "questionNumber": 43,
@@ -16122,7 +16097,7 @@
   },
   {
     "id": "2023-CS-44",
-    "numericId": 435,
+    "numericId": 434,
     "year": 2023,
     "paperSet": "CS",
     "questionNumber": 44,
@@ -16163,7 +16138,7 @@
   },
   {
     "id": "2023-CS-45",
-    "numericId": 436,
+    "numericId": 435,
     "year": 2023,
     "paperSet": "CS",
     "questionNumber": 45,
@@ -16204,7 +16179,7 @@
   },
   {
     "id": "2023-CS-46",
-    "numericId": 437,
+    "numericId": 436,
     "year": 2023,
     "paperSet": "CS",
     "questionNumber": 46,
@@ -16245,7 +16220,7 @@
   },
   {
     "id": "2023-CS-47",
-    "numericId": 438,
+    "numericId": 437,
     "year": 2023,
     "paperSet": "CS",
     "questionNumber": 47,
@@ -16286,7 +16261,7 @@
   },
   {
     "id": "2023-CS-48",
-    "numericId": 439,
+    "numericId": 438,
     "year": 2023,
     "paperSet": "CS",
     "questionNumber": 48,
@@ -16327,7 +16302,7 @@
   },
   {
     "id": "2023-CS-49",
-    "numericId": 440,
+    "numericId": 439,
     "year": 2023,
     "paperSet": "CS",
     "questionNumber": 49,
@@ -16368,7 +16343,7 @@
   },
   {
     "id": "2023-CS-50",
-    "numericId": 441,
+    "numericId": 440,
     "year": 2023,
     "paperSet": "CS",
     "questionNumber": 50,
@@ -16409,7 +16384,7 @@
   },
   {
     "id": "2023-CS-51",
-    "numericId": 442,
+    "numericId": 441,
     "year": 2023,
     "paperSet": "CS",
     "questionNumber": 51,
@@ -16450,7 +16425,7 @@
   },
   {
     "id": "2023-CS-52",
-    "numericId": 443,
+    "numericId": 442,
     "year": 2023,
     "paperSet": "CS",
     "questionNumber": 52,
@@ -16491,7 +16466,7 @@
   },
   {
     "id": "2023-CS-53",
-    "numericId": 444,
+    "numericId": 443,
     "year": 2023,
     "paperSet": "CS",
     "questionNumber": 53,
@@ -16532,7 +16507,7 @@
   },
   {
     "id": "2023-CS-54",
-    "numericId": 445,
+    "numericId": 444,
     "year": 2023,
     "paperSet": "CS",
     "questionNumber": 54,
@@ -16573,7 +16548,7 @@
   },
   {
     "id": "2023-CS-55",
-    "numericId": 446,
+    "numericId": 445,
     "year": 2023,
     "paperSet": "CS",
     "questionNumber": 55,
@@ -16598,7 +16573,7 @@
   },
   {
     "id": "2023-CS-56",
-    "numericId": 447,
+    "numericId": 446,
     "year": 2023,
     "paperSet": "CS",
     "questionNumber": 56,
@@ -16623,7 +16598,7 @@
   },
   {
     "id": "2023-CS-57",
-    "numericId": 448,
+    "numericId": 447,
     "year": 2023,
     "paperSet": "CS",
     "questionNumber": 57,
@@ -16648,7 +16623,7 @@
   },
   {
     "id": "2023-CS-58",
-    "numericId": 449,
+    "numericId": 448,
     "year": 2023,
     "paperSet": "CS",
     "questionNumber": 58,
@@ -16673,7 +16648,7 @@
   },
   {
     "id": "2023-CS-59",
-    "numericId": 450,
+    "numericId": 449,
     "year": 2023,
     "paperSet": "CS",
     "questionNumber": 59,
@@ -16698,7 +16673,7 @@
   },
   {
     "id": "2023-CS-60",
-    "numericId": 451,
+    "numericId": 450,
     "year": 2023,
     "paperSet": "CS",
     "questionNumber": 60,
@@ -16723,7 +16698,7 @@
   },
   {
     "id": "2023-CS-61",
-    "numericId": 452,
+    "numericId": 451,
     "year": 2023,
     "paperSet": "CS",
     "questionNumber": 61,
@@ -16748,7 +16723,7 @@
   },
   {
     "id": "2023-CS-62",
-    "numericId": 453,
+    "numericId": 452,
     "year": 2023,
     "paperSet": "CS",
     "questionNumber": 62,
@@ -16773,7 +16748,7 @@
   },
   {
     "id": "2023-CS-63",
-    "numericId": 454,
+    "numericId": 453,
     "year": 2023,
     "paperSet": "CS",
     "questionNumber": 63,
@@ -16798,7 +16773,7 @@
   },
   {
     "id": "2023-CS-64",
-    "numericId": 455,
+    "numericId": 454,
     "year": 2023,
     "paperSet": "CS",
     "questionNumber": 64,
@@ -16823,7 +16798,7 @@
   },
   {
     "id": "2022-CS-1",
-    "numericId": 456,
+    "numericId": 455,
     "year": 2022,
     "paperSet": "CS",
     "questionNumber": 1,
@@ -16864,7 +16839,7 @@
   },
   {
     "id": "2022-CS-2",
-    "numericId": 457,
+    "numericId": 456,
     "year": 2022,
     "paperSet": "CS",
     "questionNumber": 2,
@@ -16905,7 +16880,7 @@
   },
   {
     "id": "2022-CS-3",
-    "numericId": 458,
+    "numericId": 457,
     "year": 2022,
     "paperSet": "CS",
     "questionNumber": 3,
@@ -16946,7 +16921,7 @@
   },
   {
     "id": "2022-CS-4",
-    "numericId": 459,
+    "numericId": 458,
     "year": 2022,
     "paperSet": "CS",
     "questionNumber": 4,
@@ -16987,7 +16962,7 @@
   },
   {
     "id": "2022-CS-5",
-    "numericId": 460,
+    "numericId": 459,
     "year": 2022,
     "paperSet": "CS",
     "questionNumber": 5,
@@ -17028,7 +17003,7 @@
   },
   {
     "id": "2022-CS-6",
-    "numericId": 461,
+    "numericId": 460,
     "year": 2022,
     "paperSet": "CS",
     "questionNumber": 6,
@@ -17069,7 +17044,7 @@
   },
   {
     "id": "2022-CS-7",
-    "numericId": 462,
+    "numericId": 461,
     "year": 2022,
     "paperSet": "CS",
     "questionNumber": 7,
@@ -17110,7 +17085,7 @@
   },
   {
     "id": "2022-CS-8",
-    "numericId": 463,
+    "numericId": 462,
     "year": 2022,
     "paperSet": "CS",
     "questionNumber": 8,
@@ -17151,7 +17126,7 @@
   },
   {
     "id": "2022-CS-9",
-    "numericId": 464,
+    "numericId": 463,
     "year": 2022,
     "paperSet": "CS",
     "questionNumber": 9,
@@ -17192,7 +17167,7 @@
   },
   {
     "id": "2022-CS-10",
-    "numericId": 465,
+    "numericId": 464,
     "year": 2022,
     "paperSet": "CS",
     "questionNumber": 10,
@@ -17233,32 +17208,7 @@
   },
   {
     "id": "2022-CS-11",
-    "numericId": 466,
-    "year": 2022,
-    "paperSet": "CS",
-    "questionNumber": 11,
-    "sectionId": "CS",
-    "sectionName": "Computer Science & Engineering Mathematics",
-    "subjectId": "programming-ds",
-    "subjectName": "Programming & Data Structures",
-    "type": "NAT",
-    "marks": 1,
-    "negativeMarks": 0.0,
-    "question": "\u2013 Q.22 Multiple Choice Questions (MCQ), carry ONE mark each.",
-    "options": [],
-    "correctAnswer": null,
-    "correctAnswers": null,
-    "natAnswer": 5.0,
-    "natAnswerRange": {
-      "min": 4.9,
-      "max": 5.1
-    },
-    "explanation": "Detailed solution for GATE 2022 (IIT Kharagpur) Q.11. Verifies standard concepts in Programming & Data Structures.",
-    "sourcePaper": "GATE 2022 (IIT Kharagpur)"
-  },
-  {
-    "id": "2022-CS-11",
-    "numericId": 467,
+    "numericId": 465,
     "year": 2022,
     "paperSet": "CS",
     "questionNumber": 11,
@@ -17299,7 +17249,7 @@
   },
   {
     "id": "2022-CS-12",
-    "numericId": 468,
+    "numericId": 466,
     "year": 2022,
     "paperSet": "CS",
     "questionNumber": 12,
@@ -17340,7 +17290,7 @@
   },
   {
     "id": "2022-CS-13",
-    "numericId": 469,
+    "numericId": 467,
     "year": 2022,
     "paperSet": "CS",
     "questionNumber": 13,
@@ -17381,7 +17331,7 @@
   },
   {
     "id": "2022-CS-14",
-    "numericId": 470,
+    "numericId": 468,
     "year": 2022,
     "paperSet": "CS",
     "questionNumber": 14,
@@ -17422,7 +17372,7 @@
   },
   {
     "id": "2022-CS-15",
-    "numericId": 471,
+    "numericId": 469,
     "year": 2022,
     "paperSet": "CS",
     "questionNumber": 15,
@@ -17463,7 +17413,7 @@
   },
   {
     "id": "2022-CS-16",
-    "numericId": 472,
+    "numericId": 470,
     "year": 2022,
     "paperSet": "CS",
     "questionNumber": 16,
@@ -17504,7 +17454,7 @@
   },
   {
     "id": "2022-CS-17",
-    "numericId": 473,
+    "numericId": 471,
     "year": 2022,
     "paperSet": "CS",
     "questionNumber": 17,
@@ -17545,7 +17495,7 @@
   },
   {
     "id": "2022-CS-18",
-    "numericId": 474,
+    "numericId": 472,
     "year": 2022,
     "paperSet": "CS",
     "questionNumber": 18,
@@ -17586,7 +17536,7 @@
   },
   {
     "id": "2022-CS-19",
-    "numericId": 475,
+    "numericId": 473,
     "year": 2022,
     "paperSet": "CS",
     "questionNumber": 19,
@@ -17627,7 +17577,7 @@
   },
   {
     "id": "2022-CS-20",
-    "numericId": 476,
+    "numericId": 474,
     "year": 2022,
     "paperSet": "CS",
     "questionNumber": 20,
@@ -17668,7 +17618,7 @@
   },
   {
     "id": "2022-CS-21",
-    "numericId": 477,
+    "numericId": 475,
     "year": 2022,
     "paperSet": "CS",
     "questionNumber": 21,
@@ -17709,7 +17659,7 @@
   },
   {
     "id": "2022-CS-22",
-    "numericId": 478,
+    "numericId": 476,
     "year": 2022,
     "paperSet": "CS",
     "questionNumber": 22,
@@ -17750,32 +17700,7 @@
   },
   {
     "id": "2022-CS-23",
-    "numericId": 479,
-    "year": 2022,
-    "paperSet": "CS",
-    "questionNumber": 23,
-    "sectionId": "CS",
-    "sectionName": "Computer Science & Engineering Mathematics",
-    "subjectId": "programming-ds",
-    "subjectName": "Programming & Data Structures",
-    "type": "NAT",
-    "marks": 1,
-    "negativeMarks": 0.0,
-    "question": "\u2013 Q.27 Multiple Select Questions (MSQ), carry ONE mark each.",
-    "options": [],
-    "correctAnswer": null,
-    "correctAnswers": null,
-    "natAnswer": 5.0,
-    "natAnswerRange": {
-      "min": 4.9,
-      "max": 5.1
-    },
-    "explanation": "Detailed solution for GATE 2022 (IIT Kharagpur) Q.23. Verifies standard concepts in Programming & Data Structures.",
-    "sourcePaper": "GATE 2022 (IIT Kharagpur)"
-  },
-  {
-    "id": "2022-CS-23",
-    "numericId": 480,
+    "numericId": 477,
     "year": 2022,
     "paperSet": "CS",
     "questionNumber": 23,
@@ -17816,7 +17741,7 @@
   },
   {
     "id": "2022-CS-24",
-    "numericId": 481,
+    "numericId": 478,
     "year": 2022,
     "paperSet": "CS",
     "questionNumber": 24,
@@ -17857,7 +17782,7 @@
   },
   {
     "id": "2022-CS-25",
-    "numericId": 482,
+    "numericId": 479,
     "year": 2022,
     "paperSet": "CS",
     "questionNumber": 25,
@@ -17898,7 +17823,7 @@
   },
   {
     "id": "2022-CS-26",
-    "numericId": 483,
+    "numericId": 480,
     "year": 2022,
     "paperSet": "CS",
     "questionNumber": 26,
@@ -17939,7 +17864,7 @@
   },
   {
     "id": "2022-CS-27",
-    "numericId": 484,
+    "numericId": 481,
     "year": 2022,
     "paperSet": "CS",
     "questionNumber": 27,
@@ -17980,32 +17905,7 @@
   },
   {
     "id": "2022-CS-28",
-    "numericId": 485,
-    "year": 2022,
-    "paperSet": "CS",
-    "questionNumber": 28,
-    "sectionId": "CS",
-    "sectionName": "Computer Science & Engineering Mathematics",
-    "subjectId": "computer-networks",
-    "subjectName": "Computer Networks",
-    "type": "NAT",
-    "marks": 1,
-    "negativeMarks": 0.0,
-    "question": "\u2013 Q.35 Numerical Answer Type (NAT), carry ONE mark each.",
-    "options": [],
-    "correctAnswer": null,
-    "correctAnswers": null,
-    "natAnswer": 5.0,
-    "natAnswerRange": {
-      "min": 4.9,
-      "max": 5.1
-    },
-    "explanation": "Detailed solution for GATE 2022 (IIT Kharagpur) Q.28. Verifies standard concepts in Computer Networks.",
-    "sourcePaper": "GATE 2022 (IIT Kharagpur)"
-  },
-  {
-    "id": "2022-CS-28",
-    "numericId": 486,
+    "numericId": 482,
     "year": 2022,
     "paperSet": "CS",
     "questionNumber": 28,
@@ -18030,7 +17930,7 @@
   },
   {
     "id": "2022-CS-29",
-    "numericId": 487,
+    "numericId": 483,
     "year": 2022,
     "paperSet": "CS",
     "questionNumber": 29,
@@ -18055,7 +17955,7 @@
   },
   {
     "id": "2022-CS-30",
-    "numericId": 488,
+    "numericId": 484,
     "year": 2022,
     "paperSet": "CS",
     "questionNumber": 30,
@@ -18080,7 +17980,7 @@
   },
   {
     "id": "2022-CS-31",
-    "numericId": 489,
+    "numericId": 485,
     "year": 2022,
     "paperSet": "CS",
     "questionNumber": 31,
@@ -18105,7 +18005,7 @@
   },
   {
     "id": "2022-CS-32",
-    "numericId": 490,
+    "numericId": 486,
     "year": 2022,
     "paperSet": "CS",
     "questionNumber": 32,
@@ -18130,7 +18030,7 @@
   },
   {
     "id": "2022-CS-33",
-    "numericId": 491,
+    "numericId": 487,
     "year": 2022,
     "paperSet": "CS",
     "questionNumber": 33,
@@ -18155,7 +18055,7 @@
   },
   {
     "id": "2022-CS-34",
-    "numericId": 492,
+    "numericId": 488,
     "year": 2022,
     "paperSet": "CS",
     "questionNumber": 34,
@@ -18180,7 +18080,7 @@
   },
   {
     "id": "2022-CS-35",
-    "numericId": 493,
+    "numericId": 489,
     "year": 2022,
     "paperSet": "CS",
     "questionNumber": 35,
@@ -18205,32 +18105,7 @@
   },
   {
     "id": "2022-CS-36",
-    "numericId": 494,
-    "year": 2022,
-    "paperSet": "CS",
-    "questionNumber": 36,
-    "sectionId": "CS",
-    "sectionName": "Computer Science & Engineering Mathematics",
-    "subjectId": "programming-ds",
-    "subjectName": "Programming & Data Structures",
-    "type": "NAT",
-    "marks": 2,
-    "negativeMarks": 0.0,
-    "question": "\u2013 Q.45 Multiple Choice Questions (MCQ), carry TWO marks each.",
-    "options": [],
-    "correctAnswer": null,
-    "correctAnswers": null,
-    "natAnswer": 5.0,
-    "natAnswerRange": {
-      "min": 4.9,
-      "max": 5.1
-    },
-    "explanation": "Detailed solution for GATE 2022 (IIT Kharagpur) Q.36. Verifies standard concepts in Programming & Data Structures.",
-    "sourcePaper": "GATE 2022 (IIT Kharagpur)"
-  },
-  {
-    "id": "2022-CS-36",
-    "numericId": 495,
+    "numericId": 490,
     "year": 2022,
     "paperSet": "CS",
     "questionNumber": 36,
@@ -18271,7 +18146,7 @@
   },
   {
     "id": "2022-CS-37",
-    "numericId": 496,
+    "numericId": 491,
     "year": 2022,
     "paperSet": "CS",
     "questionNumber": 37,
@@ -18312,7 +18187,7 @@
   },
   {
     "id": "2022-CS-38",
-    "numericId": 497,
+    "numericId": 492,
     "year": 2022,
     "paperSet": "CS",
     "questionNumber": 38,
@@ -18353,7 +18228,7 @@
   },
   {
     "id": "2022-CS-39",
-    "numericId": 498,
+    "numericId": 493,
     "year": 2022,
     "paperSet": "CS",
     "questionNumber": 39,
@@ -18394,7 +18269,7 @@
   },
   {
     "id": "2022-CS-40",
-    "numericId": 499,
+    "numericId": 494,
     "year": 2022,
     "paperSet": "CS",
     "questionNumber": 40,
@@ -18435,7 +18310,7 @@
   },
   {
     "id": "2022-CS-41",
-    "numericId": 500,
+    "numericId": 495,
     "year": 2022,
     "paperSet": "CS",
     "questionNumber": 41,
@@ -18476,7 +18351,7 @@
   },
   {
     "id": "2022-CS-42",
-    "numericId": 501,
+    "numericId": 496,
     "year": 2022,
     "paperSet": "CS",
     "questionNumber": 42,
@@ -18517,7 +18392,7 @@
   },
   {
     "id": "2022-CS-43",
-    "numericId": 502,
+    "numericId": 497,
     "year": 2022,
     "paperSet": "CS",
     "questionNumber": 43,
@@ -18558,7 +18433,7 @@
   },
   {
     "id": "2022-CS-44",
-    "numericId": 503,
+    "numericId": 498,
     "year": 2022,
     "paperSet": "CS",
     "questionNumber": 44,
@@ -18599,7 +18474,7 @@
   },
   {
     "id": "2022-CS-45",
-    "numericId": 504,
+    "numericId": 499,
     "year": 2022,
     "paperSet": "CS",
     "questionNumber": 45,
@@ -18640,32 +18515,7 @@
   },
   {
     "id": "2022-CS-46",
-    "numericId": 505,
-    "year": 2022,
-    "paperSet": "CS",
-    "questionNumber": 46,
-    "sectionId": "CS",
-    "sectionName": "Computer Science & Engineering Mathematics",
-    "subjectId": "programming-ds",
-    "subjectName": "Programming & Data Structures",
-    "type": "NAT",
-    "marks": 2,
-    "negativeMarks": 0.0,
-    "question": "\u2013 Q.555 Multiple Select Questions (MSQ), carry TWO marks each.",
-    "options": [],
-    "correctAnswer": null,
-    "correctAnswers": null,
-    "natAnswer": 5.0,
-    "natAnswerRange": {
-      "min": 4.9,
-      "max": 5.1
-    },
-    "explanation": "Detailed solution for GATE 2022 (IIT Kharagpur) Q.46. Verifies standard concepts in Programming & Data Structures.",
-    "sourcePaper": "GATE 2022 (IIT Kharagpur)"
-  },
-  {
-    "id": "2022-CS-46",
-    "numericId": 506,
+    "numericId": 500,
     "year": 2022,
     "paperSet": "CS",
     "questionNumber": 46,
@@ -18706,7 +18556,7 @@
   },
   {
     "id": "2022-CS-47",
-    "numericId": 507,
+    "numericId": 501,
     "year": 2022,
     "paperSet": "CS",
     "questionNumber": 47,
@@ -18747,7 +18597,7 @@
   },
   {
     "id": "2022-CS-48",
-    "numericId": 508,
+    "numericId": 502,
     "year": 2022,
     "paperSet": "CS",
     "questionNumber": 48,
@@ -18788,7 +18638,7 @@
   },
   {
     "id": "2022-CS-49",
-    "numericId": 509,
+    "numericId": 503,
     "year": 2022,
     "paperSet": "CS",
     "questionNumber": 49,
@@ -18829,7 +18679,7 @@
   },
   {
     "id": "2022-CS-50",
-    "numericId": 510,
+    "numericId": 504,
     "year": 2022,
     "paperSet": "CS",
     "questionNumber": 50,
@@ -18870,7 +18720,7 @@
   },
   {
     "id": "2022-CS-51",
-    "numericId": 511,
+    "numericId": 505,
     "year": 2022,
     "paperSet": "CS",
     "questionNumber": 51,
@@ -18911,7 +18761,7 @@
   },
   {
     "id": "2022-CS-52",
-    "numericId": 512,
+    "numericId": 506,
     "year": 2022,
     "paperSet": "CS",
     "questionNumber": 52,
@@ -18952,7 +18802,7 @@
   },
   {
     "id": "2022-CS-53",
-    "numericId": 513,
+    "numericId": 507,
     "year": 2022,
     "paperSet": "CS",
     "questionNumber": 53,
@@ -18993,7 +18843,7 @@
   },
   {
     "id": "2022-CS-54",
-    "numericId": 514,
+    "numericId": 508,
     "year": 2022,
     "paperSet": "CS",
     "questionNumber": 54,
@@ -19034,7 +18884,7 @@
   },
   {
     "id": "2022-CS-55",
-    "numericId": 515,
+    "numericId": 509,
     "year": 2022,
     "paperSet": "CS",
     "questionNumber": 55,
@@ -19075,32 +18925,7 @@
   },
   {
     "id": "2022-CS-56",
-    "numericId": 516,
-    "year": 2022,
-    "paperSet": "CS",
-    "questionNumber": 56,
-    "sectionId": "CS",
-    "sectionName": "Computer Science & Engineering Mathematics",
-    "subjectId": "computer-networks",
-    "subjectName": "Computer Networks",
-    "type": "NAT",
-    "marks": 2,
-    "negativeMarks": 0.0,
-    "question": "\u2013 Q.65 Numerical Answer Type (NAT), carry TWO marks each.",
-    "options": [],
-    "correctAnswer": null,
-    "correctAnswers": null,
-    "natAnswer": 5.0,
-    "natAnswerRange": {
-      "min": 4.9,
-      "max": 5.1
-    },
-    "explanation": "Detailed solution for GATE 2022 (IIT Kharagpur) Q.56. Verifies standard concepts in Computer Networks.",
-    "sourcePaper": "GATE 2022 (IIT Kharagpur)"
-  },
-  {
-    "id": "2022-CS-56",
-    "numericId": 517,
+    "numericId": 510,
     "year": 2022,
     "paperSet": "CS",
     "questionNumber": 56,
@@ -19125,7 +18950,7 @@
   },
   {
     "id": "2022-CS-57",
-    "numericId": 518,
+    "numericId": 511,
     "year": 2022,
     "paperSet": "CS",
     "questionNumber": 57,
@@ -19150,7 +18975,7 @@
   },
   {
     "id": "2022-CS-58",
-    "numericId": 519,
+    "numericId": 512,
     "year": 2022,
     "paperSet": "CS",
     "questionNumber": 58,
@@ -19175,7 +19000,7 @@
   },
   {
     "id": "2022-CS-59",
-    "numericId": 520,
+    "numericId": 513,
     "year": 2022,
     "paperSet": "CS",
     "questionNumber": 59,
@@ -19200,7 +19025,7 @@
   },
   {
     "id": "2022-CS-60",
-    "numericId": 521,
+    "numericId": 514,
     "year": 2022,
     "paperSet": "CS",
     "questionNumber": 60,
@@ -19225,7 +19050,7 @@
   },
   {
     "id": "2022-CS-61",
-    "numericId": 522,
+    "numericId": 515,
     "year": 2022,
     "paperSet": "CS",
     "questionNumber": 61,
@@ -19250,7 +19075,7 @@
   },
   {
     "id": "2022-CS-62",
-    "numericId": 523,
+    "numericId": 516,
     "year": 2022,
     "paperSet": "CS",
     "questionNumber": 62,
@@ -19275,7 +19100,7 @@
   },
   {
     "id": "2022-CS-63",
-    "numericId": 524,
+    "numericId": 517,
     "year": 2022,
     "paperSet": "CS",
     "questionNumber": 63,
@@ -19300,7 +19125,7 @@
   },
   {
     "id": "2022-CS-64",
-    "numericId": 525,
+    "numericId": 518,
     "year": 2022,
     "paperSet": "CS",
     "questionNumber": 64,
@@ -19325,7 +19150,7 @@
   },
   {
     "id": "2022-CS-65",
-    "numericId": 526,
+    "numericId": 519,
     "year": 2022,
     "paperSet": "CS",
     "questionNumber": 65,

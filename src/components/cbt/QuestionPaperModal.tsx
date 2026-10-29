@@ -115,7 +115,7 @@ export const QuestionPaperModal: React.FC<QuestionPaperModalProps> = ({
               : (resp?.selectedOption !== null && resp?.selectedOption !== undefined);
 
             return (
-              <div key={q.id} className="pt-4 first:pt-0 space-y-2">
+              <div key={`${q.id}-${originalIndex}`} className="pt-4 first:pt-0 space-y-2">
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex items-center gap-2 flex-wrap">
                     <span className="px-2 py-0.5 rounded-md bg-blue-600 text-white text-xs font-black">

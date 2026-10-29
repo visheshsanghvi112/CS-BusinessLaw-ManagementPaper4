@@ -257,9 +257,9 @@ export const GlobalCommandPalette: React.FC<GlobalCommandPaletteProps> = ({
                 <span>Past GATE Questions:</span>
               </div>
               <div className="space-y-1.5">
-                {matchingQuestions.map(q => (
+                {matchingQuestions.map((q, idx) => (
                   <div
-                    key={q.id}
+                    key={`${q.id}-${idx}`}
                     className="p-3 rounded-2xl bg-slate-950/70 border border-slate-800 space-y-1.5"
                   >
                     <div className="flex items-center justify-between text-[11px]">
