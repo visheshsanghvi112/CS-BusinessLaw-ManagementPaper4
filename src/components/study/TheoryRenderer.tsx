@@ -636,3 +636,4 @@ export const TheoryRenderer: React.FC<TheoryRendererProps> = ({ content }) => {
     </div>
   );
 };
+
