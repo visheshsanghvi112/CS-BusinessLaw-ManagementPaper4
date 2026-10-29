@@ -254,3 +254,4 @@ with open('src/lib/gateQuestions.json', 'w') as f:
     json.dump(questions, f, indent=2)
 
 print(f'Successfully updated gateQuestions.json. Total questions: {len(questions)}.')
+

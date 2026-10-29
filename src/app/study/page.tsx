@@ -5,24 +5,18 @@ import { useRouter } from 'next/navigation';
 import { GATE_STUDY_MODULES, getAllStudyTopics, TopicNote, SubjectStudyModule } from '@/lib/gateStudyNotes';
 import { StudySidebar } from '@/components/study/StudySidebar';
 import { TopicNoteViewer } from '@/components/study/TopicNoteViewer';
-import { ScientificCalculator } from '@/components/cbt/ScientificCalculator';
 import { RevisionNotesModal } from '@/components/cbt/RevisionNotesModal';
-import { MistakeNotebookModal } from '@/components/cbt/MistakeNotebookModal';
 import { FormulaFlashcardsModal } from '@/components/study/FormulaFlashcardsModal';
 import { GlobalCommandPalette } from '@/components/common/GlobalCommandPalette';
-import { getMistakeRecords } from '@/lib/storage';
+import { getCompletedTopics } from '@/lib/storage';
 import {
   BookOpen,
   ChevronLeft,
-  Calculator,
   BookMarked,
-  Layers,
   Menu,
   X,
-  Sparkles,
-  Zap,
   Search,
-  AlertTriangle
+  CheckCircle2
 } from 'lucide-react';
 
 export default function StudyPage() {
@@ -32,12 +26,10 @@ export default function StudyPage() {
   const [activeTopic, setActiveTopic] = useState<TopicNote>(allTopics[0]?.topic);
   const [activeModule, setActiveModule] = useState<SubjectStudyModule>(allTopics[0]?.module);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [isCalcOpen, setIsCalcOpen] = useState(false);
   const [isFormulaModalOpen, setIsFormulaModalOpen] = useState(false);
   const [isFlashcardsModalOpen, setIsFlashcardsModalOpen] = useState(false);
-  const [isMistakesModalOpen, setIsMistakesModalOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
-  const [mistakesCount, setMistakesCount] = useState(0);
+  const [completedCount, setCompletedCount] = useState(0);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
 
   // Read URL query params on load (e.g. /study?topic=dm-graphs or /study?subject=os)
@@ -63,7 +55,7 @@ export default function StudyPage() {
   }, [allTopics]);
 
   useEffect(() => {
-    setMistakesCount(getMistakeRecords().filter(m => !m.isResolved).length);
+    setCompletedCount(getCompletedTopics().length);
     const handleKeyDown = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
         e.preventDefault();
@@ -72,7 +64,7 @@ export default function StudyPage() {
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, []);
+  }, [refreshTrigger]);
 
   const currentIndex = allTopics.findIndex(t => t.topic.id === activeTopic.id);
   const hasPrevTopic = currentIndex > 0;
@@ -130,43 +122,25 @@ export default function StudyPage() {
                 Study &amp; Learn Hub
               </span>
               <span className="text-xs text-slate-400 font-mono hidden md:inline">
-                IIT Madras GATE 2027 Syllabus Notes
+                {allTopics.length} Official Syllabus Modules
+              </span>
+              <span className="hidden sm:inline-flex items-center gap-1 text-[11px] font-mono px-2 py-0.5 rounded-full bg-slate-900 border border-slate-800 text-emerald-400">
+                <CheckCircle2 className="w-3 h-3 text-emerald-400" />
+                <span>{completedCount}/{allTopics.length} Read</span>
               </span>
             </div>
           </div>
 
-          {/* Quick Header Utilities */}
+          {/* Quick Header Utilities - Pure Learning Tools */}
           <div className="flex items-center gap-1.5 sm:gap-2">
             <button
               onClick={() => setIsSearchOpen(true)}
               className="px-2.5 sm:px-3 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-700/80 text-slate-300 font-bold text-xs flex items-center gap-1.5 transition cursor-pointer"
-              title="Search topics, formulas, questions (⌘K)"
+              title="Search topics and formulas (⌘K)"
             >
               <Search className="w-3.5 h-3.5 text-blue-400" />
               <span className="hidden sm:inline">Search</span>
               <kbd className="hidden md:inline px-1 rounded bg-slate-800 text-[10px] font-mono text-slate-400 border border-slate-700">⌘K</kbd>
-            </button>
-
-            <button
-              onClick={() => setIsMistakesModalOpen(true)}
-              className="px-2.5 sm:px-3 py-1.5 rounded-xl bg-amber-950/80 hover:bg-amber-900 border border-amber-600/60 text-amber-300 font-bold text-xs flex items-center gap-1.5 transition cursor-pointer"
-              title="Open Mistake Notebook"
-            >
-              <AlertTriangle className="w-3.5 h-3.5 text-amber-400" />
-              <span className="hidden sm:inline">Mistakes</span>
-              {mistakesCount > 0 && (
-                <span className="px-1.5 rounded-full bg-amber-500 text-slate-950 font-black text-[10px]">
-                  {mistakesCount}
-                </span>
-              )}
-            </button>
-
-            <button
-              onClick={() => setIsCalcOpen(true)}
-              className="px-2.5 sm:px-3 py-1.5 rounded-xl bg-emerald-950/80 hover:bg-emerald-900 border border-emerald-700/80 text-emerald-300 font-bold text-xs flex items-center gap-1.5 transition cursor-pointer"
-            >
-              <Calculator className="w-3.5 h-3.5 text-emerald-400" />
-              <span className="hidden sm:inline">Calculator</span>
             </button>
 
             <button
@@ -175,15 +149,16 @@ export default function StudyPage() {
               title="Active Recall Formula Flashcards"
             >
               <BookMarked className="w-3.5 h-3.5 text-indigo-400" />
-              <span className="hidden sm:inline">Flashcards</span>
+              <span>Flashcards</span>
             </button>
 
             <button
-              onClick={() => router.push('/test')}
-              className="px-3.5 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-extrabold text-xs sm:text-sm shadow-md transition flex items-center gap-1.5 cursor-pointer"
+              onClick={() => setIsFormulaModalOpen(true)}
+              className="px-2.5 sm:px-3 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-700 text-slate-200 font-bold text-xs flex items-center gap-1.5 transition cursor-pointer"
+              title="Quick Formula & Theorem Reference Sheet"
             >
-              <Zap className="w-3.5 h-3.5" />
-              <span>Mock Engine</span>
+              <BookOpen className="w-3.5 h-3.5 text-emerald-400" />
+              <span className="hidden sm:inline">Cheat Sheet</span>
             </button>
           </div>
         </div>
@@ -231,12 +206,6 @@ export default function StudyPage() {
         </div>
       )}
 
-      {/* Virtual Scientific Calculator Modal */}
-      <ScientificCalculator
-        isOpen={isCalcOpen}
-        onClose={() => setIsCalcOpen(false)}
-      />
-
       {/* Formula Sheet Modal */}
       <RevisionNotesModal
         isOpen={isFormulaModalOpen}
@@ -247,15 +216,6 @@ export default function StudyPage() {
       <FormulaFlashcardsModal
         isOpen={isFlashcardsModalOpen}
         onClose={() => setIsFlashcardsModalOpen(false)}
-      />
-
-      {/* Mistake Notebook Modal */}
-      <MistakeNotebookModal
-        isOpen={isMistakesModalOpen}
-        onClose={() => {
-          setIsMistakesModalOpen(false);
-          setMistakesCount(getMistakeRecords().filter(m => !m.isResolved).length);
-        }}
       />
 
       {/* Global Command Palette (⌘K) */}

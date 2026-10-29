@@ -3,21 +3,17 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { TopicNote, SubjectStudyModule } from '@/lib/gateStudyNotes';
-import { createNewSession, getSavedCandidateName, isTopicCompleted, toggleTopicCompletion } from '@/lib/storage';
+import { isTopicCompleted, toggleTopicCompletion } from '@/lib/storage';
 import {
   BookOpen,
   Clock,
   Sparkles,
   AlertTriangle,
-  Play,
   CheckCircle2,
   ChevronRight,
-  Bookmark,
-  Share2,
-  Layers,
+  ChevronLeft,
   HelpCircle,
-  Eye,
-  Zap
+  BookMarked
 } from 'lucide-react';
 
 interface TopicNoteViewerProps {
@@ -54,16 +50,6 @@ export const TopicNoteViewer: React.FC<TopicNoteViewerProps> = ({
     if (onCompletionChange) {
       onCompletionChange();
     }
-  };
-
-  // Launch a practice drill for this topic's subject
-  const handleLaunchTopicDrill = (mode: 'study' | 'exam' = 'study') => {
-    const candidateName = getSavedCandidateName();
-    createNewSession(`subject-${module.subjectId}`, candidateName, {
-      subjectIds: [module.subjectId as any],
-      mode
-    });
-    router.push('/test');
   };
 
   return (
@@ -114,40 +100,6 @@ export const TopicNoteViewer: React.FC<TopicNoteViewerProps> = ({
           </button>
         </div>
       </header>
-
-      {/* Quick Launch Practice Banner */}
-      <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-blue-950/60 via-slate-900 to-indigo-950/60 border border-blue-600/40 shadow-lg flex flex-col sm:flex-row sm:items-center justify-between gap-3 select-none">
-        <div>
-          <div className="flex items-center gap-2">
-            <Sparkles className="w-4 h-4 text-blue-400" />
-            <h4 className="font-extrabold text-sm sm:text-base text-white">
-              Practice {module.subjectName} PYQs
-            </h4>
-          </div>
-          <p className="text-xs text-slate-300 mt-0.5">
-            Test yourself on authentic 2007–2026 GATE questions from this subject immediately.
-          </p>
-        </div>
-
-        <div className="flex items-center gap-2 shrink-0">
-          <button
-            type="button"
-            onClick={() => handleLaunchTopicDrill('study')}
-            className="px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-xs shadow-md transition flex items-center gap-1.5 cursor-pointer"
-          >
-            <Eye className="w-3.5 h-3.5" />
-            <span>Study Drill</span>
-          </button>
-          <button
-            type="button"
-            onClick={() => handleLaunchTopicDrill('exam')}
-            className="px-3.5 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-extrabold text-xs shadow-md transition flex items-center gap-1.5 cursor-pointer"
-          >
-            <Play className="w-3.5 h-3.5 fill-current" />
-            <span>Exam Drill</span>
-          </button>
-        </div>
-      </div>
 
       {/* Summary Box */}
       <section className="p-5 rounded-2xl bg-slate-900/90 border border-slate-800 space-y-2">
