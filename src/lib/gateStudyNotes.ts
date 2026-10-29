@@ -188,6 +188,52 @@ A bipartite graph $G = (X \\cup Y, E)$ has a matching that covers $X$ if and onl
           correctAnswer: '969',
           explanation: 'Using stars and bars with positive constraints: C(n-1, k-1) = C(20-1, 4-1) = C(19, 3) = (19 * 18 * 17) / (3 * 2 * 1) = 969.'
         }
+      },
+      {
+        id: 'dm-algebraic-structures',
+        topicTitle: 'Sets, Relations, Lattices & Group Theory',
+        syllabusRef: 'Section 1: Sets, relations, functions, partial orders and lattices. Monoids, Groups',
+        estimatedReadTime: '9 mins',
+        summary: 'Algebraic structures investigate operations on sets satisfying axioms (closure, associativity, identity, inverses). Posets and lattices model partial ordering, upper/lower bounds, and Boolean logic lattices.',
+        keyFormulasAndTheorems: [
+          {
+            title: 'Equivalence Relations & Partitions',
+            formula: 'Reflexive + Symmetric + Transitive => Equivalence Relation',
+            explanation: 'Number of equivalence relations on a set of size n equals the Bell Number B(n).'
+          },
+          {
+            title: "Lagrange's Subgroup Theorem",
+            formula: '|H| divides |G| for any finite subgroup H of G',
+            explanation: 'The order of any element in a finite group divides the order of the group: a^|G| = e.'
+          },
+          {
+            title: 'Lattice Join & Meet Conditions',
+            formula: 'LUB(a, b) = a ∨ b (Join),  GLB(a, b) = a ∧ b (Meet)',
+            explanation: 'A poset is a lattice if and only if every pair of elements has a unique LUB and unique GLB.'
+          }
+        ],
+        deepDiveContent: `### Hierarchy of Algebraic Structures
+1. **Semi-group**: Closed + Associative.
+2. **Monoid**: Semi-group + Identity element (e).
+3. **Group**: Monoid + Inverses for all elements (a · a^{-1} = e).
+4. **Abelian Group**: Group + Commutative property (a · b = b · a).
+
+### Counting Relations on Set with n Elements
+- **Total Relations**: 2^{n^2}
+- **Reflexive Relations**: 2^{n^2 - n}
+- **Symmetric Relations**: 2^{n(n+1)/2}
+- **Reflexive & Symmetric**: 2^{n(n-1)/2}`,
+        examinerTraps: [
+          'Confusing Antisymmetric (if aRb and bRa => a = b) with Asymmetric (if aRb => not bRa).',
+          'Assuming a group can have an element with order that does not divide |G| (strictly forbidden by Lagrange Theorem).',
+          'Assuming every poset is a lattice: A poset where two elements have multiple minimal upper bounds is NOT a lattice.'
+        ],
+        sampleGateProblem: {
+          question: 'Let G be a finite group of order 35. What is the maximum possible order of a proper non-trivial subgroup of G?',
+          type: 'NAT',
+          correctAnswer: '7',
+          explanation: 'By Lagrange Theorem, the order of any subgroup H must divide |G| = 35. The positive divisors of 35 are 1, 5, 7, and 35. For a proper non-trivial subgroup, |H| can be 5 or 7. The maximum possible order is 7.'
+        }
       }
     ]
   },
@@ -703,6 +749,48 @@ When n -> ∞ and p -> 0 such that λ = np remains constant, B(n, p) ≈ Poisson
           correctAnswer: '170',
           explanation: 'Clock cycle time = max(stage delays) + register delay = max(150, 120, 160, 140, 110) + 10 = 160 + 10 = 170 ps.'
         }
+      },
+      {
+        id: 'coa-control-io-dma',
+        topicTitle: 'Addressing Modes, Control Unit & I/O DMA',
+        syllabusRef: 'Section 3: Instruction set and addressing modes. Design of control unit – hardwired and microprogrammed. I/O interface (interrupt and DMA)',
+        estimatedReadTime: '9 mins',
+        summary: 'Control units sequence hardware operations using hardwired state machines or microprogrammed control memories. Direct Memory Access (DMA) offloads high-speed block data transfers from the CPU.',
+        keyFormulasAndTheorems: [
+          {
+            title: 'PC-Relative Addressing Formula',
+            formula: 'Effective Address (EA) = (PC + 1 or PC + 2) + Offset (Displacement)',
+            explanation: 'Displacement is added to the updated PC pointing to the NEXT sequential instruction, NOT the current instruction!'
+          },
+          {
+            title: 'DMA Cycle Stealing Overhead',
+            formula: 'CPU Bus Time Lost = (Device Transfer Rate / Memory Bus Bandwidth) * 100%',
+            explanation: 'In cycle stealing mode, the DMA controller takes control of the memory bus for 1 memory cycle per word transferred.'
+          },
+          {
+            title: 'Microprogrammed Control Word Size',
+            formula: 'Control Word Bits = Unencoded Signals + ⌈log2(Mux Inputs)⌉ + ⌈log2(Control Memory Words)⌉',
+            explanation: 'Horizontal microprogramming uses unencoded wide words; vertical microprogramming encodes mutually exclusive signals with decoders.'
+          }
+        ],
+        deepDiveContent: `### Hardwired vs Microprogrammed Control Unit
+- **Hardwired**: Fast, fixed combinational logic (FSMs, decoders), difficult to modify, RISC architectures.
+- **Microprogrammed**: Flexible, slower, micro-instructions stored in Control Store (ROM), CISC architectures.
+
+### I/O Data Transfer Modes
+1. **Programmed I/O**: CPU polls device status in busy-wait loop; highest CPU overhead.
+2. **Interrupt-Driven I/O**: Device triggers interrupt pin when ready; context-switch overhead per byte/word.
+3. **DMA (Direct Memory Access)**: Dedicated controller transfers entire blocks directly to/from RAM; CPU only interrupted on block completion.`,
+        examinerTraps: [
+          'Calculating PC-relative branch target from the current instruction address instead of the updated PC (pointing to the next instruction).',
+          'In DMA cycle stealing questions, forgetting that the device speed determines how frequently bus cycles are stolen.'
+        ],
+        sampleGateProblem: {
+          question: 'A hard disk transfers data at 8 MB/s. The system bus has a transfer rate of 40 MB/s. If DMA cycle-stealing mode is used, what percentage of bus time is consumed by the DMA transfer?',
+          type: 'NAT',
+          correctAnswer: '20',
+          explanation: 'Percentage of bus time consumed = (Device Rate / Bus Rate) * 100% = (8 MB/s / 40 MB/s) * 100% = 0.20 * 100% = 20%.'
+        }
       }
     ]
   },
@@ -1192,6 +1280,51 @@ $$\\text{Strict} \\subset \\text{Cascadeless} \\subset \\text{Recoverable}$$
           correctAnswer: 'C',
           explanation: 'Conservative 2PL requires a transaction to acquire all its locks before starting execution (all-or-nothing). This eliminates the Hold & Wait condition, making deadlocks impossible while maintaining serializability.'
         }
+      },
+      {
+        id: 'dbms-relational-algebra-sql',
+        topicTitle: 'Relational Algebra, Tuple Calculus & SQL',
+        syllabusRef: 'Section 9: Relational model: relational algebra, tuple calculus, SQL',
+        estimatedReadTime: '9 mins',
+        summary: 'Relational algebra is a procedural query language defining fundamental algebraic operations on relations. SQL translates declarative queries using 3-valued boolean logic with NULL semantics.',
+        keyFormulasAndTheorems: [
+          {
+            title: "Codd's Equivalence Theorem",
+            formula: 'Relational Algebra ≡ Safe Tuple Relational Calculus (TRC) ≡ Safe Domain Relational Calculus (DRC)',
+            explanation: 'A query language is relationally complete if it is at least as expressive as first-order relational algebra.'
+          },
+          {
+            title: 'Relational Division (R ÷ S)',
+            formula: 'Finds tuples in R that are associated with ALL tuples in S',
+            explanation: 'Essential for queries answering "all", "every" (e.g., students enrolled in all courses).'
+          },
+          {
+            title: 'SQL 3-Valued Logic with NULL',
+            formula: 'TRUE ∧ UNKNOWN = UNKNOWN | FALSE ∧ UNKNOWN = FALSE | NOT UNKNOWN = UNKNOWN',
+            explanation: 'WHERE clauses only filter in rows where the predicate evaluates strictly to TRUE (UNKNOWN is treated as false).'
+          }
+        ],
+        deepDiveContent: `### Fundamental Relational Algebra Operations
+1. **Select (σ)**: Filters rows based on condition: σ_{Age > 20}(Students).
+2. **Project (π)**: Filters columns, eliminates duplicates: π_{Name, Roll}(Students).
+3. **Cartesian Product (×)**: Combines all tuples from two relations.
+4. **Union (∪)**, **Difference (-)**: Require union-compatible schemas.
+5. **Rename (ρ)**: Renames relations or attributes.
+
+### SQL NULL Aggregations
+- COUNT(*): Counts all rows, including NULLs.
+- COUNT(column): Counts ONLY non-NULL values.
+- SUM(column), AVG(column): Ignore NULL entries completely.`,
+        examinerTraps: [
+          'Using "=" with NULL in SQL: "col = NULL" is always UNKNOWN (falsy in WHERE). Must use "col IS NULL"!',
+          'Assuming WHERE col != 5 returns rows where col is NULL: NULL != 5 evaluates to UNKNOWN, so row is excluded.'
+        ],
+        sampleGateProblem: {
+          question: 'Consider a relation R(A, B) with 10 tuples, where attribute A has 4 NULL values and 6 distinct non-null values. What is the value returned by SELECT COUNT(A) FROM R?',
+          type: 'NAT',
+          correctAnswer: '6',
+          explanation: 'COUNT(column) ignores all NULL values and counts only non-null occurrences. With 4 NULL values out of 10, COUNT(A) = 10 - 4 = 6.'
+        }
       }
     ]
   },
@@ -1287,6 +1420,50 @@ When a router receives an IP packet, it matches the destination IP address with 
           type: 'NAT',
           correctAnswer: '185',
           explanation: 'Maximum payload per fragment = 1500 - 20 = 1480 bytes (which is divisible by 8: 1480 / 8 = 185). The first fragment carries 1480 bytes of data (offset 0). The second fragment starts at byte 1480. Fragment offset = 1480 / 8 = 185.'
+        }
+      },
+      {
+        id: 'cn-datalink-ethernet',
+        topicTitle: 'Data Link Layer, Flow Control & CSMA/CD',
+        syllabusRef: 'Section 10: Data link layer: error detection, Medium Access Control, Ethernet',
+        estimatedReadTime: '9 mins',
+        summary: 'The data link layer frames bit streams, detects errors via CRC polynomials, manages flow control using sliding windows, and arbitrates shared channel access with Ethernet CSMA/CD.',
+        keyFormulasAndTheorems: [
+          {
+            title: 'Stop-and-Wait Flow Control Efficiency',
+            formula: 'η = T_trans / (T_trans + 2 * T_prop) = 1 / (1 + 2a),  where a = T_prop / T_trans',
+            explanation: 'Propagation delay T_prop = Distance / Propagation_Speed; Transmission delay T_trans = Frame_Size / Bandwidth.'
+          },
+          {
+            title: 'Window Sizes for GBN and Selective Repeat',
+            formula: 'Go-Back-N: W_s = 2^k - 1, W_r = 1 | Selective Repeat: W_s = W_r = 2^(k - 1)',
+            explanation: 'Prevents overlap between sequence number spaces for k-bit sequence numbers.'
+          },
+          {
+            title: 'Ethernet CSMA/CD Minimum Frame Size',
+            formula: 'L_min ≥ 2 * T_prop * Bandwidth',
+            explanation: 'Transmission duration must be at least 2 * T_prop (round-trip propagation time) to guarantee collision detection.'
+          }
+        ],
+        deepDiveContent: `### CRC (Cyclic Redundancy Check) Division
+1. Generator polynomial G(x) of degree r (has r+1 bits).
+2. Append r zeros to the data bit string.
+3. Perform modulo-2 binary division (using XOR operations without carry).
+4. The r-bit remainder is appended to the original data frame as CRC checksum.
+
+### Binary Exponential Backoff Algorithm
+- After i-th collision (1 ≤ i ≤ 10), choose random slot K ∈ [0, 2^i - 1].
+- Wait K * 2T_{prop} slot time before retransmitting.
+- After 10 collisions, backoff interval is frozen at [0, 1023]. After 16 collisions, abort with error.`,
+        examinerTraps: [
+          'Forgetting factor of 2 in minimum frame length calculation: L = 2 * Tp * B (factor of 2 is essential for round-trip collision detection).',
+          'In CRC questions, generator polynomial degree r produces exactly r bits of remainder (NOT r+1).'
+        ],
+        sampleGateProblem: {
+          question: 'A 100 Mbps CSMA/CD network has a cable length of 1 km and propagation speed of 2 * 10^8 m/s. What is the minimum frame size required for collision detection in bytes?',
+          type: 'NAT',
+          correctAnswer: '125',
+          explanation: 'T_prop = Distance / Speed = 1000 m / (2 * 10^8 m/s) = 5 * 10^(-6) seconds (5 microseconds). Minimum frame size = 2 * T_prop * Bandwidth = 2 * (5 * 10^(-6)) * (100 * 10^6 bps) = 1000 bits. In bytes: 1000 / 8 = 125 bytes.'
         }
       }
     ]
