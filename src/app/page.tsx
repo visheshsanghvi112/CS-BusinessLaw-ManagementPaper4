@@ -11,7 +11,9 @@ import {
   getTestHistory,
   clearTestHistory,
   getActiveSession,
-  clearActiveSession
+  clearActiveSession,
+  getMistakeRecords,
+  getBookmarkedQuestionIds
 } from '@/lib/storage';
 import { TestResult, TestSession } from '@/types';
 import {
@@ -31,9 +33,17 @@ import {
   Award,
   Zap,
   CheckSquare,
-  Hash
+  Hash,
+  Search,
+  AlertTriangle,
+  Bookmark,
+  Calendar
 } from 'lucide-react';
 import { SubjectPracticeHub } from '@/components/cbt/SubjectPracticeHub';
+import { PyqArchiveExplorer } from '@/components/cbt/PyqArchiveExplorer';
+import { MistakeNotebookModal } from '@/components/cbt/MistakeNotebookModal';
+import { FormulaFlashcardsModal } from '@/components/study/FormulaFlashcardsModal';
+import { GlobalCommandPalette } from '@/components/common/GlobalCommandPalette';
 import { ScientificCalculator } from '@/components/cbt/ScientificCalculator';
 import { RevisionNotesModal } from '@/components/cbt/RevisionNotesModal';
 
@@ -43,17 +53,33 @@ export default function HomePage() {
   const [isSaved, setIsSaved] = useState<boolean>(false);
   const [history, setHistory] = useState<TestResult[]>([]);
   const [activeSession, setActiveSession] = useState<TestSession | null>(null);
-  const [mainTab, setMainTab] = useState<'mocks' | 'subjects' | 'syllabus' | 'formulas'>('mocks');
+  const [mainTab, setMainTab] = useState<'mocks' | 'archive' | 'subjects' | 'syllabus' | 'formulas'>('mocks');
   const [isCalcOpen, setIsCalcOpen] = useState<boolean>(false);
   const [isFormulaModalOpen, setIsFormulaModalOpen] = useState<boolean>(false);
+  const [isFlashcardsModalOpen, setIsFlashcardsModalOpen] = useState<boolean>(false);
+  const [isMistakesModalOpen, setIsMistakesModalOpen] = useState<boolean>(false);
+  const [isSearchOpen, setIsSearchOpen] = useState<boolean>(false);
+  const [mistakesCount, setMistakesCount] = useState<number>(0);
+  const [bookmarksCount, setBookmarksCount] = useState<number>(0);
 
   useEffect(() => {
     setCandidateName(getSavedCandidateName());
     setHistory(getTestHistory());
+    setMistakesCount(getMistakeRecords().filter(m => !m.isResolved).length);
+    setBookmarksCount(getBookmarkedQuestionIds().length);
     const existing = getActiveSession();
     if (existing && !existing.isSubmitted && existing.remainingSeconds > 0) {
       setActiveSession(existing);
     }
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        setIsSearchOpen(prev => !prev);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
   const savedTimerRef = React.useRef<NodeJS.Timeout | null>(null);
@@ -114,27 +140,54 @@ export default function HomePage() {
           </div>
 
           {/* Quick Header Utilities */}
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5 sm:gap-2">
+            <button
+              onClick={() => setIsSearchOpen(true)}
+              className="px-2.5 sm:px-3 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-700/80 text-slate-300 font-bold text-xs flex items-center gap-1.5 transition cursor-pointer"
+              title="Search all syllabus notes, formulas, and questions (⌘K)"
+            >
+              <Search className="w-3.5 h-3.5 text-blue-400" />
+              <span className="hidden sm:inline">Search</span>
+              <kbd className="hidden md:inline px-1 py-0.2 rounded bg-slate-800 text-[10px] font-mono text-slate-400 border border-slate-700">⌘K</kbd>
+            </button>
+
             <button
               onClick={() => router.push('/study')}
               className="px-2.5 sm:px-3 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-extrabold text-xs flex items-center gap-1.5 shadow-md shadow-blue-900/30 transition cursor-pointer"
             >
               <BookOpen className="w-4 h-4" />
-              <span>Study &amp; Learn Hub</span>
+              <span className="hidden sm:inline">Study Hub</span>
             </button>
+
+            <button
+              onClick={() => setIsMistakesModalOpen(true)}
+              className="px-2.5 sm:px-3 py-1.5 rounded-xl bg-amber-950/80 hover:bg-amber-900 border border-amber-600/60 text-amber-300 font-bold text-xs flex items-center gap-1.5 transition cursor-pointer"
+              title="Open Mistake Notebook"
+            >
+              <AlertTriangle className="w-3.5 h-3.5 text-amber-400" />
+              <span className="hidden sm:inline">Mistakes</span>
+              {mistakesCount > 0 && (
+                <span className="px-1.5 py-0.2 rounded-full bg-amber-500 text-slate-950 font-black text-[10px]">
+                  {mistakesCount}
+                </span>
+              )}
+            </button>
+
             <button
               onClick={() => setIsCalcOpen(true)}
               className="px-2.5 sm:px-3 py-1.5 rounded-xl bg-emerald-950/80 hover:bg-emerald-900 border border-emerald-700/80 text-emerald-300 font-bold text-xs flex items-center gap-1.5 transition cursor-pointer"
             >
               <Calculator className="w-4 h-4 text-emerald-400" />
-              <span className="hidden sm:inline">Calculator</span>
+              <span className="hidden sm:inline">Calc</span>
             </button>
+
             <button
-              onClick={() => setIsFormulaModalOpen(true)}
-              className="px-2.5 sm:px-3 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-700 text-slate-200 font-bold text-xs flex items-center gap-1.5 transition cursor-pointer"
+              onClick={() => setIsFlashcardsModalOpen(true)}
+              className="px-2.5 sm:px-3 py-1.5 rounded-xl bg-indigo-950/80 hover:bg-indigo-900 border border-indigo-700/80 text-indigo-300 font-bold text-xs flex items-center gap-1.5 transition cursor-pointer"
+              title="Active Recall Formula Flashcards"
             >
-              <BookMarked className="w-4 h-4 text-emerald-400" />
-              <span className="hidden sm:inline">Formula Sheet</span>
+              <BookMarked className="w-4 h-4 text-indigo-400" />
+              <span className="hidden sm:inline">Flashcards</span>
             </button>
           </div>
         </div>
@@ -221,6 +274,47 @@ export default function HomePage() {
                   <Play className="w-3.5 h-3.5 text-emerald-400 fill-current" />
                   <span>Launch 2024–2026 Mocks</span>
                 </button>
+                <button
+                  type="button"
+                  onClick={() => setIsMistakesModalOpen(true)}
+                  className="px-3.5 py-2.5 rounded-2xl bg-amber-950/40 hover:bg-amber-950/70 border border-amber-600/50 text-amber-300 font-bold text-xs flex items-center gap-1.5 transition cursor-pointer"
+                >
+                  <AlertTriangle className="w-3.5 h-3.5 text-amber-400" />
+                  <span>Mistake Notebook</span>
+                  {mistakesCount > 0 && (
+                    <span className="px-1.5 py-0.2 rounded-full bg-amber-500 text-slate-950 font-black text-[10px]">
+                      {mistakesCount}
+                    </span>
+                  )}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setIsFlashcardsModalOpen(true)}
+                  className="px-3.5 py-2.5 rounded-2xl bg-indigo-950/40 hover:bg-indigo-950/70 border border-indigo-600/50 text-indigo-300 font-bold text-xs flex items-center gap-1.5 transition cursor-pointer"
+                >
+                  <BookMarked className="w-3.5 h-3.5 text-indigo-400" />
+                  <span>Formula Flashcards</span>
+                </button>
+              </div>
+
+              {/* Quick Stats Pills */}
+              <div className="flex items-center gap-2 flex-wrap pt-1">
+                <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-900/90 border border-slate-800 text-xs font-mono text-slate-300">
+                  <Hash className="w-3.5 h-3.5 text-blue-400" />
+                  <span><strong className="text-white">{QUESTION_BANK.length}</strong> PYQs (2007–2026)</span>
+                </div>
+                <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-900/90 border border-slate-800 text-xs font-mono text-slate-300">
+                  <BookOpen className="w-3.5 h-3.5 text-emerald-400" />
+                  <span><strong className="text-white">{GATE_STUDY_MODULES.reduce((acc, m) => acc + m.topics.length, 0)}</strong> Topics</span>
+                </div>
+                <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-900/90 border border-slate-800 text-xs font-mono text-slate-300">
+                  <Bookmark className="w-3.5 h-3.5 text-indigo-400" />
+                  <span><strong className="text-white">{bookmarksCount}</strong> Bookmarks</span>
+                </div>
+                <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-900/90 border border-slate-800 text-xs font-mono text-slate-300">
+                  <AlertTriangle className="w-3.5 h-3.5 text-amber-400" />
+                  <span><strong className="text-white">{mistakesCount}</strong> Open Mistakes</span>
+                </div>
               </div>
             </div>
 
@@ -262,7 +356,18 @@ export default function HomePage() {
               }`}
             >
               <Zap className="w-4 h-4" />
-              <span>Full Mock Exams (2024–2026)</span>
+              <span>Full Mocks (2024–2026)</span>
+            </button>
+            <button
+              onClick={() => setMainTab('archive')}
+              className={`pb-3 px-3 sm:px-4 border-b-2 transition flex items-center gap-2 whitespace-nowrap cursor-pointer ${
+                mainTab === 'archive'
+                  ? 'border-blue-500 text-blue-400'
+                  : 'border-transparent text-slate-400 hover:text-slate-200'
+              }`}
+            >
+              <Calendar className="w-4 h-4" />
+              <span>PYQ Archive Explorer (2007–2026)</span>
             </button>
             <button
               onClick={() => setMainTab('subjects')}
@@ -295,7 +400,7 @@ export default function HomePage() {
               }`}
             >
               <BookMarked className="w-4 h-4" />
-              <span>Formulas &amp; Notes</span>
+              <span>Formulas &amp; Flashcards</span>
             </button>
           </div>
         </div>
@@ -377,7 +482,12 @@ export default function HomePage() {
           </div>
         )}
 
-        {/* TAB 2: SUBJECT DRILLS */}
+        {/* TAB 2: PYQ ARCHIVE EXPLORER */}
+        {mainTab === 'archive' && (
+          <PyqArchiveExplorer />
+        )}
+
+        {/* TAB 3: SUBJECT DRILLS */}
         {mainTab === 'subjects' && (
           <SubjectPracticeHub />
         )}
@@ -521,6 +631,13 @@ export default function HomePage() {
                   Launch Interactive Formula Deck
                 </button>
                 <button
+                  onClick={() => setIsFlashcardsModalOpen(true)}
+                  className="px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-extrabold text-xs shadow-md inline-flex items-center gap-1.5 transition cursor-pointer"
+                >
+                  <BookMarked className="w-4 h-4" />
+                  <span>Launch Formula Flashcards</span>
+                </button>
+                <button
                   onClick={() => router.push('/study')}
                   className="px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-extrabold text-xs shadow-md inline-flex items-center gap-1.5 transition cursor-pointer"
                 >
@@ -603,6 +720,27 @@ export default function HomePage() {
       <RevisionNotesModal
         isOpen={isFormulaModalOpen}
         onClose={() => setIsFormulaModalOpen(false)}
+      />
+
+      {/* Formula Flashcards Modal */}
+      <FormulaFlashcardsModal
+        isOpen={isFlashcardsModalOpen}
+        onClose={() => setIsFlashcardsModalOpen(false)}
+      />
+
+      {/* Mistake Notebook Modal */}
+      <MistakeNotebookModal
+        isOpen={isMistakesModalOpen}
+        onClose={() => {
+          setIsMistakesModalOpen(false);
+          setMistakesCount(getMistakeRecords().filter(m => !m.isResolved).length);
+        }}
+      />
+
+      {/* Global Command Palette (⌘K) */}
+      <GlobalCommandPalette
+        isOpen={isSearchOpen}
+        onClose={() => setIsSearchOpen(false)}
       />
 
       {/* Footer */}

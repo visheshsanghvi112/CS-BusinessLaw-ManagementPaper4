@@ -102,10 +102,55 @@ export interface SubjectMetadata {
 }
 
 export interface CustomSessionConfig {
-  subjectIds: GateSubjectId[];
+  subjectIds?: GateSubjectId[];
   questionCount?: number;
   mode?: 'exam' | 'study';
   types?: GateQuestionType[];
+  years?: number[];
+  marks?: (1 | 2)[];
+  durationMinutes?: number;
+  specificQuestionIds?: (string | number)[];
+}
+
+export type MistakeErrorTag = 'conceptual' | 'calculation' | 'trap' | 'unattempted';
+
+export interface MistakeRecord {
+  questionId: string | number;
+  testId: string;
+  testTitle: string;
+  subjectId: GateSubjectId;
+  subjectName: string;
+  questionType: GateQuestionType;
+  marks: 1 | 2;
+  attemptedAt: number;
+  errorTag: MistakeErrorTag;
+  userNotes?: string;
+  isResolved?: boolean;
+}
+
+export interface FormulaCard {
+  id: string;
+  subjectId: GateSubjectId;
+  subjectName: string;
+  topicTitle: string;
+  conceptPrompt: string;
+  formula: string;
+  keyDetails: string[];
+  examinerTrap: string;
+}
+
+export interface GateScoreEstimate {
+  rawScore: number;
+  totalMarks: number;
+  gateScore: number;            // Out of 1000
+  estimatedAirRange: string;    // e.g. "AIR 45 – 120"
+  percentile: number;           // e.g. 99.4%
+  category: 'TOP_IIT' | 'OLD_IIT' | 'NEW_IIT_TOP_NIT' | 'QUALIFIED' | 'BELOW_CUTOFF';
+  eligibleColleges: {
+    institute: string;
+    branch: string;
+    probability: 'Very High' | 'High' | 'Moderate' | 'Borderline';
+  }[];
 }
 
 export interface TestResult {

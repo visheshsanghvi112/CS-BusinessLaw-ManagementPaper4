@@ -3,8 +3,18 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { TestResult, Question, GateSectionId, GateSubjectId, GateQuestionType } from '@/types';
-import { getLatestResult, getResultById, createNewSession, getSavedCandidateName, evaluateAnswer } from '@/lib/storage';
+import {
+  getLatestResult,
+  getResultById,
+  createNewSession,
+  getSavedCandidateName,
+  evaluateAnswer,
+  getBookmarkedQuestionIds,
+  toggleQuestionBookmark
+} from '@/lib/storage';
 import { QUESTION_BANK, SUBJECT_METADATA } from '@/lib/questionBank';
+import { GateScorePredictorCard } from '@/components/cbt/GateScorePredictorCard';
+import { MistakeNotebookModal } from '@/components/cbt/MistakeNotebookModal';
 import confetti from 'canvas-confetti';
 import {
   Trophy,
@@ -25,7 +35,8 @@ import {
   ArrowRight,
   TrendingDown,
   Hash,
-  CheckSquare
+  CheckSquare,
+  Bookmark
 } from 'lucide-react';
 
 export default function ResultsPage() {
@@ -36,6 +47,17 @@ export default function ResultsPage() {
   const [selectedSubjectFilter, setSelectedSubjectFilter] = useState<'all' | GateSubjectId>('all');
   const [selectedTypeFilter, setSelectedTypeFilter] = useState<'all' | GateQuestionType>('all');
   const [searchQuery, setSearchQuery] = useState<string>('');
+  const [isMistakesModalOpen, setIsMistakesModalOpen] = useState<boolean>(false);
+  const [bookmarkedIds, setBookmarkedIds] = useState<(string | number)[]>([]);
+
+  useEffect(() => {
+    setBookmarkedIds(getBookmarkedQuestionIds());
+  }, []);
+
+  const handleToggleBookmark = (qid: string | number) => {
+    toggleQuestionBookmark(qid);
+    setBookmarkedIds(getBookmarkedQuestionIds());
+  };
 
   useEffect(() => {
     let resultToLoad: TestResult | null = null;
@@ -151,15 +173,22 @@ export default function ResultsPage() {
 
           <div className="flex items-center gap-2">
             <button
+              onClick={() => setIsMistakesModalOpen(true)}
+              className="px-3 py-1.5 rounded-xl bg-amber-950/80 hover:bg-amber-900 text-amber-300 border border-amber-600/60 font-bold text-xs flex items-center gap-1.5 transition cursor-pointer"
+            >
+              <AlertCircle className="w-3.5 h-3.5 text-amber-400" />
+              <span>Mistake Notebook ({result.incorrectCount})</span>
+            </button>
+            <button
               onClick={handlePrint}
               className="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-bold text-xs flex items-center gap-1.5 transition cursor-pointer"
             >
               <Printer className="w-3.5 h-3.5 text-blue-400" />
-              <span>Print Scorecard</span>
+              <span className="hidden sm:inline">Print Scorecard</span>
             </button>
             <button
               onClick={handleRetakeTest}
-              className="px-4 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-black text-xs sm:text-sm flex items-center gap-1.5 shadow-md shadow-blue-950/60 transition cursor-pointer"
+              className="px-3.5 sm:px-4 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-black text-xs sm:text-sm flex items-center gap-1.5 shadow-md shadow-blue-950/60 transition cursor-pointer"
             >
               <RotateCcw className="w-3.5 h-3.5" />
               <span>Retake Mock</span>
@@ -252,6 +281,9 @@ export default function ResultsPage() {
             </div>
           </div>
         </div>
+
+        {/* Normalized GATE Score & AIR Predictor Card */}
+        <GateScorePredictorCard rawScore={result.score} totalMarks={result.totalMarks} />
 
         {/* Sectional & Subject-Wise Performance Heatmap */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -429,6 +461,18 @@ export default function ResultsPage() {
                       }`}>
                         {isCorrect ? `+${marksAwarded}.0 Marks` : isAttempted ? `${marksAwarded} Marks` : 'Unattempted (0.0)'}
                       </span>
+                      <button
+                        type="button"
+                        onClick={() => handleToggleBookmark(q.id)}
+                        className={`p-1.5 rounded-lg border transition cursor-pointer ${
+                          bookmarkedIds.includes(q.id)
+                            ? 'bg-amber-950 text-amber-400 border-amber-600'
+                            : 'bg-slate-950 text-slate-500 border-slate-800 hover:text-slate-300'
+                        }`}
+                        title={bookmarkedIds.includes(q.id) ? 'Bookmarked' : 'Bookmark Question'}
+                      >
+                        <Bookmark className="w-3.5 h-3.5 fill-current" />
+                      </button>
                     </div>
                   </div>
 
@@ -507,6 +551,12 @@ export default function ResultsPage() {
           </div>
         </div>
       </main>
+
+      {/* Mistake Notebook Modal */}
+      <MistakeNotebookModal
+        isOpen={isMistakesModalOpen}
+        onClose={() => setIsMistakesModalOpen(false)}
+      />
     </div>
   );
 }

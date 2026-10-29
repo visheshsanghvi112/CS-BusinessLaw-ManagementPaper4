@@ -5,7 +5,9 @@ import {
   Question,
   GateSectionId,
   GateSubjectId,
-  CustomSessionConfig
+  CustomSessionConfig,
+  MistakeRecord,
+  MistakeErrorTag
 } from '@/types';
 import { QUESTION_BANK, SUBJECT_METADATA } from './questionBank';
 
@@ -97,7 +99,7 @@ export function createNewSession(
     testTitle = `${meta?.subjectName || 'Subject'} Specialist Drill (${selectedQuestions.length}Q)`;
     durationMinutes = Math.max(20, Math.round(selectedQuestions.length * 2.5));
   } else if (presetId === 'custom-subject' && customConfig) {
-    const set = new Set(customConfig.subjectIds);
+    const set = new Set(customConfig.subjectIds || []);
     selectedSubjects = customConfig.subjectIds;
     let pool = QUESTION_BANK.filter(q => set.has(q.subjectId));
     if (customConfig.types && customConfig.types.length > 0) {
@@ -110,6 +112,52 @@ export function createNewSession(
     selectedQuestions = pool;
     testTitle = `Custom Multi-Subject Drill (${selectedQuestions.length}Q)`;
     durationMinutes = Math.max(15, Math.round(selectedQuestions.length * 2.5));
+  } else if (presetId === 'mistakes-drill') {
+    const mistakes = getMistakeRecords().filter(m => !m.isResolved);
+    const mIds = new Set(mistakes.map(m => String(m.questionId)));
+    selectedQuestions = QUESTION_BANK.filter(q => mIds.has(String(q.id)));
+    if (selectedQuestions.length === 0) {
+      selectedQuestions = QUESTION_BANK.slice(0, 15);
+    }
+    testTitle = `Targeted Mistake Remediation Drill (${selectedQuestions.length}Q)`;
+    durationMinutes = Math.max(15, Math.round(selectedQuestions.length * 2.5));
+  } else if (presetId === 'bookmarks-drill') {
+    const bIds = new Set(getBookmarkedQuestionIds().map(id => String(id)));
+    selectedQuestions = QUESTION_BANK.filter(q => bIds.has(String(q.id)));
+    if (selectedQuestions.length === 0) {
+      selectedQuestions = QUESTION_BANK.slice(0, 15);
+    }
+    testTitle = `Bookmarked Starred Questions Drill (${selectedQuestions.length}Q)`;
+    durationMinutes = Math.max(15, Math.round(selectedQuestions.length * 2.5));
+  } else if (presetId === 'custom-archive' && customConfig) {
+    let pool = [...QUESTION_BANK];
+    if (customConfig.years && customConfig.years.length > 0) {
+      const yearSet = new Set(customConfig.years);
+      pool = pool.filter(q => q.year && yearSet.has(q.year));
+    }
+    if (customConfig.subjectIds && customConfig.subjectIds.length > 0) {
+      const subjSet = new Set(customConfig.subjectIds);
+      pool = pool.filter(q => subjSet.has(q.subjectId));
+      selectedSubjects = customConfig.subjectIds;
+    }
+    if (customConfig.types && customConfig.types.length > 0) {
+      const typeSet = new Set(customConfig.types);
+      pool = pool.filter(q => typeSet.has(q.type));
+    }
+    if (customConfig.marks && customConfig.marks.length > 0) {
+      const marksSet = new Set(customConfig.marks);
+      pool = pool.filter(q => marksSet.has(q.marks));
+    }
+    if (customConfig.specificQuestionIds && customConfig.specificQuestionIds.length > 0) {
+      const qidSet = new Set(customConfig.specificQuestionIds.map(id => String(id)));
+      pool = pool.filter(q => qidSet.has(String(q.id)));
+    }
+    if (customConfig.questionCount && customConfig.questionCount < pool.length) {
+      pool = pool.slice(0, customConfig.questionCount);
+    }
+    selectedQuestions = pool;
+    testTitle = `Custom Archive Practice Test (${selectedQuestions.length}Q)`;
+    durationMinutes = customConfig.durationMinutes || Math.max(15, Math.round(selectedQuestions.length * 2.5));
   } else {
     // Fallback: Default to latest GATE 2026 Shift 1
     selectedQuestions = QUESTION_BANK.filter(q => q.year === 2026 && q.paperSet === 'CS1');
@@ -389,6 +437,51 @@ export function calculateTestResult(session: TestSession): TestResult {
   };
 
   saveTestResult(result);
+
+  // Automatically catalog mistakes in Mistake Notebook
+  try {
+    const existingMistakes = getMistakeRecords();
+    const mistakeMap = new Map(existingMistakes.map(m => [String(m.questionId), m]));
+
+    session.questionIds.forEach(qid => {
+      const q = qMap.get(qid);
+      if (!q) return;
+      const resp = session.responses[qid];
+      const { isAttempted, isCorrect } = evaluateAnswer(q, resp);
+
+      const qidStr = String(qid);
+      if (isAttempted && !isCorrect) {
+        const prev = mistakeMap.get(qidStr);
+        mistakeMap.set(qidStr, {
+          questionId: q.id,
+          testId: session.testId,
+          testTitle: session.testTitle,
+          subjectId: q.subjectId,
+          subjectName: q.subjectName,
+          questionType: q.type,
+          marks: q.marks,
+          attemptedAt: Date.now(),
+          errorTag: prev?.errorTag || (q.type === 'NAT' ? 'calculation' : 'trap'),
+          userNotes: prev?.userNotes || '',
+          isResolved: false
+        });
+      } else if (isAttempted && isCorrect) {
+        if (mistakeMap.has(qidStr)) {
+          const prev = mistakeMap.get(qidStr)!;
+          mistakeMap.set(qidStr, {
+            ...prev,
+            isResolved: true,
+            attemptedAt: Date.now()
+          });
+        }
+      }
+    });
+
+    saveAllMistakeRecords(Array.from(mistakeMap.values()));
+  } catch (err) {
+    console.error('Failed to update mistake records', err);
+  }
+
   return result;
 }
 
@@ -454,5 +547,48 @@ export function toggleTopicCompletion(topicId: string): boolean {
   localStorage.setItem(COMPLETED_TOPICS_KEY, JSON.stringify(updated));
   return !exists;
 }
+
+// -------------------------------------------------------------
+// Mistake Notebook & Targeted Error Tracking
+// -------------------------------------------------------------
+const MISTAKES_KEY = 'gate_mistake_records';
+
+export function getMistakeRecords(): MistakeRecord[] {
+  if (typeof window === 'undefined') return [];
+  const raw = localStorage.getItem(MISTAKES_KEY);
+  if (!raw) return [];
+  try {
+    return JSON.parse(raw);
+  } catch {
+    return [];
+  }
+}
+
+export function saveAllMistakeRecords(records: MistakeRecord[]): void {
+  if (typeof window === 'undefined') return;
+  localStorage.setItem(MISTAKES_KEY, JSON.stringify(records.slice(0, 500)));
+}
+
+export function updateMistakeTag(questionId: string | number, tag: MistakeErrorTag, userNotes?: string): void {
+  const records = getMistakeRecords();
+  const index = records.findIndex(r => String(r.questionId) === String(questionId));
+  if (index !== -1) {
+    records[index].errorTag = tag;
+    if (userNotes !== undefined) records[index].userNotes = userNotes;
+    saveAllMistakeRecords(records);
+  }
+}
+
+export function removeMistakeRecord(questionId: string | number): void {
+  const records = getMistakeRecords();
+  const updated = records.filter(r => String(r.questionId) !== String(questionId));
+  saveAllMistakeRecords(updated);
+}
+
+export function clearMistakeRecords(): void {
+  if (typeof window === 'undefined') return;
+  localStorage.removeItem(MISTAKES_KEY);
+}
+
 
 

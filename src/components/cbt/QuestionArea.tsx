@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Question, UserResponse } from '@/types';
+import { getBookmarkedQuestionIds, toggleQuestionBookmark } from '@/lib/storage';
 import {
   Bookmark,
   RotateCcw,
@@ -58,6 +59,17 @@ export const QuestionArea: React.FC<QuestionAreaProps> = ({
   const selectedOptions = currentResponse?.selectedOptions || [];
   const natValue = currentResponse?.natValue !== undefined && currentResponse?.natValue !== null ? String(currentResponse.natValue) : '';
   const [zoomLevel, setZoomLevel] = useState<'sm' | 'md' | 'lg'>('md');
+  const [isBookmarked, setIsBookmarked] = useState<boolean>(false);
+
+  useEffect(() => {
+    const bIds = getBookmarkedQuestionIds();
+    setIsBookmarked(bIds.includes(question.id));
+  }, [question.id]);
+
+  const handleToggleBookmark = () => {
+    const newState = toggleQuestionBookmark(question.id);
+    setIsBookmarked(newState);
+  };
 
   // Check correctness for study mode
   let isAnswerCorrect = false;
@@ -203,6 +215,20 @@ export const QuestionArea: React.FC<QuestionAreaProps> = ({
             className="px-2 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 text-[11px] font-bold flex items-center gap-1 cursor-pointer transition touch-feedback"
           >
             <span className="font-mono">{zoomLevel === 'sm' ? 'A-' : zoomLevel === 'md' ? 'A' : 'A+'}</span>
+          </button>
+
+          {/* Bookmark / Star Button */}
+          <button
+            type="button"
+            onClick={handleToggleBookmark}
+            title={isBookmarked ? 'Bookmarked (Starred)' : 'Bookmark Question'}
+            className={`p-1.5 rounded-lg border transition cursor-pointer touch-feedback ${
+              isBookmarked
+                ? 'bg-amber-950 text-amber-400 border-amber-600 shadow-sm'
+                : 'bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-slate-200 border-slate-700'
+            }`}
+          >
+            <Bookmark className="w-3.5 h-3.5 fill-current" />
           </button>
 
           {/* Mark Scheme Badges */}
