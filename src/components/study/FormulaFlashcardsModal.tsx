@@ -15,6 +15,7 @@ import {
   Shuffle,
   Layers
 } from 'lucide-react';
+import { FormattedText } from './TheoryRenderer';
 
 interface Flashcard {
   id: string;
@@ -211,23 +212,23 @@ export const FormulaFlashcardsModal: React.FC<FormulaFlashcardsModalProps> = ({
                   // Back side: Formula & Explanation & Trap
                   <div className="space-y-3.5 animate-in fade-in">
                     <span className="text-xs font-mono text-indigo-400 font-bold uppercase tracking-wider block">
-                      {currentCard.title}
+                      <FormattedText text={currentCard.title} />
                     </span>
 
                     {currentCard.formula && (
                       <div className="p-3.5 rounded-2xl bg-slate-950 border border-slate-800 font-mono text-sm sm:text-base font-bold text-emerald-300 overflow-x-auto shadow-inner">
-                        {currentCard.formula}
+                        <FormattedText text={currentCard.formula} />
                       </div>
                     )}
 
                     <p className="text-xs sm:text-sm text-slate-200 leading-relaxed">
-                      {currentCard.explanation}
+                      <FormattedText text={currentCard.explanation} />
                     </p>
 
                     {currentCard.examinerTrap && (
                       <div className="p-3 rounded-xl bg-amber-950/30 border border-amber-600/40 text-amber-200 text-xs flex items-start gap-2">
                         <AlertTriangle className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
-                        <span><strong>Watch Out:</strong> {currentCard.examinerTrap}</span>
+                        <span><strong>Watch Out:</strong> <FormattedText text={currentCard.examinerTrap} /></span>
                       </div>
                     )}
                   </div>

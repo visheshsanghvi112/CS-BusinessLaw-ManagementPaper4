@@ -15,6 +15,7 @@ import {
   HelpCircle,
   BookMarked
 } from 'lucide-react';
+import { TheoryRenderer, FormattedText } from './TheoryRenderer';
 
 interface TopicNoteViewerProps {
   topic: TopicNote;
@@ -108,7 +109,7 @@ export const TopicNoteViewer: React.FC<TopicNoteViewerProps> = ({
           <span>Core Concept Synopsis</span>
         </h3>
         <p className="text-sm text-slate-200 leading-relaxed">
-          {topic.summary}
+          <FormattedText text={topic.summary} />
         </p>
       </section>
 
@@ -129,16 +130,16 @@ export const TopicNoteViewer: React.FC<TopicNoteViewerProps> = ({
             >
               <div>
                 <h4 className="font-bold text-sm text-emerald-300">
-                  {item.title}
+                  <FormattedText text={item.title} />
                 </h4>
                 {item.formula && (
                   <div className="my-2.5 p-3 rounded-xl bg-slate-950 border border-slate-800 font-mono text-xs sm:text-sm text-white font-bold leading-relaxed overflow-x-auto">
-                    {item.formula}
+                    <FormattedText text={item.formula} />
                   </div>
                 )}
               </div>
               <p className="text-xs text-slate-300 leading-relaxed">
-                {item.explanation}
+                <FormattedText text={item.explanation} />
               </p>
             </div>
           ))}
@@ -154,11 +155,7 @@ export const TopicNoteViewer: React.FC<TopicNoteViewerProps> = ({
           </h3>
         </div>
 
-        <div className="p-6 sm:p-8 rounded-3xl bg-slate-900/80 border border-slate-800 space-y-4 text-sm text-slate-200 leading-relaxed font-sans prose prose-invert max-w-none">
-          <div className="whitespace-pre-line space-y-3">
-            {topic.deepDiveContent}
-          </div>
-        </div>
+        <TheoryRenderer content={topic.deepDiveContent} />
       </section>
 
       {/* Examiner Traps & Common Mistakes Alert */}
@@ -173,7 +170,7 @@ export const TopicNoteViewer: React.FC<TopicNoteViewerProps> = ({
               {topic.examinerTraps.map((trap, idx) => (
                 <li key={idx} className="flex items-start gap-2">
                   <span className="text-amber-400 font-bold">•</span>
-                  <span>{trap}</span>
+                  <span><FormattedText text={trap} /></span>
                 </li>
               ))}
             </ul>
@@ -199,15 +196,15 @@ export const TopicNoteViewer: React.FC<TopicNoteViewerProps> = ({
               <span className="text-xs text-slate-400">Concept Application</span>
             </div>
 
-            <div className="text-sm font-semibold text-slate-100 leading-relaxed whitespace-pre-line">
-              {topic.sampleGateProblem.question}
+            <div className="text-sm font-semibold text-slate-100 leading-relaxed">
+              <FormattedText text={topic.sampleGateProblem.question} />
             </div>
 
             {topic.sampleGateProblem.options && (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1 text-xs">
                 {topic.sampleGateProblem.options.map((opt, i) => (
                   <div key={i} className="p-3 rounded-xl bg-slate-950 border border-slate-800/80 text-slate-300">
-                    {opt}
+                    <FormattedText text={opt} />
                   </div>
                 ))}
               </div>
@@ -231,7 +228,7 @@ export const TopicNoteViewer: React.FC<TopicNoteViewerProps> = ({
                   <span>Correct Answer: {topic.sampleGateProblem.correctAnswer}</span>
                 </div>
                 <p className="text-xs text-slate-300 leading-relaxed pl-6">
-                  {topic.sampleGateProblem.explanation}
+                  <FormattedText text={topic.sampleGateProblem.explanation} />
                 </p>
               </div>
             )}
