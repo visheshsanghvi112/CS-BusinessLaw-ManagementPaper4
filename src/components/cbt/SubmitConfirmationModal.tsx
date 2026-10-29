@@ -9,7 +9,7 @@ interface SubmitConfirmationModalProps {
   onClose: () => void;
   onConfirmSubmit: () => void;
   questions: Question[];
-  responses: Record<number, UserResponse>;
+  responses: Record<string | number, UserResponse>;
 }
 
 export const SubmitConfirmationModal: React.FC<SubmitConfirmationModalProps> = ({
@@ -19,7 +19,6 @@ export const SubmitConfirmationModal: React.FC<SubmitConfirmationModalProps> = (
   questions,
   responses
 }) => {
-  // Lock scroll & handle Escape key
   useEffect(() => {
     if (!isOpen) return;
 
@@ -48,13 +47,21 @@ export const SubmitConfirmationModal: React.FC<SubmitConfirmationModalProps> = (
   questions.forEach(q => {
     const resp = responses[q.id];
     let status: QuestionStatus = resp?.status || 'not-visited';
-    if (resp && resp.selectedOption !== null) {
+
+    const hasAnswer = q.type === 'NAT'
+      ? (resp?.natValue !== undefined && resp.natValue !== null && String(resp.natValue).trim().length > 0)
+      : q.type === 'MSQ'
+      ? ((resp?.selectedOptions || []).length > 0)
+      : (resp?.selectedOption !== null && resp?.selectedOption !== undefined);
+
+    if (hasAnswer) {
       if (status === 'marked-for-review' || status === 'answered-marked-review') {
         status = 'answered-marked-review';
       } else {
         status = 'answered';
       }
     }
+
     if (status === 'answered') answered++;
     else if (status === 'not-answered') notAnswered++;
     else if (status === 'not-visited') notVisited++;
@@ -62,127 +69,84 @@ export const SubmitConfirmationModal: React.FC<SubmitConfirmationModalProps> = (
     else if (status === 'answered-marked-review') answeredMarked++;
   });
 
-  const totalAttempted = answered + answeredMarked;
+  const totalAnsweredEvaluated = answered + answeredMarked;
 
   return (
     <div
       role="dialog"
       aria-modal="true"
-      aria-label="Confirm Examination Submission"
-      className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/80 backdrop-blur-xs animate-in fade-in duration-200 select-none"
+      aria-label="Confirm Test Submission"
+      className="fixed inset-0 z-50 flex items-center justify-center p-3.5 sm:p-4 bg-black/85 backdrop-blur-md animate-in fade-in duration-200 select-none"
     >
-      <div className="relative w-full max-w-lg bg-slate-900 rounded-2xl sm:rounded-3xl shadow-2xl border border-slate-800 overflow-hidden animate-in zoom-in-95 duration-200">
+      <div className="relative w-full max-w-lg bg-slate-900 rounded-3xl shadow-2xl border border-slate-700/80 overflow-hidden animate-in zoom-in-95 duration-200">
         {/* Header */}
-        <div className="px-4 sm:px-6 py-3.5 bg-slate-950 border-b border-slate-800 flex items-center justify-between">
-          <div className="flex items-center gap-2 text-slate-100 font-bold text-sm sm:text-base">
-            <AlertTriangle className="w-5 h-5 text-amber-400 shrink-0" />
-            <span>Confirm Final Submission</span>
+        <div className="px-5 sm:px-6 py-4 bg-slate-950 border-b border-slate-800 flex items-center justify-between">
+          <div className="flex items-center gap-2.5 text-white font-bold text-sm sm:text-base">
+            <AlertTriangle className="w-5 h-5 text-amber-400" />
+            <span>Submit GATE Examination?</span>
           </div>
           <button
             type="button"
             onClick={onClose}
-            className="p-1.5 rounded-lg hover:bg-slate-800 text-slate-400 hover:text-white transition cursor-pointer touch-feedback"
-            aria-label="Close modal"
+            className="p-1 rounded-lg hover:bg-slate-800 text-slate-400 hover:text-white transition cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
-        {/* Body: Summary Breakdown Table */}
-        <div className="p-4 sm:p-6 space-y-4 max-h-[75vh] overflow-y-auto">
-          <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
-            Please review your examination breakdown before confirming final submission:
+        {/* Body Stats Table */}
+        <div className="p-5 sm:p-6 space-y-4">
+          <p className="text-xs sm:text-sm text-slate-300">
+            Are you sure you want to conclude your examination? Here is your current test summary:
           </p>
 
-          <div className="overflow-hidden border border-slate-800 rounded-xl bg-slate-950/60">
-            <table className="w-full text-xs sm:text-sm text-left">
-              <thead className="bg-slate-950 text-slate-400 font-semibold border-b border-slate-800">
-                <tr>
-                  <th className="px-3 sm:px-4 py-2 sm:py-2.5">Category</th>
-                  <th className="px-3 sm:px-4 py-2 sm:py-2.5 text-right font-mono">Count</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-800 text-slate-300">
-                <tr>
-                  <td className="px-3 sm:px-4 py-2 flex items-center gap-2">
-                    <span className="w-3 h-3 rounded-full bg-emerald-500 shrink-0"></span>
-                    <span>Answered</span>
-                  </td>
-                  <td className="px-3 sm:px-4 py-2 text-right font-bold text-emerald-400 font-mono">
-                    {answered}
-                  </td>
-                </tr>
-                <tr>
-                  <td className="px-3 sm:px-4 py-2 flex items-center gap-2">
-                    <span className="w-3 h-3 rounded-full bg-purple-500 shrink-0"></span>
-                    <span>Answered & Marked for Review</span>
-                  </td>
-                  <td className="px-3 sm:px-4 py-2 text-right font-bold text-purple-400 font-mono">
-                    {answeredMarked}
-                  </td>
-                </tr>
-                <tr>
-                  <td className="px-3 sm:px-4 py-2 flex items-center gap-2">
-                    <span className="w-3 h-3 rounded-full bg-red-500 shrink-0"></span>
-                    <span>Not Answered (Visited)</span>
-                  </td>
-                  <td className="px-3 sm:px-4 py-2 text-right font-bold text-red-400 font-mono">
-                    {notAnswered}
-                  </td>
-                </tr>
-                <tr>
-                  <td className="px-3 sm:px-4 py-2 flex items-center gap-2">
-                    <span className="w-3 h-3 rounded-full bg-purple-400 shrink-0"></span>
-                    <span>Marked for Review (Unanswered)</span>
-                  </td>
-                  <td className="px-3 sm:px-4 py-2 text-right font-bold text-purple-400 font-mono">
-                    {markedForReview}
-                  </td>
-                </tr>
-                <tr>
-                  <td className="px-3 sm:px-4 py-2 flex items-center gap-2">
-                    <span className="w-3 h-3 rounded-full bg-slate-700 shrink-0"></span>
-                    <span>Not Visited</span>
-                  </td>
-                  <td className="px-3 sm:px-4 py-2 text-right font-bold text-slate-400 font-mono">
-                    {notVisited}
-                  </td>
-                </tr>
-                <tr className="bg-slate-950 font-bold border-t border-slate-700">
-                  <td className="px-3 sm:px-4 py-2.5 text-white">Total Questions</td>
-                  <td className="px-3 sm:px-4 py-2.5 text-right text-white font-mono text-sm">
-                    {questions.length}
-                  </td>
-                </tr>
-              </tbody>
-            </table>
+          <div className="grid grid-cols-2 gap-2 text-xs">
+            <div className="p-3 rounded-2xl bg-slate-950/80 border border-slate-800">
+              <span className="text-slate-400 block text-[11px]">Total Questions</span>
+              <strong className="text-white text-base">{questions.length}</strong>
+            </div>
+
+            <div className="p-3 rounded-2xl bg-emerald-950/30 border border-emerald-800/40">
+              <span className="text-emerald-300 block text-[11px]">Answered (Evaluated)</span>
+              <strong className="text-emerald-400 text-base">{totalAnsweredEvaluated}</strong>
+            </div>
+
+            <div className="p-3 rounded-2xl bg-rose-950/30 border border-rose-800/40">
+              <span className="text-rose-300 block text-[11px]">Not Answered</span>
+              <strong className="text-rose-400 text-base">{notAnswered}</strong>
+            </div>
+
+            <div className="p-3 rounded-2xl bg-purple-950/30 border border-purple-800/40">
+              <span className="text-purple-300 block text-[11px]">Marked for Review</span>
+              <strong className="text-purple-400 text-base">{markedForReview}</strong>
+            </div>
           </div>
 
-          <div className="p-3 sm:p-3.5 bg-blue-950/40 border border-blue-800/60 rounded-xl text-xs text-blue-200 leading-relaxed">
-            <strong>Evaluation Rule:</strong> Exactly <strong>{totalAttempted}</strong> of <strong>{questions.length}</strong> questions have marked choices and will be evaluated for scoring (+1.0 Mark for each correct, zero negative marking).
-          </div>
+          <p className="text-[11px] text-slate-400 leading-normal">
+            Note: As per official GATE evaluation criteria, questions with status <strong>Answered &amp; Marked for Review</strong> will be graded and credited to your final score.
+          </p>
         </div>
 
         {/* Footer Actions */}
-        <div className="px-4 sm:px-6 py-3.5 bg-slate-950 border-t border-slate-800 flex items-center justify-end gap-2.5">
+        <div className="px-5 py-3.5 bg-slate-950 border-t border-slate-800 flex items-center justify-end gap-2.5">
           <button
             type="button"
             onClick={onClose}
-            className="px-3 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold text-slate-300 hover:bg-slate-800 transition cursor-pointer touch-feedback"
+            className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs sm:text-sm font-semibold transition cursor-pointer"
           >
-            Return to Exam
+            Return to Test
           </button>
+
           <button
             type="button"
             onClick={onConfirmSubmit}
-            className="inline-flex items-center gap-1.5 px-4 sm:px-5 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-bold bg-emerald-600 hover:bg-emerald-500 active:bg-emerald-700 text-white shadow-md transition cursor-pointer touch-feedback"
+            className="px-5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 active:bg-emerald-700 text-white text-xs sm:text-sm font-extrabold shadow-lg shadow-emerald-950/60 transition cursor-pointer flex items-center gap-1.5"
           >
-            <CheckCircle2 className="w-4 h-4 shrink-0" />
-            Yes, Submit Exam
+            <CheckCircle2 className="w-4 h-4" />
+            <span>Yes, Submit Examination</span>
           </button>
         </div>
       </div>
     </div>
   );
 };
-

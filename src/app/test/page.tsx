@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
-import { TestSession, SectionId, Question, QuestionStatus } from '@/types';
+import { TestSession, GateSectionId, Question, QuestionStatus } from '@/types';
 import { QUESTION_BANK } from '@/lib/questionBank';
 import {
   getActiveSession,
@@ -20,6 +20,7 @@ import { SubmitConfirmationModal } from '@/components/cbt/SubmitConfirmationModa
 import { PauseExitModal } from '@/components/cbt/PauseExitModal';
 import { ExamInstructionsModal } from '@/components/cbt/ExamInstructionsModal';
 import { QuestionPaperModal } from '@/components/cbt/QuestionPaperModal';
+import { ScientificCalculator } from '@/components/cbt/ScientificCalculator';
 
 export default function TestPage() {
   const router = useRouter();
@@ -29,6 +30,7 @@ export default function TestPage() {
   const [isPauseModalOpen, setIsPauseModalOpen] = useState(false);
   const [isInstructionsModalOpen, setIsInstructionsModalOpen] = useState(false);
   const [isQuestionPaperModalOpen, setIsQuestionPaperModalOpen] = useState(false);
+  const [isCalcOpen, setIsCalcOpen] = useState(false);
 
   const sessionRef = React.useRef<TestSession | null>(null);
   useEffect(() => {
@@ -45,7 +47,7 @@ export default function TestPage() {
       return;
     }
     if (!existing || existing.isSubmitted) {
-      existing = createNewSession('full-mock', getSavedCandidateName());
+      existing = createNewSession('gate-2026-cs1', getSavedCandidateName());
     }
     const activeQ = QUESTION_BANK.find(q => q.id === existing.questionIds[existing.activeQuestionIndex]);
     if (activeQ && existing.activeSection !== activeQ.sectionId) {
@@ -58,7 +60,7 @@ export default function TestPage() {
     }
   }, [router]);
 
-  // BeforeUnload hook to auto-pause and save state if tab is closed/navigated away
+  // BeforeUnload hook to auto-pause and save state
   useEffect(() => {
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {
       const current = sessionRef.current;
@@ -91,12 +93,14 @@ export default function TestPage() {
   // Available sections list
   const availableSections = useMemo(() => {
     if (questions.length === 0) return [];
-    const secMap: Record<SectionId, { id: SectionId; name: string; count: number }> = {
-      'part-a': { id: 'part-a', name: 'Part A: Business Laws', count: 0 },
-      'part-b': { id: 'part-b', name: 'Part B: Business Management', count: 0 }
+    const secMap: Record<GateSectionId, { id: GateSectionId; name: string; count: number }> = {
+      GA: { id: 'GA', name: 'General Aptitude (GA)', count: 0 },
+      CS: { id: 'CS', name: 'CS & Engineering Maths', count: 0 }
     };
     questions.forEach(q => {
-      secMap[q.sectionId].count += 1;
+      if (secMap[q.sectionId]) {
+        secMap[q.sectionId].count += 1;
+      }
     });
     return Object.values(secMap).filter(s => s.count > 0).map(s => ({
       id: s.id,
@@ -113,7 +117,7 @@ export default function TestPage() {
     ).length;
   }, [session]);
 
-  // Handle final submission (commits any pending choice on the active question)
+  // Handle final submission
   const handleFinalSubmit = useCallback((explicitSession?: TestSession | unknown) => {
     const isActualSession = Boolean(
       explicitSession &&
@@ -124,32 +128,10 @@ export default function TestPage() {
     let s: TestSession | null = (isActualSession ? (explicitSession as TestSession) : null) || sessionRef.current || session;
     if (!s) return;
 
-    // Commit any unsaved selection on the active question
-    const activeQ = questions[s.activeQuestionIndex];
-    if (activeQ) {
-      const activeResp = s.responses[activeQ.id];
-      if (activeResp && activeResp.selectedOption !== null) {
-        let finalStatus: QuestionStatus = 'answered';
-        if (activeResp.status === 'marked-for-review' || activeResp.status === 'answered-marked-review') {
-          finalStatus = 'answered-marked-review';
-        }
-        s = {
-          ...s,
-          responses: {
-            ...s.responses,
-            [activeQ.id]: {
-              ...activeResp,
-              status: finalStatus
-            }
-          }
-        };
-      }
-    }
-
     calculateTestResult(s);
     clearActiveSession();
     router.push('/results');
-  }, [session, questions, router]);
+  }, [session, router]);
 
   const handleFinalSubmitRef = React.useRef(handleFinalSubmit);
   useEffect(() => {
@@ -159,7 +141,7 @@ export default function TestPage() {
   const testId = session?.testId;
   const isSubmitted = session?.isSubmitted ?? true;
 
-  // 1-second countdown timer interval (frozen when isPaused is true)
+  // 1-second countdown timer interval
   useEffect(() => {
     if (!testId || isSubmitted) return;
 
@@ -185,74 +167,31 @@ export default function TestPage() {
     return () => clearInterval(timer);
   }, [testId, isSubmitted]);
 
-  // Open submission modal with auto-commit of active question selection
-  const handleOpenSubmitModal = useCallback((explicitSession?: TestSession) => {
-    let s = explicitSession || sessionRef.current || session;
-    if (s && currentQuestion) {
-      const activeResp = s.responses[currentQuestion.id];
-      if (activeResp && activeResp.selectedOption !== null) {
-        let finalStatus: QuestionStatus = 'answered';
-        if (activeResp.status === 'marked-for-review' || activeResp.status === 'answered-marked-review') {
-          finalStatus = 'answered-marked-review';
-        }
-        if (activeResp.status !== finalStatus) {
-          const updatedResponses = {
-            ...s.responses,
-            [currentQuestion.id]: {
-              ...activeResp,
-              status: finalStatus
-            }
-          };
-          s = {
-            ...s,
-            responses: updatedResponses
-          };
-          sessionRef.current = s;
-          setSession(s);
-          saveActiveSession(s);
-        }
-      }
-    }
+  // Open submission modal
+  const handleOpenSubmitModal = useCallback(() => {
     setIsMobileDrawerOpen(false);
     setIsSubmitModalOpen(true);
-  }, [session, currentQuestion]);
+  }, []);
 
-  // Pause / Resume / Save & Exit Handlers
+  // Pause / Resume Handlers
   const handlePause = useCallback(() => {
     if (!session) return;
-    const updatedResponses = { ...session.responses };
-    if (currentQuestion) {
-      const activeResp = updatedResponses[currentQuestion.id];
-      if (activeResp && activeResp.selectedOption !== null) {
-        const finalStatus: QuestionStatus =
-          activeResp.status === 'marked-for-review' || activeResp.status === 'answered-marked-review'
-            ? 'answered-marked-review'
-            : 'answered';
-        updatedResponses[currentQuestion.id] = {
-          ...activeResp,
-          status: finalStatus
-        };
-      }
-    }
-
     const pausedSession: TestSession = {
       ...session,
       isPaused: true,
-      pausedAt: Date.now(),
-      responses: updatedResponses
+      pausedAt: Date.now()
     };
     sessionRef.current = pausedSession;
     setSession(pausedSession);
     saveActiveSession(pausedSession);
     setIsPauseModalOpen(true);
-  }, [session, currentQuestion]);
+  }, [session]);
 
   const handleResume = useCallback(() => {
     if (!session) return;
     const resumedSession: TestSession = {
       ...session,
-      isPaused: false,
-      pausedAt: undefined
+      isPaused: false
     };
     sessionRef.current = resumedSession;
     setSession(resumedSession);
@@ -260,261 +199,323 @@ export default function TestPage() {
     setIsPauseModalOpen(false);
   }, [session]);
 
-  const handleTogglePause = useCallback(() => {
-    if (!session) return;
-    if (session.isPaused) {
-      handleResume();
-    } else {
-      handlePause();
-    }
-  }, [session, handleResume, handlePause]);
-
   const handleSaveAndExit = useCallback(() => {
-    if (!session) return;
-    handlePause();
+    if (session) {
+      saveActiveSession({
+        ...session,
+        isPaused: true,
+        pausedAt: Date.now()
+      });
+    }
     router.push('/');
-  }, [session, handlePause, router]);
+  }, [session, router]);
 
-  const handleSubmitNowFromPause = useCallback(() => {
-    setIsPauseModalOpen(false);
-    handleOpenSubmitModal();
-  }, [handleOpenSubmitModal]);
-
-  // Select Option on current question
-  const handleSelectOption = (optionKey: 'a' | 'b' | 'c' | 'd') => {
-    if (!session || !currentQuestion || session.isPaused) return;
+  // 1. Select MCQ Option
+  const handleSelectOption = useCallback((optionKey: 'a' | 'b' | 'c' | 'd') => {
+    if (!session || !currentQuestion) return;
     const qId = currentQuestion.id;
     const currentResp = session.responses[qId];
+    const prevStatus = currentResp?.status || 'not-visited';
 
-    const updated = {
+    let newStatus: QuestionStatus = 'answered';
+    if (prevStatus === 'marked-for-review' || prevStatus === 'answered-marked-review') {
+      newStatus = 'answered-marked-review';
+    }
+
+    const updatedSession: TestSession = {
       ...session,
       responses: {
         ...session.responses,
         [qId]: {
-          ...currentResp,
-          selectedOption: optionKey
+          questionId: qId,
+          selectedOption: optionKey,
+          selectedOptions: [optionKey],
+          status: newStatus,
+          timeSpentSeconds: currentResp?.timeSpentSeconds || 0
         }
       }
     };
-    sessionRef.current = updated;
-    setSession(updated);
-    saveActiveSession(updated);
-  };
+
+    sessionRef.current = updatedSession;
+    setSession(updatedSession);
+    saveActiveSession(updatedSession);
+  }, [session, currentQuestion]);
+
+  // 2. Toggle MSQ Option
+  const handleToggleMsqOption = useCallback((optionKey: 'a' | 'b' | 'c' | 'd') => {
+    if (!session || !currentQuestion) return;
+    const qId = currentQuestion.id;
+    const currentResp = session.responses[qId];
+    const existingOpts = currentResp?.selectedOptions || [];
+    const updatedOpts = existingOpts.includes(optionKey)
+      ? existingOpts.filter(k => k !== optionKey)
+      : [...existingOpts, optionKey];
+
+    const prevStatus = currentResp?.status || 'not-visited';
+    let newStatus: QuestionStatus = updatedOpts.length > 0 ? 'answered' : 'not-answered';
+    if (prevStatus === 'marked-for-review' || prevStatus === 'answered-marked-review') {
+      newStatus = updatedOpts.length > 0 ? 'answered-marked-review' : 'marked-for-review';
+    }
+
+    const updatedSession: TestSession = {
+      ...session,
+      responses: {
+        ...session.responses,
+        [qId]: {
+          questionId: qId,
+          selectedOption: updatedOpts[0] || null,
+          selectedOptions: updatedOpts,
+          status: newStatus,
+          timeSpentSeconds: currentResp?.timeSpentSeconds || 0
+        }
+      }
+    };
+
+    sessionRef.current = updatedSession;
+    setSession(updatedSession);
+    saveActiveSession(updatedSession);
+  }, [session, currentQuestion]);
+
+  // 3. Change NAT Value
+  const handleChangeNatValue = useCallback((val: string) => {
+    if (!session || !currentQuestion) return;
+    const qId = currentQuestion.id;
+    const currentResp = session.responses[qId];
+    const hasVal = val.trim().length > 0;
+    const prevStatus = currentResp?.status || 'not-visited';
+
+    let newStatus: QuestionStatus = hasVal ? 'answered' : 'not-answered';
+    if (prevStatus === 'marked-for-review' || prevStatus === 'answered-marked-review') {
+      newStatus = hasVal ? 'answered-marked-review' : 'marked-for-review';
+    }
+
+    const updatedSession: TestSession = {
+      ...session,
+      responses: {
+        ...session.responses,
+        [qId]: {
+          questionId: qId,
+          selectedOption: null,
+          natValue: val,
+          status: newStatus,
+          timeSpentSeconds: currentResp?.timeSpentSeconds || 0
+        }
+      }
+    };
+
+    sessionRef.current = updatedSession;
+    setSession(updatedSession);
+    saveActiveSession(updatedSession);
+  }, [session, currentQuestion]);
 
   // Clear Response
-  const handleClearResponse = () => {
-    if (!session || !currentQuestion || session.isPaused) return;
+  const handleClearResponse = useCallback(() => {
+    if (!session || !currentQuestion) return;
     const qId = currentQuestion.id;
     const currentResp = session.responses[qId];
 
-    const wasMarked = currentResp?.status === 'marked-for-review' || currentResp?.status === 'answered-marked-review';
-    const newStatus: QuestionStatus = wasMarked ? 'marked-for-review' : 'not-answered';
+    let newStatus: QuestionStatus = 'not-answered';
+    if (currentResp?.status === 'answered-marked-review' || currentResp?.status === 'marked-for-review') {
+      newStatus = 'marked-for-review';
+    }
 
-    const updated = {
+    const updatedSession: TestSession = {
       ...session,
       responses: {
         ...session.responses,
         [qId]: {
-          ...currentResp,
+          questionId: qId,
           selectedOption: null,
-          status: newStatus
+          selectedOptions: [],
+          natValue: '',
+          status: newStatus,
+          timeSpentSeconds: currentResp?.timeSpentSeconds || 0
         }
       }
     };
-    sessionRef.current = updated;
-    setSession(updated);
-    saveActiveSession(updated);
-  };
 
-  // Move to a target question index
-  const goToQuestionIndex = (targetIndex: number) => {
-    if (!session || targetIndex < 0 || targetIndex >= questions.length || session.isPaused) return;
-    if (targetIndex === session.activeQuestionIndex) {
-      setIsMobileDrawerOpen(false);
+    sessionRef.current = updatedSession;
+    setSession(updatedSession);
+    saveActiveSession(updatedSession);
+  }, [session, currentQuestion]);
+
+  // Save & Next
+  const handleSaveAndNext = useCallback(() => {
+    if (!session || !currentQuestion) return;
+    const nextIndex = session.activeQuestionIndex + 1;
+    if (nextIndex >= questions.length) {
+      handleOpenSubmitModal();
       return;
     }
-    const targetQ = questions[targetIndex];
 
-    const currentQ = questions[session.activeQuestionIndex];
-    const currentResp = currentQ ? session.responses[currentQ.id] : undefined;
+    const nextQ = questions[nextIndex];
+    const nextResp = session.responses[nextQ.id];
+    let nextStatus = nextResp?.status || 'not-visited';
+    if (nextStatus === 'not-visited') {
+      nextStatus = 'not-answered';
+    }
 
-    const updatedResponses = { ...session.responses };
-
-    // If current question has an option selected, commit it properly
-    if (currentQ && currentResp && currentResp.selectedOption !== null) {
-      if (currentResp.status === 'not-answered' || currentResp.status === 'not-visited') {
-        updatedResponses[currentQ.id] = {
-          ...currentResp,
-          status: 'answered'
-        };
-      } else if (currentResp.status === 'marked-for-review') {
-        updatedResponses[currentQ.id] = {
-          ...currentResp,
-          status: 'answered-marked-review'
-        };
+    const updatedSession: TestSession = {
+      ...session,
+      activeQuestionIndex: nextIndex,
+      activeSection: nextQ.sectionId,
+      responses: {
+        ...session.responses,
+        [nextQ.id]: {
+          questionId: nextQ.id,
+          selectedOption: nextResp?.selectedOption || null,
+          selectedOptions: nextResp?.selectedOptions || [],
+          natValue: nextResp?.natValue || '',
+          status: nextStatus,
+          timeSpentSeconds: nextResp?.timeSpentSeconds || 0
+        }
       }
-    }
-
-    const targetResp = updatedResponses[targetQ.id];
-    let newTargetStatus = targetResp?.status || 'not-answered';
-    if (newTargetStatus === 'not-visited') {
-      newTargetStatus = 'not-answered';
-    }
-
-    updatedResponses[targetQ.id] = {
-      ...targetResp,
-      status: newTargetStatus
     };
 
-    const updated = {
+    sessionRef.current = updatedSession;
+    setSession(updatedSession);
+    saveActiveSession(updatedSession);
+  }, [session, currentQuestion, questions, handleOpenSubmitModal]);
+
+  // Mark for Review & Next
+  const handleMarkForReviewAndNext = useCallback(() => {
+    if (!session || !currentQuestion) return;
+    const qId = currentQuestion.id;
+    const currentResp = session.responses[qId];
+
+    const hasAnswer = currentQuestion.type === 'NAT'
+      ? (currentResp?.natValue !== undefined && currentResp?.natValue !== null && String(currentResp.natValue).trim().length > 0)
+      : currentQuestion.type === 'MSQ'
+      ? ((currentResp?.selectedOptions || []).length > 0)
+      : (currentResp?.selectedOption !== null && currentResp?.selectedOption !== undefined);
+
+    const markStatus: QuestionStatus = hasAnswer ? 'answered-marked-review' : 'marked-for-review';
+
+    const nextIndex = session.activeQuestionIndex + 1;
+    if (nextIndex >= questions.length) {
+      const updatedSession: TestSession = {
+        ...session,
+        responses: {
+          ...session.responses,
+          [qId]: {
+            ...currentResp,
+            questionId: qId,
+            status: markStatus
+          }
+        }
+      };
+      sessionRef.current = updatedSession;
+      setSession(updatedSession);
+      saveActiveSession(updatedSession);
+      handleOpenSubmitModal();
+      return;
+    }
+
+    const nextQ = questions[nextIndex];
+    const nextResp = session.responses[nextQ.id];
+    let nextStatus = nextResp?.status || 'not-visited';
+    if (nextStatus === 'not-visited') nextStatus = 'not-answered';
+
+    const updatedSession: TestSession = {
+      ...session,
+      activeQuestionIndex: nextIndex,
+      activeSection: nextQ.sectionId,
+      responses: {
+        ...session.responses,
+        [qId]: {
+          ...currentResp,
+          questionId: qId,
+          status: markStatus
+        },
+        [nextQ.id]: {
+          questionId: nextQ.id,
+          selectedOption: nextResp?.selectedOption || null,
+          selectedOptions: nextResp?.selectedOptions || [],
+          natValue: nextResp?.natValue || '',
+          status: nextStatus,
+          timeSpentSeconds: nextResp?.timeSpentSeconds || 0
+        }
+      }
+    };
+
+    sessionRef.current = updatedSession;
+    setSession(updatedSession);
+    saveActiveSession(updatedSession);
+  }, [session, currentQuestion, questions, handleOpenSubmitModal]);
+
+  // Previous
+  const handlePrevious = useCallback(() => {
+    if (!session || session.activeQuestionIndex === 0) return;
+    const prevIndex = session.activeQuestionIndex - 1;
+    const prevQ = questions[prevIndex];
+
+    const updatedSession: TestSession = {
+      ...session,
+      activeQuestionIndex: prevIndex,
+      activeSection: prevQ.sectionId
+    };
+
+    sessionRef.current = updatedSession;
+    setSession(updatedSession);
+    saveActiveSession(updatedSession);
+  }, [session, questions]);
+
+  // Jump via Palette
+  const handleSelectQuestionIndex = useCallback((targetIndex: number) => {
+    if (!session || targetIndex < 0 || targetIndex >= questions.length) return;
+    const targetQ = questions[targetIndex];
+    const targetResp = session.responses[targetQ.id];
+    let newStatus = targetResp?.status || 'not-visited';
+    if (newStatus === 'not-visited') newStatus = 'not-answered';
+
+    const updatedSession: TestSession = {
       ...session,
       activeQuestionIndex: targetIndex,
       activeSection: targetQ.sectionId,
-      responses: updatedResponses
+      responses: {
+        ...session.responses,
+        [targetQ.id]: {
+          questionId: targetQ.id,
+          selectedOption: targetResp?.selectedOption || null,
+          selectedOptions: targetResp?.selectedOptions || [],
+          natValue: targetResp?.natValue || '',
+          status: newStatus,
+          timeSpentSeconds: targetResp?.timeSpentSeconds || 0
+        }
+      }
     };
-    sessionRef.current = updated;
-    setSession(updated);
-    saveActiveSession(updated);
+
+    sessionRef.current = updatedSession;
+    setSession(updatedSession);
+    saveActiveSession(updatedSession);
     setIsMobileDrawerOpen(false);
-  };
+  }, [session, questions]);
 
-  // Save & Next
-  const handleSaveAndNext = () => {
-    if (!session || !currentQuestion || session.isPaused) return;
-    const qId = currentQuestion.id;
-    const currentResp = session.responses[qId];
-
-    const isAnswered = currentResp?.selectedOption !== null;
-    const newStatus: QuestionStatus = isAnswered ? 'answered' : 'not-answered';
-
-    const updatedResponses = {
-      ...session.responses,
-      [qId]: {
-        ...currentResp,
-        status: newStatus
-      }
-    };
-
-    const nextIndex = session.activeQuestionIndex + 1;
-    if (nextIndex < questions.length) {
-      const nextQ = questions[nextIndex];
-      const nextResp = updatedResponses[nextQ.id];
-      if (nextResp && nextResp.status === 'not-visited') {
-        updatedResponses[nextQ.id] = {
-          ...nextResp,
-          status: 'not-answered'
-        };
-      }
-
-      const updated = {
-        ...session,
-        activeQuestionIndex: nextIndex,
-        activeSection: nextQ.sectionId,
-        responses: updatedResponses
-      };
-      sessionRef.current = updated;
-      setSession(updated);
-      saveActiveSession(updated);
-    } else {
-      const updated = {
-        ...session,
-        responses: updatedResponses
-      };
-      sessionRef.current = updated;
-      setSession(updated);
-      saveActiveSession(updated);
-      handleOpenSubmitModal(updated);
+  // Section Switcher
+  const handleSelectSection = useCallback((secId: GateSectionId) => {
+    if (!session) return;
+    const firstQIndex = questions.findIndex(q => q.sectionId === secId);
+    if (firstQIndex !== -1) {
+      handleSelectQuestionIndex(firstQIndex);
     }
-  };
+  }, [session, questions, handleSelectQuestionIndex]);
 
-  // Mark for Review & Next
-  const handleMarkForReviewAndNext = () => {
-    if (!session || !currentQuestion || session.isPaused) return;
-    const qId = currentQuestion.id;
-    const currentResp = session.responses[qId];
-
-    const hasAnswer = currentResp?.selectedOption !== null;
-    const newStatus: QuestionStatus = hasAnswer ? 'answered-marked-review' : 'marked-for-review';
-
-    const updatedResponses = {
-      ...session.responses,
-      [qId]: {
-        ...currentResp,
-        status: newStatus
-      }
-    };
-
-    const nextIndex = session.activeQuestionIndex + 1;
-    if (nextIndex < questions.length) {
-      const nextQ = questions[nextIndex];
-      const nextResp = updatedResponses[nextQ.id];
-      if (nextResp && nextResp.status === 'not-visited') {
-        updatedResponses[nextQ.id] = {
-          ...nextResp,
-          status: 'not-answered'
-        };
-      }
-
-      const updated = {
-        ...session,
-        activeQuestionIndex: nextIndex,
-        activeSection: nextQ.sectionId,
-        responses: updatedResponses
-      };
-      sessionRef.current = updated;
-      setSession(updated);
-      saveActiveSession(updated);
-    } else {
-      const updated = {
-        ...session,
-        responses: updatedResponses
-      };
-      sessionRef.current = updated;
-      setSession(updated);
-      saveActiveSession(updated);
-      handleOpenSubmitModal(updated);
-    }
-  };
-
-  // Previous
-  const handlePrevious = () => {
-    if (!session || session.activeQuestionIndex <= 0 || session.isPaused) return;
-    goToQuestionIndex(session.activeQuestionIndex - 1);
-  };
-
-  // Switch Section Tabs
-  const handleSelectSection = (secId: SectionId) => {
-    if (!session || session.isPaused) return;
-    if (session.activeSection === secId) return;
-    const targetIdx = questions.findIndex(q => q.sectionId === secId);
-    if (targetIdx !== -1) {
-      goToQuestionIndex(targetIdx);
-    }
-  };
+  const isModalOpen = isSubmitModalOpen || isPauseModalOpen || isInstructionsModalOpen || isQuestionPaperModalOpen || isCalcOpen;
 
   if (!session || !currentQuestion) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-950 text-white">
+      <div className="min-h-screen bg-slate-950 flex items-center justify-center text-slate-400">
         <div className="flex flex-col items-center gap-3">
-          <div className="w-10 h-10 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
-          <span className="text-sm font-semibold text-slate-400">Loading Examination Session...</span>
+          <div className="w-8 h-8 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
+          <span className="text-sm font-semibold">Initializing GATE CBT Examination...</span>
         </div>
       </div>
     );
   }
 
-  const currentResponse = session.responses[currentQuestion.id];
-  const isAnyModalOpen =
-    isSubmitModalOpen ||
-    isMobileDrawerOpen ||
-    isPauseModalOpen ||
-    isInstructionsModalOpen ||
-    isQuestionPaperModalOpen ||
-    Boolean(session.isPaused);
-
   return (
-    <div className="h-[100dvh] flex flex-col bg-slate-950 overflow-hidden select-none">
-      {/* Top System Header */}
+    <div className="h-screen w-screen overflow-hidden bg-slate-950 text-slate-100 flex flex-col antialiased">
+      {/* Top Header */}
       <TopHeader
         testTitle={session.testTitle}
         candidateName={session.candidateName}
@@ -523,40 +524,44 @@ export default function TestPage() {
         activeSection={session.activeSection}
         onSelectSection={handleSelectSection}
         availableSections={availableSections}
-        onToggleMobileDrawer={() => setIsMobileDrawerOpen(true)}
+        onToggleMobileDrawer={() => setIsMobileDrawerOpen(prev => !prev)}
         onOpenSubmitModal={handleOpenSubmitModal}
+        onOpenCalculator={() => setIsCalcOpen(true)}
         answeredCount={answeredCount}
         totalQuestions={questions.length}
         isPaused={session.isPaused}
-        onTogglePause={handleTogglePause}
+        onTogglePause={handlePause}
         onOpenInstructions={() => setIsInstructionsModalOpen(true)}
         onOpenQuestionPaper={() => setIsQuestionPaperModalOpen(true)}
         practiceMode={session.practiceMode}
       />
 
-      {/* Main Examination Workspace */}
-      <main className="flex-1 max-w-7xl w-full mx-auto p-2.5 sm:p-4 flex flex-col lg:flex-row gap-3 sm:gap-4 overflow-hidden">
-        {/* Left / Main: Question Workspace */}
-        <div className="flex-1 h-full min-h-0 overflow-hidden">
+      {/* Main Workspace Layout */}
+      <div className="flex-1 flex overflow-hidden p-2 sm:p-4 gap-3">
+        {/* Left / Center: Question Area */}
+        <main className="flex-1 min-w-0 h-full">
           <QuestionArea
             question={currentQuestion}
             questionIndex={session.activeQuestionIndex}
             totalQuestions={questions.length}
-            currentResponse={currentResponse}
+            currentResponse={session.responses[currentQuestion.id]}
             onSelectOption={handleSelectOption}
+            onToggleMsqOption={handleToggleMsqOption}
+            onChangeNatValue={handleChangeNatValue}
             onClearResponse={handleClearResponse}
             onSaveAndNext={handleSaveAndNext}
             onMarkForReviewAndNext={handleMarkForReviewAndNext}
             onPrevious={handlePrevious}
+            onOpenCalculator={() => setIsCalcOpen(true)}
             isFirstQuestion={session.activeQuestionIndex === 0}
             isLastQuestion={session.activeQuestionIndex === questions.length - 1}
-            isModalOpen={isAnyModalOpen}
+            isModalOpen={isModalOpen}
             practiceMode={session.practiceMode}
           />
-        </div>
+        </main>
 
-        {/* Right Pane: Question Palette (Desktop Only) */}
-        <div className="hidden lg:block w-80 shrink-0 h-full min-h-0 overflow-hidden">
+        {/* Right Desktop Palette */}
+        <aside className="hidden lg:block w-80 shrink-0 h-full">
           <QuestionPalette
             questions={questions}
             responses={session.responses}
@@ -564,13 +569,13 @@ export default function TestPage() {
             candidateName={session.candidateName}
             rollNumber={session.rollNumber}
             activeSection={session.activeSection}
-            onSelectQuestionIndex={goToQuestionIndex}
+            onSelectQuestionIndex={handleSelectQuestionIndex}
             onSubmitTest={handleOpenSubmitModal}
           />
-        </div>
-      </main>
+        </aside>
+      </div>
 
-      {/* Responsive Slide-In Mobile Palette Drawer */}
+      {/* Mobile Drawer */}
       <MobilePaletteDrawer
         isOpen={isMobileDrawerOpen}
         onClose={() => setIsMobileDrawerOpen(false)}
@@ -582,21 +587,27 @@ export default function TestPage() {
           candidateName={session.candidateName}
           rollNumber={session.rollNumber}
           activeSection={session.activeSection}
-          onSelectQuestionIndex={goToQuestionIndex}
+          onSelectQuestionIndex={handleSelectQuestionIndex}
           onSubmitTest={handleOpenSubmitModal}
         />
       </MobilePaletteDrawer>
 
-      {/* Pre-Submission Modal */}
+      {/* Virtual Scientific Calculator Modal */}
+      <ScientificCalculator
+        isOpen={isCalcOpen}
+        onClose={() => setIsCalcOpen(false)}
+      />
+
+      {/* Confirmation Modal */}
       <SubmitConfirmationModal
         isOpen={isSubmitModalOpen}
         onClose={() => setIsSubmitModalOpen(false)}
-        onConfirmSubmit={handleFinalSubmit}
+        onConfirmSubmit={() => handleFinalSubmit()}
         questions={questions}
         responses={session.responses}
       />
 
-      {/* Pause & Save/Exit Modal */}
+      {/* Pause / Exit Modal */}
       <PauseExitModal
         isOpen={isPauseModalOpen}
         remainingSeconds={session.remainingSeconds}
@@ -605,10 +616,10 @@ export default function TestPage() {
         testTitle={session.testTitle}
         onResume={handleResume}
         onSaveAndExit={handleSaveAndExit}
-        onSubmitNow={handleSubmitNowFromPause}
+        onSubmitNow={() => handleFinalSubmit()}
       />
 
-      {/* Examination Instructions Modal */}
+      {/* Instructions Modal */}
       <ExamInstructionsModal
         isOpen={isInstructionsModalOpen}
         onClose={() => setIsInstructionsModalOpen(false)}
@@ -616,13 +627,13 @@ export default function TestPage() {
         totalQuestions={questions.length}
       />
 
-      {/* Full Question Paper Skim Modal */}
+      {/* Question Paper Modal */}
       <QuestionPaperModal
         isOpen={isQuestionPaperModalOpen}
         onClose={() => setIsQuestionPaperModalOpen(false)}
         questions={questions}
         responses={session.responses}
-        onSelectQuestion={goToQuestionIndex}
+        onSelectQuestion={handleSelectQuestionIndex}
       />
     </div>
   );

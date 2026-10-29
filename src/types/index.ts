@@ -1,34 +1,72 @@
-export type SectionId = 'part-a' | 'part-b';
+export type GateSectionId = 'GA' | 'CS';
+
+export type GateSubjectId =
+  | 'general-aptitude'
+  | 'discrete-maths'
+  | 'linear-algebra'
+  | 'calculus'
+  | 'probability'
+  | 'digital-logic'
+  | 'coa'
+  | 'programming-ds'
+  | 'algorithms'
+  | 'toc'
+  | 'compiler-design'
+  | 'os'
+  | 'dbms'
+  | 'computer-networks';
+
+export type GateQuestionType = 'MCQ' | 'MSQ' | 'NAT';
 
 export type QuestionStatus =
   | 'not-visited'              // ⚪ White/Grey (Initial unvisited)
-  | 'not-answered'             // 🔴 Red (Visited but no option saved)
-  | 'answered'                 // 🟢 Green (Saved answer)
+  | 'not-answered'             // 🔴 Red (Visited but not answered)
+  | 'answered'                 // 🟢 Green (Answer saved)
   | 'marked-for-review'        // 🟣 Purple (Flagged for review, no answer)
   | 'answered-marked-review';  // 🟣🟢 Purple with green dot (Answered AND flagged for review)
 
 export interface Question {
-  id: number;
-  sectionId: SectionId;
+  id: string | number;
+  numericId: number;
+  year?: number;
+  paperSet?: string;
+  questionNumber: number;
+  sectionId: GateSectionId;    // 'GA' (General Aptitude) or 'CS' (Computer Science & Engg Maths)
   sectionName: string;
-  lessonNumber: number;
-  lessonName: string;
+  subjectId: GateSubjectId;
+  subjectName: string;
+  topic?: string;
+  type: GateQuestionType;      // 'MCQ' | 'MSQ' | 'NAT'
   question: string;
-  options: {
+  options?: {
     key: 'a' | 'b' | 'c' | 'd';
     text: string;
   }[];
-  correctAnswer: 'a' | 'b' | 'c' | 'd';
-  acceptedAnswers?: ('a' | 'b' | 'c' | 'd')[];
-  officialKey?: string;
+  // For MCQ: single letter 'a' | 'b' | 'c' | 'd'
+  correctAnswer?: 'a' | 'b' | 'c' | 'd' | null;
+  // For MSQ: multiple letters, e.g. ['a', 'c']
+  correctAnswers?: ('a' | 'b' | 'c' | 'd')[] | null;
+  // For NAT: numerical value or range
+  natAnswer?: number | null;
+  natAnswerRange?: {
+    min: number;
+    max: number;
+  } | null;
+  marks: 1 | 2;
+  negativeMarks: number;       // 0.33 for 1M MCQ, 0.66 for 2M MCQ, 0 for MSQ/NAT
   explanation: string;
-  marks: number;
-  sourcePaper?: 'June 2026' | 'Sample Set 1' | 'Sample Set 2' | string;
+  sourcePaper: string;         // e.g. "GATE 2026 (CS1)", "GATE 2025 (CS1)", "GATE 2024 (CS1)"
+  codeSnippet?: string;
 }
 
 export interface UserResponse {
-  questionId: number;
+  questionId: string | number;
+  // For MCQ
   selectedOption: 'a' | 'b' | 'c' | 'd' | null;
+  // For MSQ
+  selectedOptions?: ('a' | 'b' | 'c' | 'd')[];
+  // For NAT
+  natValue?: string | number | null;
   status: QuestionStatus;
   timeSpentSeconds: number;
 }
@@ -43,30 +81,31 @@ export interface TestSession {
   durationMinutes: number;
   remainingSeconds: number;
   activeQuestionIndex: number;
-  activeSection: SectionId;
-  responses: Record<number, UserResponse>;
+  activeSection: GateSectionId;
+  responses: Record<string | number, UserResponse>;
   isSubmitted: boolean;
   isPaused?: boolean;
   pausedAt?: number;
-  questionIds: number[];
+  questionIds: (string | number)[];
   practiceMode?: 'exam' | 'study';
-  selectedLessons?: number[];
+  selectedSubjects?: GateSubjectId[];
 }
 
-export interface LessonMetadata {
-  lessonNumber: number;
-  lessonName: string;
-  sectionId: SectionId;
-  sectionName: string;
+export interface SubjectMetadata {
+  subjectId: GateSubjectId;
+  subjectName: string;
+  sectionId: GateSectionId;
+  syllabusSection: string;
   weightageMarks: string;
   keyTopics: string[];
   description: string;
 }
 
 export interface CustomSessionConfig {
-  lessonNumbers: number[];
+  subjectIds: GateSubjectId[];
   questionCount?: number;
   mode?: 'exam' | 'study';
+  types?: GateQuestionType[];
 }
 
 export interface TestResult {
@@ -80,34 +119,49 @@ export interface TestResult {
   totalMarks: number;
   score: number;
   percentage: number;
-  isQualified: boolean; // >= 40%
+  isQualified: boolean; // >= 28 marks (typical GATE General cutoff ~27-32)
+  cutoffMarks: number;
   accuracy: number;
   attemptedCount: number;
   correctCount: number;
   incorrectCount: number;
   skippedCount: number;
   markedForReviewCount: number;
+  negativeMarksIncurred: number;
   sectionScores: {
-    sectionId: SectionId;
+    sectionId: GateSectionId;
     sectionName: string;
+    totalQuestions: number;
+    attempted: number;
+    correct: number;
+    score: number;
+    totalMarks: number;
+    accuracy: number;
+  }[];
+  subjectScores: {
+    subjectId: GateSubjectId;
+    subjectName: string;
     totalQuestions: number;
     attempted: number;
     correct: number;
     score: number;
     accuracy: number;
   }[];
-  responses: Record<number, UserResponse>;
-  questionIds: number[];
+  responses: Record<string | number, UserResponse>;
+  questionIds: (string | number)[];
   practiceMode?: 'exam' | 'study';
-  selectedLessons?: number[];
 }
 
 export interface TestPreset {
   id: string;
   title: string;
+  year?: number;
+  paperSet?: string;
   description: string;
   questionCount: number;
   durationMinutes: number;
-  sectionFilter?: SectionId;
+  sectionFilter?: GateSectionId;
   badge: string;
+  featured?: boolean;
+  organizingInstitute?: string;
 }

@@ -1,9 +1,18 @@
-import { TestSession, TestResult, UserResponse, Question, SectionId, CustomSessionConfig } from '@/types';
-import { QUESTION_BANK, LESSON_METADATA } from './questionBank';
+import {
+  TestSession,
+  TestResult,
+  UserResponse,
+  Question,
+  GateSectionId,
+  GateSubjectId,
+  CustomSessionConfig
+} from '@/types';
+import { QUESTION_BANK, SUBJECT_METADATA } from './questionBank';
 
-const ACTIVE_TEST_KEY = 'cseet_active_test_session';
-const TEST_HISTORY_KEY = 'cseet_test_history';
-const CANDIDATE_NAME_KEY = 'cseet_candidate_name';
+const ACTIVE_TEST_KEY = 'gate_active_test_session';
+const TEST_HISTORY_KEY = 'gate_test_history';
+const CANDIDATE_NAME_KEY = 'gate_candidate_name';
+const BOOKMARKS_KEY = 'gate_bookmarked_questions';
 
 export function getSavedCandidateName(): string {
   if (typeof window === 'undefined') return "Candidate";
@@ -15,93 +24,155 @@ export function saveCandidateName(name: string): void {
   localStorage.setItem(CANDIDATE_NAME_KEY, name.trim() || "Candidate");
 }
 
+export function getBookmarkedQuestionIds(): (string | number)[] {
+  if (typeof window === 'undefined') return [];
+  try {
+    const raw = localStorage.getItem(BOOKMARKS_KEY);
+    return raw ? JSON.parse(raw) : [];
+  } catch {
+    return [];
+  }
+}
+
+export function toggleQuestionBookmark(questionId: string | number): boolean {
+  if (typeof window === 'undefined') return false;
+  const current = getBookmarkedQuestionIds();
+  const exists = current.includes(questionId);
+  const updated = exists ? current.filter(id => id !== questionId) : [...current, questionId];
+  localStorage.setItem(BOOKMARKS_KEY, JSON.stringify(updated));
+  return !exists;
+}
+
 export function createNewSession(
   presetId: string,
   candidateName: string = "Candidate",
   customConfig?: CustomSessionConfig
 ): TestSession {
   let selectedQuestions: Question[] = [];
-  let testTitle = 'ICSI CSEET Paper 4: Full Official Mock Exam';
-  let durationMinutes = 120;
+  let testTitle = 'GATE CS 2027: Full Official Mock Exam';
+  let durationMinutes = 180;
   let practiceMode: 'exam' | 'study' = customConfig?.mode || 'exam';
-  let selectedLessons: number[] | undefined = undefined;
+  let selectedSubjects: GateSubjectId[] | undefined = undefined;
 
-  // The 100 benchmark questions from the official June 2026 Examination Paper
-  const officialJuneQuestions = QUESTION_BANK.filter(q => q.sourcePaper === 'June 2026' || q.id <= 100);
-
-  if (presetId === 'part-a-laws') {
-    selectedQuestions = officialJuneQuestions.filter(q => q.sectionId === 'part-a');
-    testTitle = 'Part A: Business Laws Specialist Mock';
-    durationMinutes = 72;
-  } else if (presetId === 'part-b-management') {
-    selectedQuestions = officialJuneQuestions.filter(q => q.sectionId === 'part-b');
-    testTitle = 'Part B: Business Management Specialist Mock';
-    durationMinutes = 48;
-  } else if (presetId === 'quick-sprint') {
-    const partA = officialJuneQuestions.filter(q => q.sectionId === 'part-a').slice(0, 15);
-    const partB = officialJuneQuestions.filter(q => q.sectionId === 'part-b').slice(0, 10);
-    selectedQuestions = [...partA, ...partB];
-    testTitle = 'Diagnostic Rapid Sprint (25Q)';
+  if (presetId === 'gate-2026-cs1') {
+    selectedQuestions = QUESTION_BANK.filter(q => q.year === 2026 && q.paperSet === 'CS1');
+    testTitle = 'GATE 2026 (Shift 1) Official Mock Exam — IIT Guwahati';
+    durationMinutes = 180;
+  } else if (presetId === 'gate-2026-cs2') {
+    selectedQuestions = QUESTION_BANK.filter(q => q.year === 2026 && q.paperSet === 'CS2');
+    testTitle = 'GATE 2026 (Shift 2) Official Mock Exam — IIT Guwahati';
+    durationMinutes = 180;
+  } else if (presetId === 'gate-2025-cs1') {
+    selectedQuestions = QUESTION_BANK.filter(q => q.year === 2025 && q.paperSet === 'CS1');
+    testTitle = 'GATE 2025 (Shift 1) Official Mock Exam — IIT Roorkee';
+    durationMinutes = 180;
+  } else if (presetId === 'gate-2025-cs2') {
+    selectedQuestions = QUESTION_BANK.filter(q => q.year === 2025 && q.paperSet === 'CS2');
+    testTitle = 'GATE 2025 (Shift 2) Official Mock Exam — IIT Roorkee';
+    durationMinutes = 180;
+  } else if (presetId === 'gate-2024-cs1') {
+    selectedQuestions = QUESTION_BANK.filter(q => q.year === 2024 && q.paperSet === 'CS1');
+    testTitle = 'GATE 2024 (Set 1) Benchmark Mock Exam — IISc Bengaluru';
+    durationMinutes = 180;
+  } else if (presetId === 'gate-2024-cs2') {
+    selectedQuestions = QUESTION_BANK.filter(q => q.year === 2024 && q.paperSet === 'CS2');
+    testTitle = 'GATE 2024 (Set 2) Benchmark Mock Exam — IISc Bengaluru';
+    durationMinutes = 180;
+  } else if (presetId === 'quick-sprint-30') {
+    // 30 high-yield questions sampled across core CS subjects
+    const ga = QUESTION_BANK.filter(q => q.sectionId === 'GA').slice(0, 5);
+    const cs = QUESTION_BANK.filter(q => q.sectionId === 'CS').slice(0, 25);
+    selectedQuestions = [...ga, ...cs];
+    testTitle = 'Diagnostic Rapid Sprint (30Q)';
+    durationMinutes = 45;
+  } else if (presetId === 'general-aptitude-sprint') {
+    selectedQuestions = QUESTION_BANK.filter(q => q.sectionId === 'GA').slice(0, 20);
+    testTitle = 'General Aptitude Mastery Drill (20Q)';
     durationMinutes = 30;
-  } else if (presetId.startsWith('chapter-')) {
-    // Single Chapter Specialist Drill
-    const lessonNum = parseInt(presetId.replace('chapter-', ''), 10);
-    selectedQuestions = QUESTION_BANK.filter(q => q.lessonNumber === lessonNum);
-    const lessonMeta = LESSON_METADATA.find(l => l.lessonNumber === lessonNum);
-    selectedLessons = [lessonNum];
-    testTitle = `Chapter ${lessonNum}: ${lessonMeta?.lessonName || 'Specialist Drill'} (${selectedQuestions.length}Q)`;
-    durationMinutes = Math.max(15, Math.round(selectedQuestions.length * 1.2));
-  } else if (presetId === 'custom-topic' && customConfig) {
-    // Custom Multi-Topic / Unit Selection
-    const set = new Set(customConfig.lessonNumbers);
-    selectedLessons = customConfig.lessonNumbers;
-    let pool = QUESTION_BANK.filter(q => set.has(q.lessonNumber));
+  } else if (presetId.startsWith('subject-')) {
+    const subjId = presetId.replace('subject-', '') as GateSubjectId;
+    selectedQuestions = QUESTION_BANK.filter(q => q.subjectId === subjId);
+    const meta = SUBJECT_METADATA.find(s => s.subjectId === subjId);
+    selectedSubjects = [subjId];
+    testTitle = `${meta?.subjectName || 'Subject'} Specialist Drill (${selectedQuestions.length}Q)`;
+    durationMinutes = Math.max(20, Math.round(selectedQuestions.length * 2.5));
+  } else if (presetId === 'custom-subject' && customConfig) {
+    const set = new Set(customConfig.subjectIds);
+    selectedSubjects = customConfig.subjectIds;
+    let pool = QUESTION_BANK.filter(q => set.has(q.subjectId));
+    if (customConfig.types && customConfig.types.length > 0) {
+      const typeSet = new Set(customConfig.types);
+      pool = pool.filter(q => typeSet.has(q.type));
+    }
     if (customConfig.questionCount && customConfig.questionCount < pool.length) {
-      // Shuffle or slice deterministically
       pool = pool.slice(0, customConfig.questionCount);
     }
     selectedQuestions = pool;
-    practiceMode = customConfig.mode || 'exam';
-    testTitle = `Custom Topic Test: ${selectedLessons.length} Unit(s) (${selectedQuestions.length}Q)`;
-    durationMinutes = Math.max(15, Math.round(selectedQuestions.length * 1.2));
+    testTitle = `Custom Multi-Subject Drill (${selectedQuestions.length}Q)`;
+    durationMinutes = Math.max(15, Math.round(selectedQuestions.length * 2.5));
   } else {
-    // Default Full Official Mock Exam (100 Questions)
-    selectedQuestions = [...officialJuneQuestions];
-    testTitle = 'ICSI CSEET Paper 4: Full Official Mock Exam';
-    durationMinutes = 120;
+    // Fallback: Default to latest GATE 2026 Shift 1
+    selectedQuestions = QUESTION_BANK.filter(q => q.year === 2026 && q.paperSet === 'CS1');
+    if (selectedQuestions.length === 0) {
+      selectedQuestions = QUESTION_BANK.slice(0, 65);
+    }
   }
 
-  const responses: Record<number, UserResponse> = {};
-  selectedQuestions.forEach((q, idx) => {
+  // Fallback safety if questions array empty
+  if (selectedQuestions.length === 0) {
+    selectedQuestions = QUESTION_BANK.slice(0, Math.min(65, QUESTION_BANK.length));
+  }
+
+  // Sort questions: GA first (Q1-Q10), then CS Core
+  selectedQuestions.sort((a, b) => {
+    if (a.sectionId === 'GA' && b.sectionId !== 'GA') return -1;
+    if (a.sectionId !== 'GA' && b.sectionId === 'GA') return 1;
+    return a.questionNumber - b.questionNumber;
+  });
+
+  const responses: Record<string | number, UserResponse> = {};
+  selectedQuestions.forEach(q => {
     responses[q.id] = {
       questionId: q.id,
       selectedOption: null,
-      status: idx === 0 ? 'not-answered' : 'not-visited',
+      selectedOptions: [],
+      natValue: '',
+      status: 'not-visited',
       timeSpentSeconds: 0
     };
   });
 
   const session: TestSession = {
-    testId: `cseet-${presetId}-${Date.now()}`,
+    testId: `gate_${Date.now()}_${Math.random().toString(36).substr(2, 6)}`,
     presetId,
     testTitle,
-    candidateName: candidateName || "Candidate",
-    rollNumber: `CSEET-${Math.floor(100000 + Math.random() * 900000)}`,
+    candidateName: candidateName.trim() || 'Candidate',
+    rollNumber: `GATE2027-${Math.floor(100000 + Math.random() * 900000)}`,
     startTime: Date.now(),
     durationMinutes,
     remainingSeconds: durationMinutes * 60,
     activeQuestionIndex: 0,
-    activeSection: selectedQuestions[0]?.sectionId || 'part-a',
+    activeSection: selectedQuestions[0]?.sectionId || 'GA',
     responses,
     isSubmitted: false,
-    isPaused: false,
     questionIds: selectedQuestions.map(q => q.id),
     practiceMode,
-    selectedLessons
+    selectedSubjects
   };
 
   saveActiveSession(session);
   return session;
+}
+
+export function getActiveSession(): TestSession | null {
+  if (typeof window === 'undefined') return null;
+  const raw = localStorage.getItem(ACTIVE_TEST_KEY);
+  if (!raw) return null;
+  try {
+    return JSON.parse(raw);
+  } catch {
+    return null;
+  }
 }
 
 export function saveActiveSession(session: TestSession): void {
@@ -109,207 +180,239 @@ export function saveActiveSession(session: TestSession): void {
   localStorage.setItem(ACTIVE_TEST_KEY, JSON.stringify(session));
 }
 
-export function pauseActiveSession(): TestSession | null {
-  const session = getActiveSession();
-  if (!session || session.isSubmitted) return null;
-  const updated: TestSession = {
-    ...session,
-    isPaused: true,
-    pausedAt: Date.now()
-  };
-  saveActiveSession(updated);
-  return updated;
-}
-
-export function resumeActiveSession(): TestSession | null {
-  const session = getActiveSession();
-  if (!session || session.isSubmitted) return null;
-  const updated: TestSession = {
-    ...session,
-    isPaused: false,
-    pausedAt: undefined
-  };
-  saveActiveSession(updated);
-  return updated;
-}
-
-export function getActiveSession(): TestSession | null {
-  if (typeof window === 'undefined') return null;
-  const data = localStorage.getItem(ACTIVE_TEST_KEY);
-  if (!data) return null;
-  try {
-    const session = JSON.parse(data) as TestSession;
-    if (!session || !session.testId) return null;
-    if (!Array.isArray(session.questionIds) || session.questionIds.length === 0) {
-      const respKeys = Object.keys(session.responses || {}).map(Number).filter(n => !isNaN(n) && n > 0);
-      session.questionIds = respKeys.length > 0 ? respKeys : QUESTION_BANK.map(q => q.id);
-    }
-    return session;
-  } catch (e) {
-    console.error('Failed to parse active test session', e);
-    return null;
-  }
-}
-
 export function clearActiveSession(): void {
   if (typeof window === 'undefined') return;
   localStorage.removeItem(ACTIVE_TEST_KEY);
 }
 
+// Evaluate answer correctness strictly according to GATE rules
+export function evaluateAnswer(
+  q: Question,
+  resp: UserResponse | undefined
+): { isAttempted: boolean; isCorrect: boolean; marksAwarded: number; negativeIncurred: number } {
+  if (!resp) return { isAttempted: false, isCorrect: false, marksAwarded: 0, negativeIncurred: 0 };
+
+  if (q.type === 'NAT') {
+    const valStr = resp.natValue !== undefined && resp.natValue !== null ? String(resp.natValue).trim() : '';
+    if (!valStr) return { isAttempted: false, isCorrect: false, marksAwarded: 0, negativeIncurred: 0 };
+    const num = parseFloat(valStr);
+    if (isNaN(num)) return { isAttempted: true, isCorrect: false, marksAwarded: 0, negativeIncurred: 0 };
+
+    let isCorrect = false;
+    if (q.natAnswerRange) {
+      isCorrect = num >= q.natAnswerRange.min && num <= q.natAnswerRange.max;
+    } else if (q.natAnswer !== undefined && q.natAnswer !== null) {
+      isCorrect = Math.abs(num - q.natAnswer) < 0.05;
+    }
+
+    // NAT has ZERO negative marking
+    return {
+      isAttempted: true,
+      isCorrect,
+      marksAwarded: isCorrect ? q.marks : 0,
+      negativeIncurred: 0
+    };
+  }
+
+  if (q.type === 'MSQ') {
+    const selected = (resp.selectedOptions || []).map(s => s.toLowerCase()).sort();
+    if (selected.length === 0) return { isAttempted: false, isCorrect: false, marksAwarded: 0, negativeIncurred: 0 };
+
+    const correct = (q.correctAnswers || [q.correctAnswer || 'a']).map(s => s.toLowerCase()).sort();
+
+    // MSQ rule: All correct options must be selected, no extra option. ZERO partial marking, ZERO negative marks.
+    const isCorrect = selected.length === correct.length && selected.every((val, idx) => val === correct[idx]);
+
+    return {
+      isAttempted: true,
+      isCorrect,
+      marksAwarded: isCorrect ? q.marks : 0,
+      negativeIncurred: 0
+    };
+  }
+
+  // MCQ
+  const opt = resp.selectedOption ? resp.selectedOption.toLowerCase() : null;
+  if (!opt) return { isAttempted: false, isCorrect: false, marksAwarded: 0, negativeIncurred: 0 };
+
+  const isCorrect = opt === (q.correctAnswer || 'a').toLowerCase();
+  const neg = isCorrect ? 0 : (q.marks === 1 ? 0.33 : 0.66);
+
+  return {
+    isAttempted: true,
+    isCorrect,
+    marksAwarded: isCorrect ? q.marks : -neg,
+    negativeIncurred: isCorrect ? 0 : neg
+  };
+}
+
 export function calculateTestResult(session: TestSession): TestResult {
-  const resolvedQuestionIds = Array.isArray(session.questionIds) && session.questionIds.length > 0
-    ? session.questionIds
-    : Object.keys(session.responses || {}).map(Number).filter(n => !isNaN(n) && n > 0);
+  const qMap = new Map<string | number, Question>();
+  QUESTION_BANK.forEach(q => qMap.set(q.id, q));
 
-  const safeQuestionIds = resolvedQuestionIds.length > 0
-    ? resolvedQuestionIds
-    : QUESTION_BANK.map(q => q.id);
-
-  const questions = safeQuestionIds
-    .map(id => QUESTION_BANK.find(q => q.id === id))
-    .filter(Boolean) as Question[];
-
+  let totalMarks = 0;
+  let score = 0;
+  let attemptedCount = 0;
   let correctCount = 0;
   let incorrectCount = 0;
-  let attemptedCount = 0;
+  let skippedCount = 0;
   let markedForReviewCount = 0;
+  let negativeMarksIncurred = 0;
 
-  // Section level metrics
-  const sectionStats: Record<SectionId, { total: number; attempted: number; correct: number; score: number }> = {
-    'part-a': { total: 0, attempted: 0, correct: 0, score: 0 },
-    'part-b': { total: 0, attempted: 0, correct: 0, score: 0 }
-  };
+  const sectionMap = new Map<GateSectionId, {
+    sectionId: GateSectionId;
+    sectionName: string;
+    totalQuestions: number;
+    attempted: number;
+    correct: number;
+    score: number;
+    totalMarks: number;
+  }>();
 
-  questions.forEach(q => {
-    const resp = session.responses[q.id];
-    sectionStats[q.sectionId].total += 1;
+  const subjectMap = new Map<GateSubjectId, {
+    subjectId: GateSubjectId;
+    subjectName: string;
+    totalQuestions: number;
+    attempted: number;
+    correct: number;
+    score: number;
+  }>();
+
+  session.questionIds.forEach(qId => {
+    const q = qMap.get(qId);
+    if (!q) return;
+
+    totalMarks += q.marks;
+    const resp = session.responses[qId];
+
+    // Initialize section accumulator
+    if (!sectionMap.has(q.sectionId)) {
+      sectionMap.set(q.sectionId, {
+        sectionId: q.sectionId,
+        sectionName: q.sectionId === 'GA' ? 'General Aptitude' : 'Computer Science & Engineering Mathematics',
+        totalQuestions: 0,
+        attempted: 0,
+        correct: 0,
+        score: 0,
+        totalMarks: 0
+      });
+    }
+    const secStats = sectionMap.get(q.sectionId)!;
+    secStats.totalQuestions++;
+    secStats.totalMarks += q.marks;
+
+    // Initialize subject accumulator
+    if (!subjectMap.has(q.subjectId)) {
+      subjectMap.set(q.subjectId, {
+        subjectId: q.subjectId,
+        subjectName: q.subjectName,
+        totalQuestions: 0,
+        attempted: 0,
+        correct: 0,
+        score: 0
+      });
+    }
+    const subjStats = subjectMap.get(q.subjectId)!;
+    subjStats.totalQuestions++;
 
     if (resp?.status === 'marked-for-review' || resp?.status === 'answered-marked-review') {
       markedForReviewCount++;
     }
 
-    const hasValidAnswer = Boolean(resp && resp.selectedOption !== null);
+    const { isAttempted, isCorrect, marksAwarded, negativeIncurred } = evaluateAnswer(q, resp);
 
-    if (hasValidAnswer) {
+    if (isAttempted) {
       attemptedCount++;
-      sectionStats[q.sectionId].attempted += 1;
-
-      // Ensure status is normalized if an option was selected
-      if (resp.status === 'marked-for-review') {
-        resp.status = 'answered-marked-review';
-      } else if (resp.status !== 'answered-marked-review') {
-        resp.status = 'answered';
-      }
-
-      // Check accepted answers (supporting official alternate keys)
-      const isCorrect = q.acceptedAnswers && q.acceptedAnswers.length > 0
-        ? q.acceptedAnswers.includes(resp.selectedOption!)
-        : resp.selectedOption === q.correctAnswer;
+      secStats.attempted++;
+      subjStats.attempted++;
+      score += marksAwarded;
+      secStats.score += marksAwarded;
+      subjStats.score += marksAwarded;
+      negativeMarksIncurred += negativeIncurred;
 
       if (isCorrect) {
         correctCount++;
-        sectionStats[q.sectionId].correct += 1;
-        sectionStats[q.sectionId].score += 1;
+        secStats.correct++;
+        subjStats.correct++;
       } else {
         incorrectCount++;
       }
+    } else {
+      skippedCount++;
     }
   });
 
-  const totalQuestions = questions.length;
-  const score = correctCount; // +1, -0
-  const percentage = totalQuestions > 0 ? (score / totalQuestions) * 100 : 0;
-  const skippedCount = totalQuestions - attemptedCount;
   const accuracy = attemptedCount > 0 ? (correctCount / attemptedCount) * 100 : 0;
-  const totalDurationSec = session.durationMinutes * 60;
-  const timeTakenSeconds = Math.max(0, Math.min(totalDurationSec, totalDurationSec - session.remainingSeconds));
+  const percentage = totalMarks > 0 ? (score / totalMarks) * 100 : 0;
+  const cutoffMarks = 28.5; // Typical General category cutoff for GATE CS
+  const isQualified = score >= cutoffMarks;
 
-  const isQualified = percentage >= 40.0; // ICSI individual paper passing mark is 40%
+  const sectionScores = Array.from(sectionMap.values()).map(s => ({
+    ...s,
+    score: Math.round(s.score * 100) / 100,
+    accuracy: s.attempted > 0 ? Math.round((s.correct / s.attempted) * 100) : 0
+  }));
+
+  const subjectScores = Array.from(subjectMap.values()).map(s => ({
+    ...s,
+    score: Math.round(s.score * 100) / 100,
+    accuracy: s.attempted > 0 ? Math.round((s.correct / s.attempted) * 100) : 0
+  }));
+
+  const timeTaken = (session.durationMinutes * 60) - session.remainingSeconds;
 
   const result: TestResult = {
     testId: session.testId,
-    presetId: session.presetId || 'full-mock',
+    presetId: session.presetId,
     testTitle: session.testTitle,
     candidateName: session.candidateName,
     completedAt: new Date().toISOString(),
-    timeTakenSeconds,
-    totalQuestions,
-    totalMarks: totalQuestions,
-    score,
-    percentage: Math.round(percentage * 10) / 10,
+    timeTakenSeconds: Math.max(0, timeTaken),
+    totalQuestions: session.questionIds.length,
+    totalMarks,
+    score: Math.round(score * 100) / 100,
+    percentage: Math.round(percentage * 100) / 100,
+    cutoffMarks,
     isQualified,
-    accuracy: Math.round(accuracy * 10) / 10,
+    accuracy: Math.round(accuracy * 100) / 100,
     attemptedCount,
     correctCount,
     incorrectCount,
     skippedCount,
     markedForReviewCount,
-    sectionScores: [
-      {
-        sectionId: 'part-a' as SectionId,
-        sectionName: 'Part A: Business Laws',
-        totalQuestions: sectionStats['part-a'].total,
-        attempted: sectionStats['part-a'].attempted,
-        correct: sectionStats['part-a'].correct,
-        score: sectionStats['part-a'].score,
-        accuracy: sectionStats['part-a'].attempted > 0
-          ? Math.round((sectionStats['part-a'].correct / sectionStats['part-a'].attempted) * 1000) / 10
-          : 0
-      },
-      {
-        sectionId: 'part-b' as SectionId,
-        sectionName: 'Part B: Business Management',
-        totalQuestions: sectionStats['part-b'].total,
-        attempted: sectionStats['part-b'].attempted,
-        correct: sectionStats['part-b'].correct,
-        score: sectionStats['part-b'].score,
-        accuracy: sectionStats['part-b'].attempted > 0
-          ? Math.round((sectionStats['part-b'].correct / sectionStats['part-b'].attempted) * 1000) / 10
-          : 0
-      }
-    ].filter(s => s.totalQuestions > 0),
+    negativeMarksIncurred: Math.round(negativeMarksIncurred * 100) / 100,
+    sectionScores,
+    subjectScores,
     responses: session.responses,
-    questionIds: safeQuestionIds,
-    practiceMode: session.practiceMode,
-    selectedLessons: session.selectedLessons
+    questionIds: session.questionIds,
+    practiceMode: session.practiceMode
   };
 
-  saveTestHistory(result);
+  saveTestResult(result);
   return result;
 }
 
-export function saveTestHistory(result: TestResult): void {
+export function saveTestResult(result: TestResult): void {
   if (typeof window === 'undefined') return;
-  try {
-    const history = getTestHistory();
-    history.unshift(result);
-    // Keep last 25 test results
-    localStorage.setItem(TEST_HISTORY_KEY, JSON.stringify(history.slice(0, 25)));
-  } catch (e) {
-    console.error('Failed to save test history', e);
-  }
+  const history = getTestHistory();
+  const updated = [result, ...history.filter(h => h.testId !== result.testId)].slice(0, 50);
+  localStorage.setItem(TEST_HISTORY_KEY, JSON.stringify(updated));
 }
 
 export function getTestHistory(): TestResult[] {
   if (typeof window === 'undefined') return [];
-  const data = localStorage.getItem(TEST_HISTORY_KEY);
-  if (!data) return [];
+  const raw = localStorage.getItem(TEST_HISTORY_KEY);
+  if (!raw) return [];
   try {
-    const list = JSON.parse(data) as TestResult[];
-    return list.map(r => {
-      if (!Array.isArray(r.questionIds) || r.questionIds.length === 0) {
-        const ids = Object.keys(r.responses || {}).map(Number).filter(n => !isNaN(n) && n > 0);
-        return {
-          ...r,
-          questionIds: ids.length > 0 ? ids : QUESTION_BANK.map(q => q.id)
-        };
-      }
-      return r;
-    });
-  } catch (e) {
-    console.error('Failed to parse test history', e);
+    return JSON.parse(raw);
+  } catch {
     return [];
   }
+}
+
+export function clearTestHistory(): void {
+  if (typeof window === 'undefined') return;
+  localStorage.removeItem(TEST_HISTORY_KEY);
 }
 
 export function getLatestResult(): TestResult | null {
@@ -322,8 +425,34 @@ export function getResultById(testId: string): TestResult | null {
   return history.find(r => r.testId === testId) || null;
 }
 
-export function clearTestHistory(): void {
-  if (typeof window === 'undefined') return;
-  localStorage.removeItem(TEST_HISTORY_KEY);
+// -------------------------------------------------------------
+// Study Portal Completed Topics Tracking
+// -------------------------------------------------------------
+const COMPLETED_TOPICS_KEY = 'gate_completed_study_topics';
+
+export function getCompletedTopics(): string[] {
+  if (typeof window === 'undefined') return [];
+  const raw = localStorage.getItem(COMPLETED_TOPICS_KEY);
+  if (!raw) return [];
+  try {
+    return JSON.parse(raw);
+  } catch {
+    return [];
+  }
 }
+
+export function isTopicCompleted(topicId: string): boolean {
+  const list = getCompletedTopics();
+  return list.includes(topicId);
+}
+
+export function toggleTopicCompletion(topicId: string): boolean {
+  if (typeof window === 'undefined') return false;
+  const list = getCompletedTopics();
+  const exists = list.includes(topicId);
+  const updated = exists ? list.filter(id => id !== topicId) : [...list, topicId];
+  localStorage.setItem(COMPLETED_TOPICS_KEY, JSON.stringify(updated));
+  return !exists;
+}
+
 

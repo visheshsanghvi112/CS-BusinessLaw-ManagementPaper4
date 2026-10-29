@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect } from 'react';
-import { BookOpen, X } from 'lucide-react';
+import { BookOpen, X, Calculator, ShieldCheck, AlertCircle } from 'lucide-react';
 
 interface ExamInstructionsModalProps {
   isOpen: boolean;
@@ -42,12 +42,12 @@ export const ExamInstructionsModal: React.FC<ExamInstructionsModalProps> = ({
       aria-label="Examination Instructions"
       className="fixed inset-0 z-50 flex items-center justify-center p-3.5 sm:p-4 bg-black/85 backdrop-blur-md animate-in fade-in duration-200 select-none"
     >
-      <div className="relative w-full max-w-2xl bg-slate-900 rounded-3xl shadow-2xl border border-slate-700/80 overflow-hidden animate-in zoom-in-95 duration-200">
+      <div className="relative w-full max-w-2xl bg-slate-900 rounded-3xl shadow-2xl border border-slate-700/80 overflow-hidden animate-in zoom-in-95 duration-200 flex flex-col max-h-[90vh]">
         {/* Header */}
-        <div className="px-5 sm:px-6 py-3.5 bg-slate-950 border-b border-slate-800 flex items-center justify-between">
+        <div className="px-5 sm:px-6 py-3.5 bg-slate-950 border-b border-slate-800 flex items-center justify-between shrink-0">
           <div className="flex items-center gap-2 text-white font-bold text-sm sm:text-base">
             <BookOpen className="w-5 h-5 text-blue-400" />
-            <span>ICSI Examination Instructions &amp; Marking Guidelines</span>
+            <span>GATE 2027 Examination Instructions &amp; Marking Scheme</span>
           </div>
           <button
             type="button"
@@ -59,131 +59,73 @@ export const ExamInstructionsModal: React.FC<ExamInstructionsModalProps> = ({
           </button>
         </div>
 
-        {/* Modal Scrollable Body */}
-        <div className="p-5 sm:p-6 space-y-4 max-h-[75vh] overflow-y-auto text-xs sm:text-sm text-slate-300 leading-relaxed">
-          {/* Paper Overview Box */}
-          <div className="p-3.5 sm:p-4 rounded-2xl bg-slate-950/80 border border-slate-800 grid grid-cols-2 sm:grid-cols-4 gap-3 text-center">
-            <div>
-              <div className="text-[10px] uppercase font-bold text-slate-400">Total Duration</div>
-              <div className="text-base font-black text-white font-mono mt-0.5">{durationMinutes} Mins</div>
-            </div>
-            <div>
-              <div className="text-[10px] uppercase font-bold text-slate-400">Total Questions</div>
-              <div className="text-base font-black text-white font-mono mt-0.5">{totalQuestions} Qs</div>
-            </div>
-            <div>
-              <div className="text-[10px] uppercase font-bold text-slate-400">Marking Scheme</div>
-              <div className="text-base font-black text-emerald-400 font-mono mt-0.5">+1.0 / 0.0</div>
-            </div>
-            <div>
-              <div className="text-[10px] uppercase font-bold text-slate-400">Paper Cutoff</div>
-              <div className="text-base font-black text-blue-400 font-mono mt-0.5">&ge; 40% Marks</div>
-            </div>
+        {/* Content */}
+        <div className="p-5 sm:p-6 overflow-y-auto space-y-4 text-xs sm:text-sm text-slate-300 leading-relaxed">
+          <div className="p-3 bg-blue-950/40 border border-blue-800/60 rounded-xl text-blue-200 flex items-center gap-2.5">
+            <ShieldCheck className="w-5 h-5 text-blue-400 shrink-0" />
+            <span>Organizing Institute: <strong>IIT Madras</strong> | Paper: <strong>Computer Science &amp; Information Technology (CS)</strong></span>
           </div>
 
-          {/* Sectional Rules */}
           <div className="space-y-2">
-            <h4 className="font-bold text-white text-xs sm:text-sm flex items-center gap-1.5">
-              <span>Sectional Composition &amp; Negative Marking</span>
-            </h4>
-            <ul className="list-disc list-inside space-y-1.5 text-slate-300">
-              {totalQuestions === 100 ? (
-                <>
-                  <li><strong>Part A (Business Laws):</strong> 60 Questions (60 Marks) covering Company Law 2013, Contract Act 1872, Partnership &amp; LLP, Sale of Goods, NI Act, DPDP &amp; BNSS 2023.</li>
-                  <li><strong>Part B (Business Management):</strong> 40 Questions (40 Marks) covering Management Theories, POSDC Functions, Leadership, Motivation &amp; Corporate Governance.</li>
-                </>
-              ) : (
-                <>
-                  <li><strong>Targeted Session:</strong> This examination consists of <strong>{totalQuestions} questions</strong> (+1.0 Mark per question) aligned to official ICSI syllabus units.</li>
-                  <li><strong>Sectional Distribution:</strong> Business Laws (Lessons 1-5) and Business Management (Lessons 6-9) as selected for this session.</li>
-                </>
-              )}
-              <li><strong className="text-emerald-400">Zero Negative Marking:</strong> There is no negative penalty for incorrect or unattempted questions. Candidates are advised to attempt all questions.</li>
-              <li><strong>Qualifying Criteria:</strong> A minimum of 40% marks must be secured in Paper 4 to qualify under official ICSI guidelines.</li>
+            <h4 className="font-bold text-white text-sm">1. General Overview &amp; Duration</h4>
+            <ul className="list-disc pl-5 space-y-1 text-slate-300">
+              <li>Total test duration is <strong>{durationMinutes} minutes</strong> (180 minutes for full mock).</li>
+              <li>The clock in the top banner displays the remaining time. The test submits automatically when the timer reaches 00:00:00.</li>
+              <li>There are <strong>{totalQuestions} questions</strong> carrying a total of 100 marks.</li>
             </ul>
           </div>
 
-          {/* 5-Color Status Legend */}
-          <div className="space-y-2 pt-1 border-t border-slate-800">
-            <h4 className="font-bold text-white text-xs sm:text-sm">
-              Official ICSI 5-State Question Palette Symbols
-            </h4>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
-              <div className="p-2.5 rounded-xl bg-slate-950/60 border border-slate-800 flex items-center gap-2.5">
-                <span className="w-6 h-6 rounded-lg bg-slate-800 border border-slate-700 flex items-center justify-center font-bold text-slate-300 shrink-0">
-                  ⚪
-                </span>
-                <span><strong>Not Visited:</strong> You have not visited this question yet.</span>
+          <div className="space-y-2">
+            <h4 className="font-bold text-white text-sm">2. Section Structure</h4>
+            <ul className="list-disc pl-5 space-y-1 text-slate-300">
+              <li><strong>General Aptitude (GA):</strong> Q.1 to Q.10 (Q1–Q5 carry 1 mark, Q6–Q10 carry 2 marks; Total 15 marks).</li>
+              <li><strong>CS &amp; Engineering Mathematics:</strong> Q.11 to Q.65 (Q11–Q35 carry 1 mark, Q36–Q65 carry 2 marks; Total 85 marks).</li>
+            </ul>
+          </div>
+
+          <div className="space-y-2">
+            <h4 className="font-bold text-white text-sm">3. Question Types &amp; Marking Rules</h4>
+            <div className="space-y-2 pt-1">
+              <div className="p-3 rounded-xl bg-slate-950/80 border border-slate-800">
+                <span className="font-bold text-blue-300">MCQ (Multiple Choice Questions):</span>
+                <p className="text-xs text-slate-300 mt-0.5">
+                  Single option is correct. Negative marking applies: <strong>-0.33</strong> for 1-mark questions and <strong>-0.66</strong> for 2-mark questions.
+                </p>
               </div>
-              <div className="p-2.5 rounded-xl bg-slate-950/60 border border-slate-800 flex items-center gap-2.5">
-                <span className="w-6 h-6 rounded-lg bg-red-600 border border-red-500 flex items-center justify-center font-bold text-white shrink-0">
-                  🔴
-                </span>
-                <span><strong>Not Answered:</strong> Visited question without saving any option.</span>
+              <div className="p-3 rounded-xl bg-slate-950/80 border border-slate-800">
+                <span className="font-bold text-purple-300">MSQ (Multiple Select Questions):</span>
+                <p className="text-xs text-slate-300 mt-0.5">
+                  One or more options are correct. Full marks awarded only if ALL correct options are selected and NO wrong options selected. <strong>NO negative marking</strong>. No partial credit.
+                </p>
               </div>
-              <div className="p-2.5 rounded-xl bg-slate-950/60 border border-slate-800 flex items-center gap-2.5">
-                <span className="w-6 h-6 rounded-lg bg-emerald-600 border border-emerald-500 flex items-center justify-center font-bold text-white shrink-0">
-                  🟢
-                </span>
-                <span><strong>Answered:</strong> Option chosen and saved for evaluation.</span>
+              <div className="p-3 rounded-xl bg-slate-950/80 border border-slate-800">
+                <span className="font-bold text-amber-300">NAT (Numerical Answer Type):</span>
+                <p className="text-xs text-slate-300 mt-0.5">
+                  Enter integer or decimal number via virtual keypad. <strong>NO negative marking</strong>.
+                </p>
               </div>
-              <div className="p-2.5 rounded-xl bg-slate-950/60 border border-slate-800 flex items-center gap-2.5">
-                <span className="w-6 h-6 rounded-lg bg-purple-600 border border-purple-500 flex items-center justify-center font-bold text-white shrink-0">
-                  🟣
-                </span>
-                <span><strong>Marked for Review:</strong> Flagged without answer (not scored).</span>
-              </div>
-            </div>
-            <div className="p-2.5 rounded-xl bg-purple-950/30 border border-purple-800/60 flex items-center gap-2.5 text-xs">
-              <span className="w-6 h-6 rounded-lg bg-purple-600 border border-purple-500 relative flex items-center justify-center font-bold text-white shrink-0">
-                🟣<span className="w-2 h-2 rounded-full bg-emerald-400 absolute bottom-0.5 right-0.5 border border-white"></span>
-              </span>
-              <span><strong className="text-purple-300">Answered &amp; Marked for Review:</strong> Option chosen AND flagged. <strong>Evaluated for marks</strong> (+1.0 if correct) in final score per ICSI rule.</span>
             </div>
           </div>
 
-          {/* Keyboard Shortcuts */}
-          <div className="space-y-2 pt-1 border-t border-slate-800">
-            <h4 className="font-bold text-white text-xs sm:text-sm">
-              Rapid Keyboard Shortcuts
+          <div className="space-y-2">
+            <h4 className="font-bold text-white text-sm flex items-center gap-1.5">
+              <Calculator className="w-4 h-4 text-emerald-400" />
+              <span>4. Virtual Scientific Calculator</span>
             </h4>
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 font-mono text-[11px]">
-              <div className="p-2 rounded-lg bg-slate-950/60 border border-slate-800 flex items-center justify-between">
-                <span className="text-slate-400 font-sans">Select Option:</span>
-                <span className="px-1.5 py-0.5 bg-slate-800 rounded text-slate-200 border border-slate-700">1-4 / A-D</span>
-              </div>
-              <div className="p-2 rounded-lg bg-slate-950/60 border border-slate-800 flex items-center justify-between">
-                <span className="text-slate-400 font-sans">Save &amp; Next:</span>
-                <span className="px-1.5 py-0.5 bg-slate-800 rounded text-slate-200 border border-slate-700">Enter / &rarr;</span>
-              </div>
-              <div className="p-2 rounded-lg bg-slate-950/60 border border-slate-800 flex items-center justify-between">
-                <span className="text-slate-400 font-sans">Previous:</span>
-                <span className="px-1.5 py-0.5 bg-slate-800 rounded text-slate-200 border border-slate-700">P / &larr;</span>
-              </div>
-              <div className="p-2 rounded-lg bg-slate-950/60 border border-slate-800 flex items-center justify-between">
-                <span className="text-slate-400 font-sans">Review &amp; Next:</span>
-                <span className="px-1.5 py-0.5 bg-slate-800 rounded text-slate-200 border border-slate-700">M</span>
-              </div>
-              <div className="p-2 rounded-lg bg-slate-950/60 border border-slate-800 flex items-center justify-between">
-                <span className="text-slate-400 font-sans">Clear Answer:</span>
-                <span className="px-1.5 py-0.5 bg-slate-800 rounded text-slate-200 border border-slate-700">C</span>
-              </div>
-              <div className="p-2 rounded-lg bg-slate-950/60 border border-slate-800 flex items-center justify-between">
-                <span className="text-slate-400 font-sans">Close Dialog:</span>
-                <span className="px-1.5 py-0.5 bg-slate-800 rounded text-slate-200 border border-slate-700">Esc</span>
-              </div>
-            </div>
+            <p>
+              An official virtual scientific calculator is embedded in the portal. Click the <strong>Calculator</strong> button in the top header or question area at any time to compute trigonometric, logarithmic, root, and exponential expressions.
+            </p>
           </div>
         </div>
 
         {/* Footer */}
-        <div className="px-5 sm:px-6 py-3.5 bg-slate-950 border-t border-slate-800 flex justify-end">
+        <div className="px-5 py-3 bg-slate-950 border-t border-slate-800 flex justify-end shrink-0">
           <button
             type="button"
             onClick={onClose}
-            className="px-5 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 active:bg-blue-700 text-white font-bold text-xs sm:text-sm shadow-md transition cursor-pointer"
+            className="px-5 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs sm:text-sm cursor-pointer"
           >
-            Back to Examination
+            I Understand &amp; Close
           </button>
         </div>
       </div>

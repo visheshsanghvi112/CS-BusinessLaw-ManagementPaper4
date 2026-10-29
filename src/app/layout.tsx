@@ -13,8 +13,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "ICSI CSEET — Paper 4 CBT Mock Test Engine",
-  description: "Computer-Based Test (CBT) examination simulator for ICSI CSEET Paper 4: Business Laws and Management with instant scoring, timer, and detailed ICSI rationales.",
+  title: "GATE 2027 (CS & IT) — Official CBT Examination Simulator",
+  description: "Computer-Based Test (CBT) simulator for GATE 2027 Computer Science & Information Technology organized by IIT Madras. 2007–2026 PYQ papers with MSQ, NAT, and virtual scientific calculator.",
 };
 
 export default function RootLayout({

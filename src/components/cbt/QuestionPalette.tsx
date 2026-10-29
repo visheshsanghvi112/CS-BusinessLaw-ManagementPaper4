@@ -1,16 +1,16 @@
 'use client';
 
 import React, { useState, useMemo } from 'react';
-import { Question, UserResponse, QuestionStatus, SectionId } from '@/types';
+import { Question, UserResponse, QuestionStatus, GateSectionId } from '@/types';
 import { User, CheckSquare, Filter, RotateCcw } from 'lucide-react';
 
 interface QuestionPaletteProps {
   questions: Question[];
-  responses: Record<number, UserResponse>;
+  responses: Record<string | number, UserResponse>;
   currentQuestionIndex: number;
   candidateName: string;
   rollNumber: string;
-  activeSection: SectionId;
+  activeSection: GateSectionId;
   onSelectQuestionIndex: (index: number) => void;
   onSubmitTest: () => void;
 }
@@ -24,7 +24,7 @@ export const QuestionPalette: React.FC<QuestionPaletteProps> = ({
   onSelectQuestionIndex,
   onSubmitTest
 }) => {
-  const [filterSection, setFilterSection] = useState<'all' | SectionId>('all');
+  const [filterSection, setFilterSection] = useState<'all' | GateSectionId>('all');
   const [filterStatus, setFilterStatus] = useState<'all' | QuestionStatus>('all');
 
   // Compute real-time status counts
@@ -80,6 +80,9 @@ export const QuestionPalette: React.FC<QuestionPaletteProps> = ({
   const toggleStatusFilter = (status: QuestionStatus) => {
     setFilterStatus(prev => (prev === status ? 'all' : status));
   };
+
+  const gaCount = questions.filter(q => q.sectionId === 'GA').length;
+  const csCount = questions.filter(q => q.sectionId === 'CS').length;
 
   return (
     <div className="flex flex-col h-full bg-slate-900 border border-slate-800 rounded-2xl sm:rounded-3xl shadow-xl overflow-hidden select-none">
@@ -198,8 +201,8 @@ export const QuestionPalette: React.FC<QuestionPaletteProps> = ({
         </button>
       </div>
 
-      {/* Section Filter Tabs (Only rendered when multiple sections exist) */}
-      {questions.some(q => q.sectionId === 'part-a') && questions.some(q => q.sectionId === 'part-b') && (
+      {/* Section Filter Tabs */}
+      {gaCount > 0 && csCount > 0 && (
         <div className="px-3 py-1.5 sm:py-2 bg-slate-950/60 border-b border-slate-800 flex items-center justify-between gap-1 shrink-0">
           <span className="text-[10px] sm:text-[11px] uppercase tracking-wider font-bold text-slate-400">
             Section:
@@ -218,31 +221,31 @@ export const QuestionPalette: React.FC<QuestionPaletteProps> = ({
             </button>
             <button
               type="button"
-              onClick={() => setFilterSection('part-a')}
+              onClick={() => setFilterSection('GA')}
               className={`px-2 py-0.5 rounded text-[11px] font-bold transition cursor-pointer ${
-                filterSection === 'part-a'
+                filterSection === 'GA'
                   ? 'bg-blue-600 text-white shadow-xs'
                   : 'bg-slate-800 text-slate-400 hover:text-white'
               }`}
             >
-              Part A ({questions.filter(q => q.sectionId === 'part-a').length})
+              GA ({gaCount})
             </button>
             <button
               type="button"
-              onClick={() => setFilterSection('part-b')}
+              onClick={() => setFilterSection('CS')}
               className={`px-2 py-0.5 rounded text-[11px] font-bold transition cursor-pointer ${
-                filterSection === 'part-b'
+                filterSection === 'CS'
                   ? 'bg-blue-600 text-white shadow-xs'
                   : 'bg-slate-800 text-slate-400 hover:text-white'
               }`}
             >
-              Part B ({questions.filter(q => q.sectionId === 'part-b').length})
+              CS Core ({csCount})
             </button>
           </div>
         </div>
       )}
 
-      {/* Question Number Buttons Grid (Scrollable with min-h-0) */}
+      {/* Question Number Buttons Grid */}
       <div className="flex-1 min-h-0 overflow-y-auto p-3">
         {visibleQuestions.length > 0 ? (
           <div className="grid grid-cols-5 sm:grid-cols-6 gap-2">
@@ -265,7 +268,7 @@ export const QuestionPalette: React.FC<QuestionPaletteProps> = ({
                   className={`w-9 h-9 sm:w-10 sm:h-10 rounded-xl text-xs palette-btn ${statusClass} ${
                     isCurrent ? 'ring-3 ring-blue-400 ring-offset-2 ring-offset-slate-900 font-black scale-105 z-10' : ''
                   }`}
-                  title={`Question ${originalIndex + 1}: ${q.sectionName}`}
+                  title={`Question ${originalIndex + 1}: ${q.subjectName} (${q.type})`}
                 >
                   {originalIndex + 1}
                 </button>
@@ -304,4 +307,3 @@ export const QuestionPalette: React.FC<QuestionPaletteProps> = ({
     </div>
   );
 };
-

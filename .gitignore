@@ -48,3 +48,8 @@ env/
 __pycache__/
 *.py[cod]
 *$py.class
+
+# Large archive extracts
+extracted_gate/
+CS.zip
+

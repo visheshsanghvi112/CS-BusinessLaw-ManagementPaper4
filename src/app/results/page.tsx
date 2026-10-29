@@ -2,9 +2,9 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
-import { TestResult, Question, SectionId } from '@/types';
-import { getLatestResult, getResultById, createNewSession, getSavedCandidateName } from '@/lib/storage';
-import { QUESTION_BANK } from '@/lib/questionBank';
+import { TestResult, Question, GateSectionId, GateSubjectId, GateQuestionType } from '@/types';
+import { getLatestResult, getResultById, createNewSession, getSavedCandidateName, evaluateAnswer } from '@/lib/storage';
+import { QUESTION_BANK, SUBJECT_METADATA } from '@/lib/questionBank';
 import confetti from 'canvas-confetti';
 import {
   Trophy,
@@ -19,15 +19,22 @@ import {
   ChevronLeft,
   Printer,
   Search,
-  X
+  X,
+  Sparkles,
+  Layers,
+  ArrowRight,
+  TrendingDown,
+  Hash,
+  CheckSquare
 } from 'lucide-react';
 
 export default function ResultsPage() {
   const router = useRouter();
   const [result, setResult] = useState<TestResult | null>(null);
   const [activeFilter, setActiveFilter] = useState<'all' | 'correct' | 'incorrect' | 'unattempted' | 'review'>('all');
-  const [selectedSectionFilter, setSelectedSectionFilter] = useState<'all' | SectionId>('all');
-  const [selectedLessonFilter, setSelectedLessonFilter] = useState<'all' | number>('all');
+  const [selectedSectionFilter, setSelectedSectionFilter] = useState<'all' | GateSectionId>('all');
+  const [selectedSubjectFilter, setSelectedSubjectFilter] = useState<'all' | GateSubjectId>('all');
+  const [selectedTypeFilter, setSelectedTypeFilter] = useState<'all' | GateQuestionType>('all');
   const [searchQuery, setSearchQuery] = useState<string>('');
 
   useEffect(() => {
@@ -75,618 +82,431 @@ export default function ResultsPage() {
       .filter(Boolean) as Question[];
   }, [result]);
 
-  // Available lessons in this test
-  const availableLessons = useMemo(() => {
-    const map = new Map<number, { lessonNumber: number; lessonName: string; sectionId: SectionId }>();
-    questions.forEach(q => {
-      if (!map.has(q.lessonNumber)) {
-        map.set(q.lessonNumber, {
-          lessonNumber: q.lessonNumber,
-          lessonName: q.lessonName,
-          sectionId: q.sectionId
-        });
-      }
-    });
-    return Array.from(map.values()).sort((a, b) => a.lessonNumber - b.lessonNumber);
-  }, [questions]);
-
   // Filtered questions for review
   const filteredQuestions = useMemo(() => {
     if (!result) return [];
 
     return questions.filter((q) => {
       const resp = result.responses[q.id];
-      const isAttempted = resp && resp.selectedOption !== null;
-      const isCorrect = isAttempted && (
-        q.acceptedAnswers && q.acceptedAnswers.length > 0
-          ? q.acceptedAnswers.includes(resp.selectedOption!)
-          : resp.selectedOption === q.correctAnswer
-      );
-      const isIncorrect = isAttempted && !isCorrect;
-      const isMarked = resp?.status === 'marked-for-review' || resp?.status === 'answered-marked-review';
-
-      if (selectedSectionFilter !== 'all' && q.sectionId !== selectedSectionFilter) {
-        return false;
-      }
-
-      if (selectedLessonFilter !== 'all' && q.lessonNumber !== selectedLessonFilter) {
-        return false;
-      }
+      const { isAttempted, isCorrect } = evaluateAnswer(q, resp);
+      const isReview = resp?.status === 'marked-for-review' || resp?.status === 'answered-marked-review';
 
       if (activeFilter === 'correct' && !isCorrect) return false;
-      if (activeFilter === 'incorrect' && !isIncorrect) return false;
+      if (activeFilter === 'incorrect' && (!isAttempted || isCorrect)) return false;
       if (activeFilter === 'unattempted' && isAttempted) return false;
-      if (activeFilter === 'review' && !isMarked) return false;
+      if (activeFilter === 'review' && !isReview) return false;
 
-      if (searchQuery.trim() !== '') {
-        const query = searchQuery.toLowerCase();
-        const matchesQuestion = q.question.toLowerCase().includes(query);
-        const matchesExplanation = q.explanation.toLowerCase().includes(query);
-        const matchesLesson = q.lessonName.toLowerCase().includes(query);
-        const matchesOptions = q.options.some(o => o.text.toLowerCase().includes(query));
-        if (!matchesQuestion && !matchesExplanation && !matchesLesson && !matchesOptions) {
-          return false;
-        }
+      if (selectedSectionFilter !== 'all' && q.sectionId !== selectedSectionFilter) return false;
+      if (selectedSubjectFilter !== 'all' && q.subjectId !== selectedSubjectFilter) return false;
+      if (selectedTypeFilter !== 'all' && q.type !== selectedTypeFilter) return false;
+
+      if (searchQuery.trim()) {
+        const qText = (q.question + ' ' + (q.explanation || '')).toLowerCase();
+        if (!qText.includes(searchQuery.toLowerCase())) return false;
       }
 
       return true;
     });
-  }, [questions, result, activeFilter, selectedSectionFilter, selectedLessonFilter, searchQuery]);
-
-  const hasPartA = useMemo(() => questions.some(q => q.sectionId === 'part-a'), [questions]);
-  const hasPartB = useMemo(() => questions.some(q => q.sectionId === 'part-b'), [questions]);
-
-  const handleSectionFilterChange = (sec: 'all' | SectionId) => {
-    setSelectedSectionFilter(sec);
-    if (sec !== 'all' && selectedLessonFilter !== 'all') {
-      const lesson = availableLessons.find(l => l.lessonNumber === selectedLessonFilter);
-      if (lesson && lesson.sectionId !== sec) {
-        setSelectedLessonFilter('all');
-      }
-    }
-  };
+  }, [questions, result, activeFilter, selectedSectionFilter, selectedSubjectFilter, selectedTypeFilter, searchQuery]);
 
   const handleRetakeTest = () => {
-    if (!result) {
-      createNewSession('full-mock', getSavedCandidateName());
-      router.push('/test');
-      return;
-    }
-    const config = result.selectedLessons
-      ? {
-          lessonNumbers: result.selectedLessons,
-          questionCount: result.totalQuestions,
-          mode: result.practiceMode || 'exam'
-        }
-      : undefined;
-    createNewSession(result.presetId || 'full-mock', result.candidateName || getSavedCandidateName(), config);
+    if (!result) return;
+    const candidateName = getSavedCandidateName();
+    createNewSession(result.presetId || 'gate-2026-cs1', candidateName);
     router.push('/test');
   };
 
   const handlePrint = () => {
-    if (typeof window !== 'undefined') {
-      window.print();
-    }
+    window.print();
   };
 
   if (!result) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center p-4 sm:p-6 bg-slate-950 text-slate-100 antialiased">
-        <div className="max-w-md w-full bg-slate-900 p-6 sm:p-8 rounded-3xl shadow-xl border border-slate-800 text-center space-y-5">
-          <div className="w-16 h-16 bg-blue-950 border border-blue-800 rounded-2xl flex items-center justify-center mx-auto text-blue-400">
-            <Trophy className="w-8 h-8" />
-          </div>
-          <h2 className="text-xl font-bold text-white">No Recent Test Found</h2>
-          <p className="text-xs sm:text-sm text-slate-400 leading-relaxed">
-            Take a mock test to view detailed performance analytics, accuracy, and official ICSI explanations.
-          </p>
-          <button
-            onClick={handleRetakeTest}
-            className="w-full py-3 px-5 rounded-xl bg-blue-600 hover:bg-blue-500 active:bg-blue-700 text-white font-bold text-xs sm:text-sm shadow-md transition cursor-pointer touch-feedback"
-          >
-            Start Official Full Mock Test
-          </button>
-        </div>
+      <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center p-4 text-slate-300 select-none">
+        <AlertCircle className="w-12 h-12 text-slate-500 mb-3" />
+        <h2 className="text-xl font-bold text-white mb-1">No Examination Record Found</h2>
+        <p className="text-sm text-slate-400 mb-6">Complete a mock exam or topic drill to generate performance analytics.</p>
+        <button
+          onClick={() => router.push('/')}
+          className="px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-extrabold text-sm transition"
+        >
+          Return to GATE Dashboard
+        </button>
       </div>
     );
   }
 
-  // SVG Gauge calculations
-  const radius = 46;
-  const circumference = 2 * Math.PI * radius;
-  const strokeDashoffset = circumference - (result.percentage / 100) * circumference;
-
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 py-4 sm:py-10 px-3 sm:px-6 lg:px-8 antialiased select-none">
-      <div className="max-w-5xl mx-auto space-y-5 sm:space-y-8">
-        {/* Navigation Bar (Hidden in Print) */}
-        <div className="flex items-center justify-between gap-2 no-print">
+    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col antialiased select-none">
+      {/* Top Header */}
+      <header className="border-b border-slate-800/80 bg-slate-950/85 backdrop-blur-md sticky top-0 z-30 no-print">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between gap-3">
           <button
-            type="button"
             onClick={() => router.push('/')}
-            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs sm:text-sm font-bold bg-slate-900 border border-slate-800 hover:bg-slate-800 text-slate-300 transition cursor-pointer touch-feedback"
+            className="flex items-center gap-1.5 text-xs sm:text-sm font-bold text-slate-400 hover:text-white transition cursor-pointer"
           >
             <ChevronLeft className="w-4 h-4" />
-            Dashboard
+            <span>Dashboard</span>
           </button>
 
           <div className="flex items-center gap-2">
             <button
-              type="button"
               onClick={handlePrint}
-              title="Print or Save Scorecard as PDF"
-              className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs sm:text-sm font-bold bg-slate-900 border border-slate-800 hover:bg-slate-800 text-slate-300 transition cursor-pointer touch-feedback"
+              className="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-bold text-xs flex items-center gap-1.5 transition cursor-pointer"
             >
-              <Printer className="w-4 h-4 text-slate-400" />
-              <span className="hidden sm:inline">Print / PDF</span>
+              <Printer className="w-3.5 h-3.5 text-blue-400" />
+              <span>Print Scorecard</span>
             </button>
-
             <button
-              type="button"
               onClick={handleRetakeTest}
-              className="inline-flex items-center gap-1.5 px-3.5 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-bold bg-blue-600 hover:bg-blue-500 active:bg-blue-700 text-white shadow-md transition cursor-pointer touch-feedback"
+              className="px-4 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-black text-xs sm:text-sm flex items-center gap-1.5 shadow-md shadow-blue-950/60 transition cursor-pointer"
             >
               <RotateCcw className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">Retake Mock Test</span>
-              <span className="sm:hidden">Retake</span>
+              <span>Retake Mock</span>
             </button>
           </div>
         </div>
+      </header>
 
-        {/* Hero Score Card */}
-        <div className="p-5 sm:p-8 rounded-3xl bg-slate-900 border border-slate-800 shadow-xl space-y-5 sm:space-y-6">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-6">
-            {/* Left: Score & Qualification Info */}
-            <div className="text-center md:text-left space-y-3 flex-1 w-full">
-              <div className="flex items-center justify-center md:justify-start gap-2 flex-wrap">
-                <span className={`inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1 rounded-full border shadow-inner ${
-                  result.isQualified
-                    ? 'bg-emerald-500/15 text-emerald-400 border-emerald-500/40'
-                    : 'bg-red-500/15 text-red-400 border-red-500/40'
-                }`}>
-                  {result.isQualified ? <CheckCircle2 className="w-4 h-4" /> : <AlertCircle className="w-4 h-4" />}
-                  {result.isQualified ? 'QUALIFIED (Cleared Cutoff)' : 'DID NOT MEET CUTOFF'}
+      {/* Main Container */}
+      <main className="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 py-6 sm:py-8 space-y-6">
+        {/* Scorecard Hero Card */}
+        <div className="p-6 sm:p-8 rounded-3xl bg-gradient-to-b from-slate-900 via-slate-900 to-blue-950/20 border border-slate-800 shadow-2xl relative overflow-hidden space-y-6">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div>
+              <div className="flex items-center gap-2 mb-1.5">
+                <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-blue-900/60 text-blue-300 border border-blue-700/60 font-bold uppercase tracking-wider">
+                  Official GATE Result
                 </span>
                 <span className="text-xs text-slate-400 font-mono">
-                  {result.candidateName}
+                  {new Date(result.completedAt).toLocaleString()}
                 </span>
               </div>
-
-              <div>
-                <h1 className="text-xl sm:text-2xl md:text-3xl font-black text-white tracking-tight">
-                  {result.testTitle}
-                </h1>
-                <p className="text-xs sm:text-sm text-slate-400 mt-1">
-                  Completed on {new Date(result.completedAt).toLocaleDateString()} • {result.totalQuestions} Questions Evaluated
-                </p>
-              </div>
-
-              <p className="text-xs sm:text-sm text-slate-300 leading-relaxed max-w-xl">
-                {result.isQualified
-                  ? 'Congratulations! You secured ≥ 40% marks in Paper 4, satisfying the ICSI individual subject qualifying cutoff.'
-                  : 'Individual qualifying cutoff is 40% (40 / 100 Marks). Review the detailed ICSI statutory rationales below to target weak concepts.'}
+              <h2 className="text-xl sm:text-2xl md:text-3xl font-black text-white tracking-tight">
+                {result.testTitle}
+              </h2>
+              <p className="text-xs sm:text-sm text-slate-400 mt-1">
+                Candidate: <strong className="text-slate-200">{result.candidateName}</strong>
               </p>
             </div>
 
-            {/* Right: Circular Score Gauge */}
-            <div className="relative w-32 h-32 sm:w-36 sm:h-36 shrink-0 flex items-center justify-center">
-              <svg className="w-full h-full transform -rotate-90" viewBox="0 0 110 110">
-                <circle
-                  cx="55"
-                  cy="55"
-                  r={radius}
-                  className="text-slate-800"
-                  strokeWidth="10"
-                  stroke="currentColor"
-                  fill="transparent"
-                />
-                <circle
-                  cx="55"
-                  cy="55"
-                  r={radius}
-                  className={result.isQualified ? 'text-emerald-500' : 'text-red-500'}
-                  strokeWidth="10"
-                  strokeDasharray={circumference}
-                  strokeDashoffset={strokeDashoffset}
-                  strokeLinecap="round"
-                  stroke="currentColor"
-                  fill="transparent"
-                  style={{ transition: 'stroke-dashoffset 1s ease-in-out' }}
-                />
-              </svg>
-              <div className="absolute flex flex-col items-center justify-center text-center">
-                <span className="text-2xl sm:text-3xl font-black text-white leading-none">
-                  {result.score}
-                </span>
-                <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider mt-0.5">
-                  / {result.totalMarks} Marks
-                </span>
-                <span className="text-xs font-extrabold text-blue-400 mt-0.5">
-                  {result.percentage}%
-                </span>
+            {/* Qualified / Below Cutoff Badge */}
+            <div className={`px-4 py-2.5 rounded-2xl border flex items-center gap-2.5 self-start sm:self-center shrink-0 ${
+              result.isQualified
+                ? 'bg-emerald-950/60 border-emerald-500/80 text-emerald-300 ring-2 ring-emerald-500/30'
+                : 'bg-rose-950/60 border-rose-500/80 text-rose-300 ring-2 ring-rose-500/30'
+            }`}>
+              {result.isQualified ? (
+                <Trophy className="w-6 h-6 text-emerald-400" />
+              ) : (
+                <AlertCircle className="w-6 h-6 text-rose-400" />
+              )}
+              <div>
+                <div className="text-[11px] font-bold uppercase tracking-wider">
+                  {result.isQualified ? 'GATE Qualified' : 'Below Cutoff'}
+                </div>
+                <div className="text-xs text-slate-300 font-mono">
+                  Cutoff: {result.cutoffMarks} Marks
+                </div>
               </div>
             </div>
           </div>
 
-          {/* Key Metric Cards */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-3 pt-1">
-            <div className="p-3 sm:p-4 rounded-2xl bg-slate-950/60 border border-slate-800 text-center">
-              <Target className="w-4 h-4 sm:w-5 sm:h-5 mx-auto text-blue-400 mb-1" />
-              <div className="text-base sm:text-xl font-black text-white">{result.accuracy}%</div>
-              <div className="text-[10px] sm:text-[11px] text-slate-400 font-semibold">Accuracy</div>
+          {/* Key Metric Counters */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2">
+            {/* Total Score */}
+            <div className="p-4 rounded-2xl bg-slate-950/80 border border-slate-800">
+              <span className="text-[11px] text-slate-400 font-bold uppercase tracking-wider block">Total Score</span>
+              <div className="flex items-baseline gap-1 mt-1">
+                <span className="text-2xl sm:text-3xl font-black text-emerald-400 font-mono">{result.score}</span>
+                <span className="text-xs text-slate-400 font-mono">/ {result.totalMarks}</span>
+              </div>
+              <span className="text-[11px] text-slate-500 font-mono mt-0.5 block">{result.percentage}% marks</span>
             </div>
 
-            <div className="p-3 sm:p-4 rounded-2xl bg-emerald-950/30 border border-emerald-900/50 text-center">
-              <CheckCircle2 className="w-4 h-4 sm:w-5 sm:h-5 mx-auto text-emerald-400 mb-1" />
-              <div className="text-base sm:text-xl font-black text-emerald-400">{result.correctCount}</div>
-              <div className="text-[10px] sm:text-[11px] text-emerald-500 font-semibold">Correct (+1.0)</div>
+            {/* Accuracy */}
+            <div className="p-4 rounded-2xl bg-slate-950/80 border border-slate-800">
+              <span className="text-[11px] text-slate-400 font-bold uppercase tracking-wider block">Accuracy</span>
+              <div className="flex items-baseline gap-1 mt-1">
+                <span className="text-2xl sm:text-3xl font-black text-blue-400 font-mono">{result.accuracy}%</span>
+              </div>
+              <span className="text-[11px] text-slate-500 font-mono mt-0.5 block">{result.correctCount} correct of {result.attemptedCount}</span>
             </div>
 
-            <div className="p-3 sm:p-4 rounded-2xl bg-red-950/30 border border-red-900/50 text-center">
-              <XCircle className="w-4 h-4 sm:w-5 sm:h-5 mx-auto text-red-400 mb-1" />
-              <div className="text-base sm:text-xl font-black text-red-400">{result.incorrectCount}</div>
-              <div className="text-[10px] sm:text-[11px] text-red-500 font-semibold">Incorrect (0.0)</div>
+            {/* Negative Penalty */}
+            <div className="p-4 rounded-2xl bg-slate-950/80 border border-slate-800">
+              <span className="text-[11px] text-slate-400 font-bold uppercase tracking-wider block">Negative Marks Incurred</span>
+              <div className="flex items-baseline gap-1 mt-1">
+                <span className="text-2xl sm:text-3xl font-black text-rose-400 font-mono">-{result.negativeMarksIncurred}</span>
+              </div>
+              <span className="text-[11px] text-slate-500 font-mono mt-0.5 block">{result.incorrectCount} incorrect MCQs</span>
             </div>
 
-            <div className="p-3 sm:p-4 rounded-2xl bg-slate-950/60 border border-slate-800 text-center">
-              <Clock className="w-4 h-4 sm:w-5 sm:h-5 mx-auto text-purple-400 mb-1" />
-              <div className="text-sm sm:text-lg font-black text-white truncate">{formattedTime}</div>
-              <div className="text-[10px] sm:text-[11px] text-slate-400 font-semibold">Time Taken</div>
+            {/* Time Taken */}
+            <div className="p-4 rounded-2xl bg-slate-950/80 border border-slate-800">
+              <span className="text-[11px] text-slate-400 font-bold uppercase tracking-wider block">Time Taken</span>
+              <div className="flex items-baseline gap-1 mt-1">
+                <span className="text-xl sm:text-2xl font-black text-white font-mono">{formattedTime}</span>
+              </div>
+              <span className="text-[11px] text-slate-500 font-mono mt-0.5 block">{result.skippedCount} skipped</span>
             </div>
           </div>
         </div>
 
-        {/* Sectional Performance Breakdown */}
-        {result.sectionScores.length > 0 && (
-          <div className="space-y-3">
-            <h2 className="text-sm sm:text-lg font-black text-white flex items-center gap-2">
-              <BarChart3 className="w-4 h-4 sm:w-5 sm:h-5 text-blue-400" />
-              Sectional Performance Breakdown
-            </h2>
+        {/* Sectional & Subject-Wise Performance Heatmap */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Section Scores */}
+          <div className="p-5 rounded-3xl bg-slate-900 border border-slate-800 space-y-4">
+            <h3 className="font-extrabold text-base text-white flex items-center gap-2">
+              <BarChart3 className="w-4 h-4 text-blue-400" />
+              <span>Sectional Performance Breakdown</span>
+            </h3>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-              {result.sectionScores.map(sec => {
-                const percentage = sec.totalQuestions > 0 ? (sec.score / sec.totalQuestions) * 100 : 0;
-                return (
-                  <div
-                    key={sec.sectionId}
-                    className="p-4 sm:p-5 rounded-2xl bg-slate-900 border border-slate-800 space-y-3"
-                  >
-                    <div className="flex items-center justify-between gap-2">
-                      <span className="font-bold text-xs sm:text-sm text-white truncate">
-                        {sec.sectionName}
-                      </span>
-                      <span className="text-xs font-bold px-2.5 py-1 rounded-lg bg-blue-950 border border-blue-800 text-blue-300 shrink-0 font-mono">
-                        {sec.score} / {sec.totalQuestions}
-                      </span>
-                    </div>
-
-                    {/* Progress Bar */}
-                    <div className="w-full h-2 rounded-full bg-slate-800 overflow-hidden">
-                      <div
-                        className="h-full rounded-full bg-blue-500 transition-all duration-500"
-                        style={{ width: `${percentage}%` }}
-                      />
-                    </div>
-
-                    <div className="flex items-center justify-between text-[11px] sm:text-xs text-slate-400 font-semibold pt-0.5">
-                      <span>Attempted: {sec.attempted} / {sec.totalQuestions}</span>
-                      <span>Accuracy: {sec.accuracy}%</span>
-                    </div>
+            <div className="space-y-3">
+              {result.sectionScores.map(sec => (
+                <div key={sec.sectionId} className="p-3.5 rounded-2xl bg-slate-950/80 border border-slate-800/80 space-y-2">
+                  <div className="flex items-center justify-between text-xs">
+                    <span className="font-bold text-white">{sec.sectionName}</span>
+                    <span className="font-mono font-bold text-emerald-400">{sec.score} / {sec.totalMarks} Marks</span>
                   </div>
-                );
-              })}
+                  <div className="w-full h-2 rounded-full bg-slate-800 overflow-hidden">
+                    <div
+                      className="h-full bg-blue-500 rounded-full transition-all duration-300"
+                      style={{ width: `${sec.totalMarks > 0 ? Math.max(0, Math.min(100, (sec.score / sec.totalMarks) * 100)) : 0}%` }}
+                    />
+                  </div>
+                  <div className="flex items-center justify-between text-[11px] text-slate-400 font-mono">
+                    <span>{sec.attempted} attempted • {sec.correct} correct</span>
+                    <span>{sec.accuracy}% Accuracy</span>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
-        )}
 
-        {/* Solutions & Explanations Review Engine */}
-        <div className="space-y-4 pt-2">
-          <div className="space-y-3 border-b border-slate-800 pb-4">
+          {/* Subject Scores Heatmap */}
+          <div className="p-5 rounded-3xl bg-slate-900 border border-slate-800 space-y-4">
+            <h3 className="font-extrabold text-base text-white flex items-center gap-2">
+              <Layers className="w-4 h-4 text-emerald-400" />
+              <span>Subject-Wise Performance Distribution</span>
+            </h3>
+
+            <div className="space-y-2.5 max-h-72 overflow-y-auto pr-1">
+              {result.subjectScores.map(subj => (
+                <div key={subj.subjectId} className="p-3 rounded-2xl bg-slate-950/60 border border-slate-800/80 flex items-center justify-between gap-3 text-xs">
+                  <div className="min-w-0">
+                    <span className="font-bold text-slate-200 block truncate">{subj.subjectName}</span>
+                    <span className="text-[11px] text-slate-400 font-mono">
+                      {subj.correct}/{subj.attempted} of {subj.totalQuestions}Q
+                    </span>
+                  </div>
+                  <div className="text-right shrink-0">
+                    <span className="font-mono font-bold text-emerald-400 block">{subj.score} Marks</span>
+                    <span className="text-[10px] text-slate-500 font-mono">{subj.accuracy}% Acc</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Detailed Question Review & Solutions */}
+        <div className="space-y-4">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
             <div>
-              <h2 className="text-base sm:text-lg font-black text-white flex items-center gap-2">
-                <BookOpen className="w-5 h-5 text-blue-400" />
-                Comprehensive Solutions & ICSI Rationales
-              </h2>
+              <h3 className="font-extrabold text-lg sm:text-xl text-white">
+                Detailed Solutions &amp; Step-by-Step Rationales
+              </h3>
               <p className="text-xs text-slate-400">
-                Detailed statutory sections, landmark judicial precedents, and management principles.
+                Review verified solutions, compare your answers with official keys, and understand derivations.
               </p>
             </div>
 
-            {/* Search Bar & Filter Bar */}
-            <div className="space-y-2.5 no-print">
-              {/* Search input */}
-              <div className="relative">
-                <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
-                <input
-                  type="text"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Search questions by topic, keyword, or section (e.g. Salomon, Taylor, Sec 135)..."
-                  className="w-full bg-slate-900 border border-slate-800 rounded-xl pl-9 pr-8 py-2 text-xs sm:text-sm text-white placeholder:text-slate-500 focus:outline-hidden focus:border-blue-500 transition"
-                />
-                {searchQuery && (
-                  <button
-                    type="button"
-                    onClick={() => setSearchQuery('')}
-                    className="absolute right-2.5 top-1/2 -translate-y-1/2 p-1 text-slate-400 hover:text-white"
-                  >
-                    <X className="w-3.5 h-3.5" />
-                  </button>
-                )}
-              </div>
-
-              {/* Section & Status Filter Tabs */}
-              <div className="flex flex-wrap items-center gap-2">
-                {hasPartA && hasPartB && (
-                  <>
-                    <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5">
-                      <button
-                        type="button"
-                        onClick={() => handleSectionFilterChange('all')}
-                        className={`px-3 py-1.5 rounded-xl text-xs font-bold transition whitespace-nowrap cursor-pointer touch-feedback ${
-                          selectedSectionFilter === 'all'
-                            ? 'bg-blue-600 text-white shadow-md'
-                            : 'bg-slate-900 text-slate-400 border border-slate-800 hover:text-white'
-                        }`}
-                      >
-                        All Sections
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => handleSectionFilterChange('part-a')}
-                        className={`px-3 py-1.5 rounded-xl text-xs font-bold transition whitespace-nowrap cursor-pointer touch-feedback ${
-                          selectedSectionFilter === 'part-a'
-                            ? 'bg-blue-700 text-white shadow-md'
-                            : 'bg-slate-900 text-blue-400 border border-slate-800 hover:bg-blue-950/40'
-                        }`}
-                      >
-                        Part A: Laws
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => handleSectionFilterChange('part-b')}
-                        className={`px-3 py-1.5 rounded-xl text-xs font-bold transition whitespace-nowrap cursor-pointer touch-feedback ${
-                          selectedSectionFilter === 'part-b'
-                            ? 'bg-purple-700 text-white shadow-md'
-                            : 'bg-slate-900 text-purple-400 border border-slate-800 hover:bg-purple-950/40'
-                        }`}
-                      >
-                        Part B: Management
-                      </button>
-                    </div>
-                    <div className="hidden sm:block w-px h-5 bg-slate-800 mx-1" />
-                  </>
-                )}
-
-                <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5">
-                  <button
-                    type="button"
-                    onClick={() => setActiveFilter('all')}
-                    className={`px-3 py-1.5 rounded-xl text-xs font-bold transition whitespace-nowrap cursor-pointer touch-feedback ${
-                      activeFilter === 'all'
-                        ? 'bg-blue-600 text-white shadow-md'
-                        : 'bg-slate-900 text-slate-400 border border-slate-800 hover:text-white'
-                    }`}
-                  >
-                    All ({questions.length})
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setActiveFilter('correct')}
-                    className={`px-3 py-1.5 rounded-xl text-xs font-bold transition whitespace-nowrap cursor-pointer touch-feedback ${
-                      activeFilter === 'correct'
-                        ? 'bg-emerald-600 text-white shadow-md'
-                        : 'bg-slate-900 text-emerald-400 border border-slate-800 hover:bg-emerald-950/40'
-                    }`}
-                  >
-                    Correct ({result.correctCount})
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setActiveFilter('incorrect')}
-                    className={`px-3 py-1.5 rounded-xl text-xs font-bold transition whitespace-nowrap cursor-pointer touch-feedback ${
-                      activeFilter === 'incorrect'
-                        ? 'bg-red-600 text-white shadow-md'
-                        : 'bg-slate-900 text-red-400 border border-slate-800 hover:bg-red-950/40'
-                    }`}
-                  >
-                    Incorrect ({result.incorrectCount})
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setActiveFilter('unattempted')}
-                    className={`px-3 py-1.5 rounded-xl text-xs font-bold transition whitespace-nowrap cursor-pointer touch-feedback ${
-                      activeFilter === 'unattempted'
-                        ? 'bg-slate-700 text-white shadow-md'
-                        : 'bg-slate-900 text-slate-400 border border-slate-800 hover:text-white'
-                    }`}
-                  >
-                    Skipped ({result.skippedCount})
-                  </button>
-                </div>
-
-                {/* Chapter/Lesson Filter Dropdown */}
-                <div className="hidden lg:block w-px h-5 bg-slate-800 mx-1" />
-                <div className="flex items-center gap-1.5">
-                  <select
-                    value={selectedLessonFilter}
-                    onChange={(e) => setSelectedLessonFilter(e.target.value === 'all' ? 'all' : Number(e.target.value))}
-                    className="bg-slate-900 border border-slate-800 hover:border-slate-700 text-slate-300 rounded-xl px-2.5 py-1.5 text-xs font-semibold focus:outline-hidden focus:border-blue-500 cursor-pointer max-w-[220px] truncate"
-                    aria-label="Filter by chapter"
-                  >
-                    <option value="all">All Chapters ({questions.length} Qs)</option>
-                    {availableLessons
-                      .filter(l => selectedSectionFilter === 'all' || l.sectionId === selectedSectionFilter)
-                      .map(l => (
-                        <option key={l.lessonNumber} value={l.lessonNumber}>
-                          L{l.lessonNumber}: {l.lessonName}
-                        </option>
-                      ))}
-                  </select>
-                </div>
-              </div>
+            {/* Status Filter Buttons */}
+            <div className="flex items-center gap-1 overflow-x-auto bg-slate-900 p-1 rounded-2xl border border-slate-800 text-xs shrink-0">
+              {(['all', 'correct', 'incorrect', 'unattempted', 'review'] as const).map(f => (
+                <button
+                  key={f}
+                  onClick={() => setActiveFilter(f)}
+                  className={`px-3 py-1 rounded-xl font-bold transition capitalize cursor-pointer ${
+                    activeFilter === f
+                      ? 'bg-blue-600 text-white shadow-xs'
+                      : 'text-slate-400 hover:text-slate-200'
+                  }`}
+                >
+                  {f}
+                </button>
+              ))}
             </div>
           </div>
 
-          {/* Question Review Cards */}
+          {/* Sub-filters (Type, Search) */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 p-3 rounded-2xl bg-slate-900 border border-slate-800 text-xs">
+            {/* Subject Filter */}
+            <div>
+              <select
+                value={selectedSubjectFilter}
+                onChange={e => setSelectedSubjectFilter(e.target.value as any)}
+                className="w-full px-3 py-1.5 rounded-xl bg-slate-950 border border-slate-700 text-slate-200 focus:outline-none"
+              >
+                <option value="all">All Subjects ({questions.length})</option>
+                {SUBJECT_METADATA.map(s => (
+                  <option key={s.subjectId} value={s.subjectId}>
+                    {s.subjectName}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* Type Filter */}
+            <div>
+              <select
+                value={selectedTypeFilter}
+                onChange={e => setSelectedTypeFilter(e.target.value as any)}
+                className="w-full px-3 py-1.5 rounded-xl bg-slate-950 border border-slate-700 text-slate-200 focus:outline-none"
+              >
+                <option value="all">All Types (MCQ, MSQ, NAT)</option>
+                <option value="MCQ">MCQ (Multiple Choice)</option>
+                <option value="MSQ">MSQ (Multiple Select)</option>
+                <option value="NAT">NAT (Numerical Answer)</option>
+              </select>
+            </div>
+
+            {/* Keyword Search */}
+            <div className="relative">
+              <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-2.5" />
+              <input
+                type="text"
+                placeholder="Search solutions..."
+                value={searchQuery}
+                onChange={e => setSearchQuery(e.target.value)}
+                className="w-full pl-8 pr-3 py-1.5 rounded-xl bg-slate-950 border border-slate-700 text-slate-200 focus:outline-none"
+              />
+            </div>
+          </div>
+
+          {/* Question Cards List */}
           <div className="space-y-4">
-            {filteredQuestions.map(q => {
+            {filteredQuestions.map((q, idx) => {
               const resp = result.responses[q.id];
-              const userSelected = resp?.selectedOption || null;
-              const isCorrect = userSelected !== null && (
-                q.acceptedAnswers && q.acceptedAnswers.length > 0
-                  ? q.acceptedAnswers.includes(userSelected)
-                  : userSelected === q.correctAnswer
-              );
-              const isUnattempted = userSelected === null;
+              const { isAttempted, isCorrect, marksAwarded } = evaluateAnswer(q, resp);
 
               return (
                 <div
                   key={q.id}
-                  className="p-4 sm:p-6 rounded-2xl sm:rounded-3xl bg-slate-900 border border-slate-800 shadow-md space-y-3.5 sm:space-y-4"
+                  className={`p-5 rounded-3xl border space-y-4 transition ${
+                    isCorrect
+                      ? 'bg-slate-900/90 border-slate-800'
+                      : isAttempted
+                      ? 'bg-rose-950/15 border-rose-900/40'
+                      : 'bg-slate-900/60 border-slate-800/80'
+                  }`}
                 >
-                  {/* Question Header Badge */}
-                  <div className="flex items-center justify-between gap-2 flex-wrap">
-                    <div className="flex items-center gap-1.5 sm:gap-2">
-                      {(() => {
-                        const examIdx = result.questionIds.indexOf(q.id);
-                        return (
-                          <>
-                            <span className="px-2.5 py-1 rounded-lg bg-slate-800 text-white font-black text-xs">
-                              Q.{examIdx !== -1 ? examIdx + 1 : q.id}
-                            </span>
-                            <span className="text-[11px] text-slate-500 font-mono hidden sm:inline">
-                              (Bank #{q.id})
-                            </span>
-                          </>
-                        );
-                      })()}
-                      <span className="text-xs text-slate-400 font-bold">
-                        {q.sectionName}
+                  {/* Card Header */}
+                  <div className="flex items-center justify-between gap-3 flex-wrap">
+                    <div className="flex items-center gap-2">
+                      <span className="px-2.5 py-1 rounded-lg bg-blue-600 text-white font-black text-xs">
+                        Q.{q.questionNumber || idx + 1}
                       </span>
-                      <span className="hidden sm:inline text-xs px-2 py-0.5 rounded bg-slate-800/80 text-slate-300 border border-slate-700">
-                        {q.lessonName}
+                      <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-purple-950 text-purple-300 border border-purple-800">
+                        {q.type}
                       </span>
-                      {q.officialKey && q.officialKey.includes('or') && (
-                        <span className="text-[11px] font-bold px-2 py-0.5 rounded bg-blue-900/60 text-blue-300 border border-blue-700">
-                          ICSI Key: {q.officialKey}
-                        </span>
-                      )}
+                      <span className="text-xs text-slate-400 font-mono">
+                        {q.subjectName}
+                      </span>
+                      <span className="text-[11px] text-slate-500">
+                        {q.sourcePaper}
+                      </span>
                     </div>
 
-                    {/* User outcome status */}
-                    <div className="shrink-0">
-                      {isCorrect && (
-                        <span className="inline-flex items-center gap-1 text-xs font-bold px-2.5 py-1 rounded-lg bg-emerald-950/80 text-emerald-400 border border-emerald-800">
-                          <CheckCircle2 className="w-3.5 h-3.5" /> Correct (+1.0)
-                        </span>
-                      )}
-                      {!isCorrect && !isUnattempted && (
-                        <span className="inline-flex items-center gap-1 text-xs font-bold px-2.5 py-1 rounded-lg bg-red-950/80 text-red-400 border border-red-800">
-                          <XCircle className="w-3.5 h-3.5" /> Incorrect (0.0)
-                        </span>
-                      )}
-                      {isUnattempted && (
-                        <span className="inline-flex items-center gap-1 text-xs font-bold px-2.5 py-1 rounded-lg bg-slate-800 text-slate-400 border border-slate-700">
-                          Skipped (0.0)
-                        </span>
-                      )}
+                    <div className="flex items-center gap-2">
+                      <span className={`text-xs font-bold font-mono px-2.5 py-1 rounded-lg ${
+                        isCorrect
+                          ? 'bg-emerald-950 text-emerald-400 border border-emerald-800'
+                          : isAttempted
+                          ? 'bg-rose-950 text-rose-400 border border-rose-800'
+                          : 'bg-slate-800 text-slate-400'
+                      }`}>
+                        {isCorrect ? `+${marksAwarded}.0 Marks` : isAttempted ? `${marksAwarded} Marks` : 'Unattempted (0.0)'}
+                      </span>
                     </div>
                   </div>
 
-                  {/* Question Prompt */}
-                  <div className="text-sm sm:text-base font-bold text-slate-100 leading-relaxed">
+                  {/* Question Text */}
+                  <div className="text-sm font-semibold text-slate-100 leading-relaxed">
                     {q.question}
                   </div>
 
-                  {/* 4 Option Review Cards */}
-                  <div className="space-y-2 pt-1">
-                    {q.options.map(opt => {
-                      const isOptionSelected = userSelected === opt.key;
-                      const isOptionCorrect = q.acceptedAnswers && q.acceptedAnswers.length > 0
-                        ? q.acceptedAnswers.includes(opt.key)
-                        : q.correctAnswer === opt.key;
+                  {/* Options (for MCQ & MSQ) */}
+                  {q.options && q.options.length > 0 && (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
+                      {q.options.map(opt => {
+                        const isChosen = q.type === 'MSQ'
+                          ? (resp?.selectedOptions || []).includes(opt.key)
+                          : resp?.selectedOption === opt.key;
 
-                      let cardStyle = 'bg-slate-950/60 border-slate-800 text-slate-300';
+                        const isOfficial = q.type === 'MSQ'
+                          ? (q.correctAnswers || [q.correctAnswer || 'a']).includes(opt.key)
+                          : q.correctAnswer === opt.key;
 
-                      if (isOptionCorrect) {
-                        cardStyle = 'bg-emerald-950/40 border-emerald-500 text-emerald-100 ring-1 ring-emerald-500/60';
-                      } else if (isOptionSelected && !isOptionCorrect) {
-                        cardStyle = 'bg-red-950/40 border-red-500 text-red-100 ring-1 ring-red-500/60';
-                      }
+                        let style = 'bg-slate-950/70 border-slate-800 text-slate-300';
+                        if (isOfficial) {
+                          style = 'bg-emerald-950/50 border-emerald-500/80 text-emerald-200 ring-1 ring-emerald-500/30';
+                        } else if (isChosen && !isOfficial) {
+                          style = 'bg-rose-950/50 border-rose-500/80 text-rose-200 ring-1 ring-rose-500/30';
+                        }
 
-                      return (
-                        <div
-                          key={opt.key}
-                          className={`p-3 sm:p-3.5 rounded-xl sm:rounded-2xl border flex items-start gap-2.5 sm:gap-3 transition-all ${cardStyle}`}
-                        >
-                          <span
-                            className={`w-6 h-6 sm:w-7 sm:h-7 rounded-lg sm:rounded-xl flex items-center justify-center font-black text-xs uppercase shrink-0 ${
-                              isOptionCorrect
-                                ? 'bg-emerald-600 text-white'
-                                : isOptionSelected && !isOptionCorrect
-                                ? 'bg-red-600 text-white'
-                                : 'bg-slate-800 text-slate-400 border border-slate-700'
-                            }`}
-                          >
-                            {opt.key}
-                          </span>
-                          <span className="text-xs sm:text-sm pt-0.5 leading-snug flex-1">
-                            {opt.text}
-                          </span>
-                          {isOptionCorrect && (
-                            <span className="text-[11px] sm:text-xs font-bold text-emerald-400 shrink-0 pt-0.5">
-                              Correct Answer ✓
+                        return (
+                          <div key={opt.key} className={`p-3 rounded-2xl border text-xs flex items-start gap-2.5 ${style}`}>
+                            <span className="w-5 h-5 rounded flex items-center justify-center font-bold text-[10px] uppercase shrink-0 bg-slate-800 text-slate-300">
+                              {opt.key}
                             </span>
-                          )}
-                          {isOptionSelected && !isOptionCorrect && (
-                            <span className="text-[11px] sm:text-xs font-bold text-red-400 shrink-0 pt-0.5">
-                              Your Answer ✗
-                            </span>
-                          )}
-                        </div>
-                      );
-                    })}
-                  </div>
-
-                  {/* ICSI Statutory / Theoretical Explanation */}
-                  <div className="p-3.5 sm:p-4 rounded-xl sm:rounded-2xl bg-blue-950/30 border border-blue-900/50 space-y-1.5">
-                    <div className="flex items-center gap-1.5 text-xs font-black uppercase tracking-wider text-blue-400">
-                      <BookOpen className="w-3.5 h-3.5 text-blue-400" />
-                      Official ICSI Statutory Rationale
+                            <span className="pt-0.5 leading-snug flex-1">{opt.text}</span>
+                            {isOfficial && <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />}
+                            {isChosen && !isOfficial && <XCircle className="w-4 h-4 text-rose-400 shrink-0" />}
+                          </div>
+                        );
+                      })}
                     </div>
-                    <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
+                  )}
+
+                  {/* NAT User Answer Display */}
+                  {q.type === 'NAT' && (
+                    <div className="p-3 rounded-xl bg-slate-950 border border-slate-800 text-xs font-mono flex items-center justify-between">
+                      <span>Your Input: <strong className={isCorrect ? 'text-emerald-400' : 'text-rose-400'}>{resp?.natValue || 'None'}</strong></span>
+                      <span>Official Value/Range: <strong className="text-emerald-400">{q.natAnswerRange ? `${q.natAnswerRange.min} to ${q.natAnswerRange.max}` : q.natAnswer}</strong></span>
+                    </div>
+                  )}
+
+                  {/* Step-by-Step Explanation Box */}
+                  <div className="p-4 rounded-2xl bg-slate-950/90 border border-slate-800/80 space-y-2.5 text-xs">
+                    <div className="flex items-center gap-1.5 font-bold text-emerald-400">
+                      <Sparkles className="w-3.5 h-3.5" />
+                      <span>Verified GATE Derivation &amp; Solution:</span>
+                    </div>
+                    <p className="text-slate-300 leading-relaxed pl-5">
                       {q.explanation}
                     </p>
+                    <div className="pt-2 border-t border-slate-800/80 flex items-center justify-between flex-wrap gap-2">
+                      <span className="text-[11px] text-slate-400 font-mono">
+                        Topic Area: <strong className="text-slate-200">{q.subjectName}</strong>
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => router.push(`/study?subject=${q.subjectId}`)}
+                        className="px-3 py-1.5 rounded-xl bg-blue-950/80 hover:bg-blue-900 border border-blue-700/60 text-blue-300 font-bold text-xs flex items-center gap-1.5 transition cursor-pointer"
+                      >
+                        <BookOpen className="w-3.5 h-3.5" />
+                        <span>Revise Concept in Study Hub →</span>
+                      </button>
+                    </div>
                   </div>
                 </div>
               );
             })}
-
-            {filteredQuestions.length === 0 && (
-              <div className="p-8 text-center bg-slate-900 rounded-3xl border border-slate-800 text-slate-400 text-sm space-y-2">
-                <p>No questions match the current filter or search criteria.</p>
-                {(activeFilter !== 'all' || selectedSectionFilter !== 'all' || selectedLessonFilter !== 'all' || searchQuery) && (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setActiveFilter('all');
-                      setSelectedSectionFilter('all');
-                      setSelectedLessonFilter('all');
-                      setSearchQuery('');
-                    }}
-                    className="text-xs text-blue-400 hover:underline font-bold"
-                  >
-                    Clear All Filters
-                  </button>
-                )}
-              </div>
-            )}
           </div>
         </div>
-      </div>
+      </main>
     </div>
   );
 }
-
