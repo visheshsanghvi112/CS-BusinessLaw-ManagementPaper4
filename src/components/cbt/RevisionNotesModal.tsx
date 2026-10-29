@@ -30,6 +30,26 @@ const REVISION_TOPICS = [
     ]
   },
   {
+    id: 'probability',
+    title: 'Probability & Statistics',
+    formulas: [
+      { name: "Bayes' Theorem", formula: 'P(A|B) = [P(B|A) · P(A)] / P(B)', notes: 'Total probability: P(B) = ∑ P(B|Aᵢ) · P(Aᵢ). Crucial for disease testing and false positive rate calculations.' },
+      { name: 'Poisson Distribution', formula: 'P(X = k) = (λᵏ · e⁻λ) / k!', notes: 'Mean = λ, Variance = λ. Variance to mean ratio is always 1.' },
+      { name: 'Exponential Distribution (Memoryless)', formula: 'P(X > s + t | X > s) = P(X > t)', notes: 'PDF: f(x) = λ e^(-λx) for x ≥ 0. Mean = 1/λ, Variance = 1/λ².' },
+      { name: 'Binomial Distribution', formula: 'P(X = k) = C(n, k) · pᵏ · (1 - p)ⁿ⁻ᵏ', notes: 'Mean = n · p, Variance = n · p · (1 - p).' }
+    ]
+  },
+  {
+    id: 'digital-logic',
+    title: 'Digital Logic',
+    formulas: [
+      { name: 'De Morgan & Consensus Theorems', formula: 'Consensus: AB + A\'C + BC = AB + A\'C', notes: 'The term BC is redundant. In POS form: (A + B)(A\' + C)(B + C) = (A + B)(A\' + C).' },
+      { name: 'MUX Tree Requirement', formula: 'Number of 2:1 MUX to build 2ⁿ:1 MUX = 2ⁿ - 1', notes: 'To build 8:1 MUX using 2:1 MUX requires 4 + 2 + 1 = 7 MUX.' },
+      { name: 'Mod-N Counter Flip-Flop Bound', formula: '2^(k-1) < N ≤ 2^k', notes: 'A Mod-N counter requires k = ⌈log₂ N⌉ flip-flops. Number of unused states = 2^k - N.' },
+      { name: 'Setup & Hold Time Slack', formula: 'T_clk ≥ T_cq + T_comb + T_setup', notes: 'Clock period must accommodate propagation delay, combinational logic delay, and setup time. Hold time: T_cq + T_comb ≥ T_hold.' }
+    ]
+  },
+  {
     id: 'coa',
     title: 'Computer Organization & Architecture',
     formulas: [
@@ -37,6 +57,16 @@ const REVISION_TOPICS = [
       { name: 'Effective Memory Access Time (EMAT)', formula: 'EMAT = h · t_cache + (1 - h) · (t_cache + t_main)', notes: 'With TLB: EMAT = h_tlb · (t_tlb + t_mem) + (1 - h_tlb) · (t_tlb + 2 · t_mem).' },
       { name: 'Cache Tag & Index Bits', formula: 'Sets = Cache Size / (Associativity · Block Size)', notes: 'Index bits = log₂(Sets), Offset bits = log₂(Block Size), Tag bits = Physical Address Bits - Index - Offset.' },
       { name: 'IEEE 754 Single Precision', formula: '(-1)^s · (1.M) · 2^(E - 127)', notes: '1 sign bit, 8 exponent bits (bias 127, range 1 to 254), 23 fraction/mantissa bits.' }
+    ]
+  },
+  {
+    id: 'programming-ds',
+    title: 'Programming & Data Structures',
+    formulas: [
+      { name: 'Binary Tree Leaf vs Internal Nodes', formula: 'n₀ = n₂ + 1', notes: 'In any strictly binary tree, number of leaf nodes n₀ is exactly 1 more than number of internal nodes with 2 children n₂.' },
+      { name: 'Max Nodes in Binary Tree', formula: 'Max Nodes = 2^(h + 1) - 1 (height h ≥ 0)', notes: 'Min nodes of height h is h + 1. For a complete binary tree of n nodes, height h = ⌊log₂ n⌋.' },
+      { name: 'Binary Heap Array Indexing', formula: 'Parent(i) = ⌊(i - 1) / 2⌋, Left(i) = 2i + 1, Right(i) = 2i + 2', notes: 'Building a heap of n elements bottom-up takes linear O(n) time, not O(n log n).' },
+      { name: 'Hashing with Open Addressing', formula: 'Linear: (h(k) + i) mod m | Quadratic: (h(k) + c₁i + c₂i²) mod m', notes: 'Load factor α = n / m. Successful search in chaining takes 1 + α/2 probes on average.' }
     ]
   },
   {

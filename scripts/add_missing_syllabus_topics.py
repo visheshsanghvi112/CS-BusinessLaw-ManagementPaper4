@@ -166,3 +166,4 @@ with open('src/lib/gateStudyNotes.ts', 'w') as f:
     f.write(content)
 
 print("Updated src/lib/gateStudyNotes.ts successfully.")
+
